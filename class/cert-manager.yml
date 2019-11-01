@@ -29,3 +29,8 @@ parameters:
         helm_params:
           release_name: cert-manager
           namespace: ${cert-manager:namespace}
+      - output_path: cert-manager/02_issuers
+        input_type: jsonnet
+        output_type: yaml
+        input_paths:
+          - cert-manager/component/main.jsonnet
