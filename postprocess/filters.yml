@@ -1,0 +1,7 @@
+filters:
+  - path: cert-manager/01_helmchart/cert-manager/templates
+    type: builtin
+    filter: helm_namespace
+    filterargs:
+      namespace: ${cert-manager:namespace}
+
