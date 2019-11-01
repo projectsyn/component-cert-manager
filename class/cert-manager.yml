@@ -1,0 +1,31 @@
+parameters:
+  cert-manager:
+    namespace: cert-manager
+    chart_version: v0.11.0
+
+  kapitan:
+    dependencies:
+    - type: https
+      source: https://charts.jetstack.io/charts/cert-manager-${cert-manager:chart_version}.tgz
+      unpack: True
+      output_path: dependencies/cert-manager/helmcharts
+    - type: https
+      source: https://raw.githubusercontent.com/jetstack/cert-manager/${cert-manager:chart_version}/deploy/manifests/00-crds.yaml
+      output_path: dependencies/cert-manager/manifests/00-crds.yaml
+
+    compile:
+      - output_path: cert-manager/00_manifests
+        input_type: jinja2
+        input_paths:
+          - cert-manager/manifests
+      - output_path: cert-manager/01_helmchart
+        input_type: helm
+        input_paths:
+          - cert-manager/helmcharts/cert-manager
+        helm_values:
+          prometheus:
+            servicemonitor:
+              enabled: true
+        helm_params:
+          release_name: cert-manager
+          namespace: ${cert-manager:namespace}
