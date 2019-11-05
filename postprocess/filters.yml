@@ -3,5 +3,6 @@ filters:
     type: builtin
     filter: helm_namespace
     filterargs:
-      namespace: ${cert-manager:namespace}
+      namespace: ${cert_manager:namespace}
+      create_namespace: "true"
 

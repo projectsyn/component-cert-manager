@@ -2,7 +2,7 @@ local kap = import 'lib/kapitan.libjsonnet';
 local kube = import 'lib/kube.libjsonnet';
 local inv = kap.inventory();
 
-local letsencrypt_email = inv.parameters.certmanager.letsencrypt_email;
+local letsencrypt_email = inv.parameters.cert_manager.letsencrypt_email;
 
 local letsencrypt_staging = {
   apiVersion: "cert-manager.io/v1alpha2",
