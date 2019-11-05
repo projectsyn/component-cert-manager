@@ -25,6 +25,9 @@ parameters:
         input_paths:
           - cert-manager/helmcharts/cert-manager
         helm_values:
+          global:
+            leaderElection:
+              namespace: ${cert_manager:namespace}
           prometheus:
             servicemonitor:
               enabled: true
