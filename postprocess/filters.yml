@@ -10,3 +10,6 @@ filters:
     filter: helm_namespace
     filterargs:
       namespace: ${cert_manager:namespace}
+  - output_path: cert-manager/01_helmchart/cert-manager/templates/
+    type: jsonnet
+    filter: patch_webhook_authentication_reader_rolebinding.jsonnet
