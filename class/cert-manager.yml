@@ -1,16 +1,16 @@
 parameters:
-  cert-manager:
+  cert_manager:
     namespace: cert-manager
     chart_version: v0.11.0
 
   kapitan:
     dependencies:
     - type: https
-      source: https://charts.jetstack.io/charts/cert-manager-${cert-manager:chart_version}.tgz
+      source: https://charts.jetstack.io/charts/cert-manager-${cert_manager:chart_version}.tgz
       unpack: True
       output_path: dependencies/cert-manager/helmcharts
     - type: https
-      source: https://raw.githubusercontent.com/jetstack/cert-manager/${cert-manager:chart_version}/deploy/manifests/00-crds.yaml
+      source: https://raw.githubusercontent.com/jetstack/cert-manager/${cert_manager:chart_version}/deploy/manifests/00-crds.yaml
       output_path: dependencies/cert-manager/manifests/00-crds.yaml
 
     compile:
@@ -28,7 +28,7 @@ parameters:
               enabled: true
         helm_params:
           release_name: cert-manager
-          namespace: ${cert-manager:namespace}
+          namespace: ${cert_manager:namespace}
       - output_path: cert-manager/02_issuers
         input_type: jsonnet
         output_type: yaml
