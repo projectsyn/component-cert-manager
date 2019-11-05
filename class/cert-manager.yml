@@ -3,6 +3,7 @@ parameters:
     namespace: cert-manager
     charts:
       cert-manager: v0.11.0
+    letsencrypt_email: REPLACEME
 
   kapitan:
     dependencies:
