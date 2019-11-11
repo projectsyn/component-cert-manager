@@ -1,6 +1,6 @@
 parameters:
   cert_manager:
-    namespace: cert-manager
+    namespace: syn-cert-manager
     charts:
       cert-manager: v0.11.0
     letsencrypt_email: REPLACEME
