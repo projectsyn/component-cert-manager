@@ -10,26 +10,30 @@ parameters:
       output_path: dependencies/cert-manager/manifests/00-crds.yaml
 
     compile:
-      - output_path: cert-manager/00_manifests
-        input_type: jinja2
-        input_paths:
-          - cert-manager/manifests
-      - output_path: cert-manager/01_helmchart
-        input_type: helm
-        input_paths:
-          - cert-manager/helmcharts/cert-manager
-        helm_values:
-          global:
-            leaderElection:
-              namespace: ${cert_manager:namespace}
-          prometheus:
-            servicemonitor:
-              enabled: true
-        helm_params:
-          release_name: cert-manager
-          namespace: ${cert_manager:namespace}
-      - output_path: cert-manager/02_issuers
-        input_type: jsonnet
-        output_type: yaml
-        input_paths:
-          - cert-manager/component/main.jsonnet
+    - input_paths:
+        - cert-manager/component/app.jsonnet
+      input_type: jsonnet
+      output_path: apps/
+    - output_path: cert-manager/00_manifests
+      input_type: jinja2
+      input_paths:
+        - cert-manager/manifests
+    - output_path: cert-manager/01_helmchart
+      input_type: helm
+      input_paths:
+        - cert-manager/helmcharts/cert-manager
+      helm_values:
+        global:
+          leaderElection:
+            namespace: ${cert_manager:namespace}
+        prometheus:
+          servicemonitor:
+            enabled: true
+      helm_params:
+        release_name: cert-manager
+        namespace: ${cert_manager:namespace}
+    - output_path: cert-manager/02_issuers
+      input_type: jsonnet
+      output_type: yaml
+      input_paths:
+        - cert-manager/component/main.jsonnet
