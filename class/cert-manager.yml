@@ -23,6 +23,8 @@ parameters:
         prometheus:
           servicemonitor:
             enabled: true
+        extraArgs:
+          - --dns01-recursive-nameservers="${cert_manager:dns01-recursive-nameservers}"
       helm_params:
         release_name: cert-manager
         namespace: ${cert_manager:namespace}
