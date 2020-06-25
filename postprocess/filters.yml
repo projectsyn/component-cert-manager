@@ -5,11 +5,3 @@ filters:
     filterargs:
       namespace: ${cert_manager:namespace}
       create_namespace: "true"
-      exclude_objects:
-        - kind: RoleBinding
-          name: cert-manager-webhook:webhook-authentication-reader
-  - path: cert-manager/01_helmchart/cert-manager/charts/cainjector/templates
-    type: builtin
-    filter: helm_namespace
-    filterargs:
-      namespace: ${cert_manager:namespace}
