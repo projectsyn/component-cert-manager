@@ -1,5 +1,6 @@
 parameters:
   cert_manager:
     namespace: syn-cert-manager
+    dns01-recursive-nameservers: "1.1.1.1:53"
     charts:
-      cert-manager: v0.11.0
+      cert-manager: v0.15.1

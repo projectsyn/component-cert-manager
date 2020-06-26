@@ -5,19 +5,12 @@ parameters:
       source: https://charts.jetstack.io/charts/cert-manager-${cert_manager:charts:cert-manager}.tgz
       unpack: True
       output_path: dependencies/cert-manager/helmcharts
-    - type: https
-      source: https://raw.githubusercontent.com/jetstack/cert-manager/${cert_manager:charts:cert-manager}/deploy/manifests/00-crds.yaml
-      output_path: dependencies/cert-manager/manifests/00-crds.yaml
 
     compile:
     - input_paths:
         - cert-manager/component/app.jsonnet
       input_type: jsonnet
       output_path: apps/
-    - output_path: cert-manager/00_manifests
-      input_type: jinja2
-      input_paths:
-        - cert-manager/manifests
     - output_path: cert-manager/01_helmchart
       input_type: helm
       input_paths:
@@ -26,9 +19,12 @@ parameters:
         global:
           leaderElection:
             namespace: ${cert_manager:namespace}
+        installCRDs: true
         prometheus:
           servicemonitor:
             enabled: true
+        extraArgs:
+          - --dns01-recursive-nameservers="${cert_manager:dns01-recursive-nameservers}"
       helm_params:
         release_name: cert-manager
         namespace: ${cert_manager:namespace}
