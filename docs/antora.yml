@@ -1,0 +1,6 @@
+name: cert-manager
+title: cert-manager
+version: master
+start_page: ROOT:index.adoc
+nav:
+  - modules/ROOT/partials/nav.adoc
