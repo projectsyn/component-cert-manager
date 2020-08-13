@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Open source component ([#1])
+- Use native Helm dependency type ([#2])
 
 [Unreleased]: https://github.com/projectsyn/component-cert-manager/compare/4544981...HEAD
+
 [#1]: https://github.com/projectsyn/component-cert-manager/pull/1
+[#2]: https://github.com/projectsyn/component-cert-manager/pull/2
