@@ -1,10 +1,11 @@
 parameters:
   kapitan:
     dependencies:
-      - type: https
-        source: https://charts.jetstack.io/charts/cert-manager-${cert_manager:charts:cert-manager}.tgz
-        unpack: True
-        output_path: dependencies/cert-manager/helmcharts
+      - type: helm
+        source: https://charts.jetstack.io
+        chart_name: cert-manager
+        version: ${cert_manager:charts:cert-manager}
+        output_path: dependencies/cert-manager/helmcharts/cert-manager
 
     compile:
       - input_paths:
