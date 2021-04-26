@@ -1,0 +1,52 @@
+= Parameters
+
+The parent key for all of the following parameters is `cert_manager`.
+
+== `namespace`
+
+[horizontal]
+type:: string
+default:: `syn-cert-manager`
+
+The namespace in which to install cert-manager.
+
+== `charts:cert-manager`
+
+[horizontal]
+type:: string
+default:: `v0.15.1`
+
+The version of the chart to use.
+
+== `dns01-recursive-nameservers`
+
+[horizontal]
+type:: string
+default:: `1.1.1.1:53`
+
+tbd
+
+== `http_proxy`
+
+[horizontal]
+type:: string
+default:: ``
+
+HTTP_PROXY configuration that cert-manager should use.
+
+
+== `https_proxy`
+
+[horizontal]
+type:: string
+default:: ``
+
+HTTPS_PROXY configuration that cert-manager should use.
+
+== `no_proxy`
+
+[horizontal]
+type:: string
+default:: ``
+
+NO_PROXY configuration that cert-manager should use.
