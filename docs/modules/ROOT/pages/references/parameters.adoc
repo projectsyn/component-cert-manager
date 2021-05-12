@@ -1,0 +1,53 @@
+= Parameters
+
+The parent key for all of the following parameters is `cert_manager`.
+
+== `namespace`
+
+[horizontal]
+type:: string
+default:: `syn-cert-manager`
+
+The namespace in which to install cert-manager.
+
+== `charts:cert-manager`
+
+[horizontal]
+type:: string
+default:: `v0.15.1`
+
+The version of the Helm chart to use.
+
+== `dns01-recursive-nameservers`
+
+[horizontal]
+type:: string
+default:: `1.1.1.1:53`
+
+Recursive nameservers to use for validating DNS01 challenges.
+See the https://cert-manager.io/docs/configuration/acme/dns01/#setting-nameservers-for-dns01-self-check[cert-manager documentation] for more details.
+
+== `http_proxy`
+
+[horizontal]
+type:: string
+default:: ``
+
+The value of `http_proxy` is passed to cert-manager in environment variable `HTTP_PROXY`.
+
+
+== `https_proxy`
+
+[horizontal]
+type:: string
+default:: ``
+
+The value of `https_proxy` is passed to cert-manager in environment variable `HTTPS_PROXY`.
+
+== `no_proxy`
+
+[horizontal]
+type:: string
+default:: ``
+
+The value of `no_proxy` is passed to cert-manager in environment variable `NO_PROXY`.
