@@ -50,4 +50,4 @@ The value of `https_proxy` is passed to cert-manager in environment variable `HT
 type:: string
 default:: ``
 
-NO_PROXY configuration that cert-manager should use.
+The value of `no_proxy` is passed to cert-manager in environment variable `NO_PROXY`.
