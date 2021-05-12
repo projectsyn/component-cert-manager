@@ -21,9 +21,9 @@ parameters:
             leaderElection:
               namespace: ${cert_manager:namespace}
           extraEnv:
-            - HTTP_PROXY: ${cert_manager.http_proxy}
-            - HTTS_PROXY: ${cert_manager.https_proxy}
-            - NO_PROXY: ${cert_manager.no_proxy}
+            - HTTP_PROXY: ${cert_manager:http_proxy}
+            - HTTS_PROXY: ${cert_manager:https_proxy}
+            - NO_PROXY: ${cert_manager:no_proxy}
           installCRDs: true
           prometheus:
             servicemonitor:
