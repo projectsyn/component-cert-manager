@@ -24,7 +24,8 @@ The version of the Helm chart to use.
 type:: string
 default:: `1.1.1.1:53`
 
-tbd
+Recursive nameservers to use for validating DNS01 challenges.
+See the https://cert-manager.io/docs/configuration/acme/dns01/#setting-nameservers-for-dns01-self-check[cert-manager documentation] for more details.
 
 == `http_proxy`
 
