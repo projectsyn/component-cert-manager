@@ -32,7 +32,7 @@ tbd
 type:: string
 default:: ``
 
-HTTP_PROXY configuration that cert-manager should use.
+The value of `http_proxy` is passed to cert-manager in environment variable `HTTP_PROXY`.
 
 
 == `https_proxy`
