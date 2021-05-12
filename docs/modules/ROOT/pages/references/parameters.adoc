@@ -16,7 +16,7 @@ The namespace in which to install cert-manager.
 type:: string
 default:: `v0.15.1`
 
-The version of the chart to use.
+The version of the Helm chart to use.
 
 == `dns01-recursive-nameservers`
 
