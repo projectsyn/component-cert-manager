@@ -7,3 +7,8 @@ parameters:
     http_proxy: ""
     https_proxy: ""
     no_proxy: ""
+    solvers:
+      nginx_http01:
+        http01:
+          ingress:
+            class: 'nginx'
