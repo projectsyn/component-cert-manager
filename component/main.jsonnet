@@ -1,6 +1,7 @@
 local kap = import 'lib/kapitan.libjsonnet';
 local kube = import 'lib/kube.libjsonnet';
 local inv = kap.inventory();
+local params = inv.parameters.cert_manager;
 
 local letsencrypt_email = inv.parameters.cert_manager.letsencrypt_email;
 
