@@ -18,13 +18,8 @@ local letsencrypt_staging = {
         name: 'letsencrypt-staging',
       },
       solvers: [
-        {
-          http01: {
-            ingress: {
-              class: 'nginx',
-            },
-          },
-        },
+        params.solvers[s]
+        for s in std.objectFields(params.solvers)
       ],
     },
   },

@@ -18,6 +18,14 @@ default:: `v0.15.1`
 
 The version of the Helm chart to use.
 
+== `letsencrypt_email`
+
+[horizontal]
+type:: string
+default:: ``
+
+The email address Let's Encrypt will use to contact you.
+
 == `dns01-recursive-nameservers`
 
 [horizontal]
@@ -51,3 +59,27 @@ type:: string
 default:: ``
 
 The value of `no_proxy` is passed to cert-manager in environment variable `NO_PROXY`.
+
+== `solvers`
+
+[horizontal]
+type:: dictionary
+default:: see `defaults.yml`
+
+A dictionary holding the solvers for the default cluster issuers.
+
+See https://cert-manager.io/docs/configuration/acme/#configuration for configurable parameters.
+
+== Example
+
+[source,yaml]
+----
+solvers:
+  nginx_http01:
+    http01:
+      ingress:
+        podTemplate:
+          metadata:
+            labels:
+              app: "solver"
+----
