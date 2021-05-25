@@ -1,2 +1,7 @@
 * xref:index.adoc[Home]
+
+.How-tos
+* xref:how-tos/http01-ocp.adoc[Use HTTP01 solver on OpenShift]
+
+.Technical reference
 * xref:references/parameters.adoc[Parameters]
