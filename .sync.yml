@@ -1,0 +1,8 @@
+:global:
+  componentName: cert-manager
+  githubUrl: https://github.com/projectsyn/component-cert-manager
+  feature_goUnitTests: false
+
+docs/antora.yml:
+  name: cert-manager
+  title: cert-manager
