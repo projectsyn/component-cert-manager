@@ -5,7 +5,7 @@ parameters:
         source: https://charts.jetstack.io
         chart_name: cert-manager
         version: ${cert_manager:charts:cert-manager}
-        output_path: dependencies/cert-manager/helmcharts/cert-manager
+        output_path: dependencies/cert-manager/helmcharts/cert-manager/${cert_manager:charts:cert-manager}/
 
     compile:
       - input_paths:
@@ -15,7 +15,7 @@ parameters:
       - output_path: cert-manager/01_helmchart
         input_type: helm
         input_paths:
-          - cert-manager/helmcharts/cert-manager
+          - cert-manager/helmcharts/cert-manager/${cert_manager:charts:cert-manager}/
         helm_values:
           global:
             leaderElection:
