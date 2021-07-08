@@ -1,12 +1,3 @@
 parameters:
-  kapitan:
-    dependencies:
-      - type: helm
-        source: https://charts.jetstack.io
-        chart_name: cert-manager
-        version: ${cert_manager:charts:cert-manager}
-        # This is the required overrride
-        output_path: /cert-manager/helmcharts/cert-manager
-
   cert_manager:
     letsencrypt_email: test@syn.tools
