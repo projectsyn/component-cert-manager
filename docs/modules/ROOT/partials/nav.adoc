@@ -2,6 +2,7 @@
 
 .How-tos
 * xref:how-tos/http01-ocp.adoc[Use HTTP01 solver on OpenShift]
+* xref:how-tos/upgrade-v1-v2.adoc[Upgrade from `v1.x` to `v2.x`]
 
 .Technical reference
 * xref:references/parameters.adoc[Parameters]

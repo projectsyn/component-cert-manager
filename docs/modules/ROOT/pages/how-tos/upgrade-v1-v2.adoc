@@ -1,0 +1,91 @@
+= Upgrade `component-cert-manager` from `v1.x` to `v2.x`
+
+Version 2.x upgrades the underlying `cert-manager` Helm chart from `v0.x` to `v1.x`.
+There are some breaking changes in `cert-manager`.
+More information can be found https://github.com/jetstack/cert-manager/releases[in changelog on GitHub] and in the https://cert-manager.io/docs/installation/upgrading/[upgrade documentation].
+
+The upgrade is done with the following steps:
+
+. Compile Commodore catalog with `component-cert-manager` v2.x
+. Fix CRD upgrade
+. Verify cert-manager upgrade
+
+== Prerequisites
+
+. `commodore`
+. `kubectl` or `oc`
+. https://github.com/mikefarah/yq[`yq`] version 4 (alternatively, any editor works)
+
+== Upgrade
+
+. Compile and push cluster catalog with `component-cert-manager` v2.x
+
+. Fix CRD upgrade
++
+[source,bash]
+----
+cat <<'EOF' > cert-manager-prepare-merge-crds.sh
+#!/bin/sh
+
+set -euo pipefail
+
+for crd in certificaterequests.cert-manager.io certificates.cert-manager.io challenges.acme.cert-manager.io clusterissuers.cert-manager.io issuers.cert-manager.io orders.acme.cert-manager.io; do
+  # Get CRD definition in YAML
+  kubectl get crd "${crd}" -o yaml > "${crd}.yaml"
+  # Remove all metadata properties except `metadata.name`
+  yq -i eval 'del(.status) | del(.metadata) | .metadata.name += "'${crd}'"' "${crd}.yaml"
+  # Apply the CRD again (this shouldn't change anything, except updating the annotation "kubectl.kubernetes.io/last-applied-configuration")
+  # You will also see some warnings in the output mentioning the annotation.
+  # This is expected and actually required.
+  kubectl apply -f "${crd}.yaml"
+done
+EOF
+
+sh cert-manager-prepare-merge-crds.sh
+----
+
+== Verify cert-manager and certificates
+
+. Verify successful sync and health status in ArgoCD
++
+[NOTE]
+====
+If ArgoCD sync is marked as failed it may be required to trigger another sync.
+====
++
+[IMPORTANT]
+====
+Under no circumstances should you trigger a force sync in ArgoCD.
+This causes ArgoCD to remove and recreate the CRDs, in which case all attached resources get deleted.
+====
+. Check for obvious deployment errors
++
+[source,bash]
+----
+kubectl -n syn-cert-manager get pods
+kubectl -n syn-cert-manager logs -l "app.kubernetes.io/name=cert-manager"
+----
+
+. Optional: Create testing ingress with cert-manager managed certificate.
++
+[NOTE]
+====
+The cluster must be publicly reachable and have a valid DNS entry pointing to the ingress controller.
+If you like to test the renewal on an existing ingress, be sure to backup the TLS Secret first.
+====
++
+[source,bash]
+----
+# Create an ingress with a certificate
+CLUSTER_ISSUER=letsencrypt-staging
+INGRESS_HOST=<your-DNS-entry>
+kubectl create ingress cm-test --class=default \
+  --rule="${INGRESS_HOST}/=svc:https,tls=cm-test-ingress-cert" \
+  --annotation="cert-manager.io/cluster-issuer=${CLUSTER_ISSUER}"
+
+# Wait for the certificate to become ready
+kubectl get certificate cm-test-ingress-cert --watch
+
+# Delete the newly created ingress
+kubectl delete ingress cm-test
+----
