@@ -4,54 +4,11 @@ Version 2.x upgrades the underlying `cert-manager` Helm chart from `v0.x` to `v1
 There are some breaking changes in `cert-manager`.
 More information can be found https://github.com/jetstack/cert-manager/releases[in changelog on GitHub] and in the https://cert-manager.io/docs/installation/upgrading/[upgrade documentation].
 
-The upgrade is done with the following steps:
-
-. Compile Commodore catalog with `component-cert-manager` v2.x
-. Fix CRD upgrade
-. Verify cert-manager upgrade
-
-== Prerequisites
-
-. `commodore`
-. `kubectl` or `oc`
-. https://github.com/mikefarah/yq[`yq`] version 4 (alternatively, any editor works)
-
-== Upgrade
-
-. Compile and push cluster catalog with `component-cert-manager` v2.x
-
-. Fix CRD upgrade
-+
-[source,bash]
-----
-cat <<'EOF' > cert-manager-prepare-merge-crds.sh
-#!/bin/sh
-
-set -euo pipefail
-
-for crd in certificaterequests.cert-manager.io certificates.cert-manager.io challenges.acme.cert-manager.io clusterissuers.cert-manager.io issuers.cert-manager.io orders.acme.cert-manager.io; do
-  # Get CRD definition in YAML
-  kubectl get crd "${crd}" -o yaml > "${crd}.yaml"
-  # Remove all metadata properties except `metadata.name`
-  yq -i eval 'del(.status) | del(.metadata) | .metadata.name += "'${crd}'"' "${crd}.yaml"
-  # Apply the CRD again (this shouldn't change anything, except updating the annotation "kubectl.kubernetes.io/last-applied-configuration")
-  # You will also see some warnings in the output mentioning the annotation.
-  # This is expected and actually required.
-  kubectl apply -f "${crd}.yaml"
-done
-EOF
-
-sh cert-manager-prepare-merge-crds.sh
-----
+This upgrade should require no manual steps, but it's recommended to verify the upgrade.
 
 == Verify cert-manager and certificates
 
 . Verify successful sync and health status in ArgoCD
-+
-[NOTE]
-====
-If ArgoCD sync is marked as failed it may be required to trigger another sync.
-====
 +
 [IMPORTANT]
 ====

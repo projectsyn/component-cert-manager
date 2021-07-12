@@ -12,3 +12,8 @@ parameters:
         http01:
           ingress:
             class: 'nginx'
+    images:
+      kubectl:
+        registry: quay.io
+        image: bitnami/kubectl
+        tag: '1.21.2@sha256:a6c97fa2af65cf390447d96e7d0ca04f2d8c5035a50e62e1bc6b9eac28c3f576'

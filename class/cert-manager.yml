@@ -41,3 +41,8 @@ parameters:
         output_type: yaml
         input_paths:
           - cert-manager/component/main.jsonnet
+      - output_path: cert-manager/03_upgrade
+        input_type: jsonnet
+        output_type: yaml
+        input_paths:
+          - cert-manager/component/upgrade.jsonnet
