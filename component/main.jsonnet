@@ -18,10 +18,10 @@ local letsencrypt_staging = {
       privateKeySecretRef: {
         name: 'letsencrypt-staging',
       },
-      solvers: [
+      solvers: std.prune([
         params.solvers[s]
         for s in std.objectFields(params.solvers)
-      ],
+      ]),
     },
   },
 };
