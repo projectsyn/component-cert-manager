@@ -63,6 +63,7 @@ local job = kube.Job(name) {
             args: [ '-eu', '-c', upgradeScript ],
             env: [
               { name: 'CRDS_TO_PATCH', value: std.join(' ', crds) },
+              { name: 'HOME', value: '/export' },
             ],
             volumeMounts: [
               { name: 'export', mountPath: '/export' },
