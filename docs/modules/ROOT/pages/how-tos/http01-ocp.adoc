@@ -12,6 +12,7 @@ In order to make provision Let's Encrypt certificates with the HTTP01 solver on 
 parameters:
   cert_manager:
     solvers:
+      nginx_http01: null <1>
       haproxy_http01:
         http01:
           ingress:
@@ -20,3 +21,4 @@ parameters:
                 annotations:
                   "route.openshift.io/termination": "edge"
 ----
+<1> Make sure the default ingress class isn't set to `nginx`.
