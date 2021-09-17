@@ -70,6 +70,19 @@ A dictionary holding the solvers for the default cluster issuers.
 
 See https://cert-manager.io/docs/configuration/acme/#configuration for configurable parameters.
 
+== `secrets`
+
+[horizontal]
+type:: dictionary
+default:: `{}`
+
+A dictionary holding secrets for DNS01 solvers.
+Each key in the dictionary is used as the name of a secret.
+The value of the key is merged directly into an empty Kubernetes `Secret` resource.
+By default, secrets are created in the namespace in which cert-manager is deployed.
+
+See the https://cert-manager.io/docs/configuration/acme/dns01/[cert-manager documentation] for DNS01 solvers which are supported by cert-manager.
+
 == Example
 
 [source,yaml]
@@ -82,4 +95,15 @@ solvers:
           metadata:
             labels:
               app: "solver"
+  dns01:
+    acmeDNS:
+      accountSecretRef:
+        name: acmedns
+          key: acmedns.json
+        host: auth.example.com
+
+secrets:
+  acmedns:
+    stringData:
+      acmedns.json: ?{vaultkv:${cluster:tenant}/${cluster:name}/acmedns}
 ----
