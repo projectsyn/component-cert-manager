@@ -1,3 +1,4 @@
+local com = import 'lib/commodore.libjsonnet';
 local kap = import 'lib/kapitan.libjsonnet';
 local kube = import 'lib/kube.libjsonnet';
 local inv = kap.inventory();
@@ -40,9 +41,20 @@ local letsencrypt_production = letsencrypt_staging {
   },
 };
 
+local secrets = [
+  kube.Secret(s) {
+    metadata+: {
+      namespace: params.namespace,
+    },
+  } + com.makeMergeable(params.secrets[s])
+  for s in std.objectFields(params.secrets)
+];
+
 {
   '00_clusterissuer': [
     letsencrypt_staging,
     letsencrypt_production,
   ],
+  [if std.length(secrets) > 0 then '10_solver_secrets']:
+    secrets,
 }

@@ -12,6 +12,7 @@ parameters:
         http01:
           ingress:
             class: 'nginx'
+    secrets: {}
     images:
       kubectl:
         registry: quay.io
