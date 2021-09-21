@@ -50,6 +50,8 @@ local secrets = [
   for s in std.objectFields(params.secrets)
 ];
 
+local acmedns = import 'acme-dns.libsonnet';
+
 {
   '00_clusterissuer': [
     letsencrypt_staging,
@@ -57,4 +59,6 @@ local secrets = [
   ],
   [if std.length(secrets) > 0 then '10_solver_secrets']:
     secrets,
+  [if std.objectHas(acmedns, 'manifests') then '20_acme_dns']:
+    acmedns.manifests,
 }
