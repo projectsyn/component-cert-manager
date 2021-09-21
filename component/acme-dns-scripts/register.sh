@@ -4,6 +4,9 @@ set -e
 
 readonly force_register="${1}"
 
+readonly orig_secret=$(kubectl -n "${NAMESPACE}"\
+  get secret "${CLIENT_SECRET_NAME}" -ojson)
+
 if ! [ -f /etc/scripts/acmedns.json ] \
   || [ -n "${force_register}" ]; then
 
@@ -16,18 +19,12 @@ if ! [ -f /etc/scripts/acmedns.json ] \
   #   "example.org": { registration output }
   # }
   client_secret=$(jq -n \
+    --argjson origsecret "${orig_secret}" \
     --argjson reg "${reg}" \
     --argjson domains "${ACME_DNS_DOMAINS}" \
     --arg client_secret_name "${CLIENT_SECRET_NAME}" \
     --arg namespace "${NAMESPACE}" \
-    '{
-      "apiVersion": "v1",
-      "kind": "Secret",
-      "type": "Opaque",
-      "metadata": {
-        "name": $client_secret_name,
-        "namespace": $namespace,
-      },
+    '$orig_secret + {
       "stringData": {
         "acmedns.json": (reduce $domains[] as $d ({}; . + { ($d): $reg })) | tojson
       }
