@@ -4,8 +4,8 @@ set -e
 
 readonly force_register="${1}"
 
-readonly orig_secret=$(kubectl -n "${NAMESPACE}"\
-  get secret "${CLIENT_SECRET_NAME}" -ojson)
+readonly orig_secret="$(kubectl -n "${NAMESPACE}" \
+  get secret "${CLIENT_SECRET_NAME}" -ojson)"
 
 if ! [ -f /etc/scripts/acmedns.json ] \
   || [ -n "${force_register}" ]; then
@@ -19,18 +19,20 @@ if ! [ -f /etc/scripts/acmedns.json ] \
   #   "example.org": { registration output }
   # }
   client_secret=$(jq -n \
-    --argjson origsecret "${orig_secret}" \
+    --argjson orig_secret "${orig_secret}" \
     --argjson reg "${reg}" \
     --argjson domains "${ACME_DNS_DOMAINS}" \
     --arg client_secret_name "${CLIENT_SECRET_NAME}" \
     --arg namespace "${NAMESPACE}" \
-    '$orig_secret + {
+    '($orig_secret
+      |del(.metadata.annotations."kubectl.kubernetes.io/last-applied-configuration")
+     ) + {
       "stringData": {
         "acmedns.json": (reduce $domains[] as $d ({}; . + { ($d): $reg })) | tojson
       }
     }')
 
-  echo "${client_secret}" >"${HOME}/secret.yaml"
+  echo "${client_secret}" >"${HOME}/secret.json"
   # Use kubectl apply as the empty secret is created by ArgoCD
-  kubectl apply -f "${HOME}/secret.yaml"
+  kubectl apply -f "${HOME}/secret.json"
 fi

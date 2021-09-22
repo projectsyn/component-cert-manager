@@ -56,20 +56,21 @@ data:
     \ reregister=\"yes\"\nfi\n\nif [ -n \"${reregister}\" ]; then\n  \"${SCRIPTS_PATH}/register.sh\"\
     \ force\nfi\n"
   register.sh: "#!/bin/sh\n\nset -e\n\nreadonly force_register=\"${1}\"\n\nreadonly\
-    \ orig_secret=$(kubectl -n \"${NAMESPACE}\"\\\n  get secret \"${CLIENT_SECRET_NAME}\"\
-    \ -ojson)\n\nif ! [ -f /etc/scripts/acmedns.json ] \\\n  || [ -n \"${force_register}\"\
+    \ orig_secret=\"$(kubectl -n \"${NAMESPACE}\" \\\n  get secret \"${CLIENT_SECRET_NAME}\"\
+    \ -ojson)\"\n\nif ! [ -f /etc/scripts/acmedns.json ] \\\n  || [ -n \"${force_register}\"\
     \ ]; then\n\n  reg=$(curl -XPOST -u \"${REG_USERNAME}:${REG_PASSWORD}\" \\\n \
     \   \"${ACME_DNS_API}/register\")\n  # Create acme-dns-client secret for provided\
     \ domain names.\n  # Required format for acmedns.json in `stringData`:\n  # {\n\
     \  #   \"example.com\": { registration output },\n  #   \"example.org\": { registration\
-    \ output }\n  # }\n  client_secret=$(jq -n \\\n    --argjson origsecret \"${orig_secret}\"\
+    \ output }\n  # }\n  client_secret=$(jq -n \\\n    --argjson orig_secret \"${orig_secret}\"\
     \ \\\n    --argjson reg \"${reg}\" \\\n    --argjson domains \"${ACME_DNS_DOMAINS}\"\
     \ \\\n    --arg client_secret_name \"${CLIENT_SECRET_NAME}\" \\\n    --arg namespace\
-    \ \"${NAMESPACE}\" \\\n    '$orig_secret + {\n      \"stringData\": {\n      \
-    \  \"acmedns.json\": (reduce $domains[] as $d ({}; . + { ($d): $reg })) | tojson\n\
-    \      }\n    }')\n\n  echo \"${client_secret}\" >\"${HOME}/secret.yaml\"\n  #\
-    \ Use kubectl apply as the empty secret is created by ArgoCD\n  kubectl apply\
-    \ -f \"${HOME}/secret.yaml\"\nfi\n"
+    \ \"${NAMESPACE}\" \\\n    '($orig_secret\n      |del(.metadata.annotations.\"\
+    kubectl.kubernetes.io/last-applied-configuration\")\n     ) + {\n      \"stringData\"\
+    : {\n        \"acmedns.json\": (reduce $domains[] as $d ({}; . + { ($d): $reg\
+    \ })) | tojson\n      }\n    }')\n\n  echo \"${client_secret}\" >\"${HOME}/secret.json\"\
+    \n  # Use kubectl apply as the empty secret is created by ArgoCD\n  kubectl apply\
+    \ -f \"${HOME}/secret.json\"\nfi\n"
 kind: ConfigMap
 metadata:
   annotations: {}
