@@ -7,11 +7,15 @@ readonly force_register="${1}"
 readonly orig_secret="$(kubectl -n "${NAMESPACE}" \
   get secret "${CLIENT_SECRET_NAME}" -ojson)"
 
+reg_auth_args=
+if [ -n "${REG_USERNAME}" ]; then
+  reg_auth_args="-u\"${REG_USERNAME}:${REG_PASSWORD}\""
+fi
+
 if ! [ -f /etc/scripts/acmedns.json ] \
   || [ -n "${force_register}" ]; then
 
-  reg=$(curl -XPOST -u "${REG_USERNAME}:${REG_PASSWORD}" \
-    "${ACME_DNS_API}/register")
+  reg=$(curl -XPOST "${reg_auth_args}" "${ACME_DNS_API}/register")
   # Create acme-dns-client secret for provided domain names.
   # Required format for acmedns.json in `stringData`:
   # {

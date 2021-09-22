@@ -57,9 +57,10 @@ data:
     \ force\nfi\n"
   register.sh: "#!/bin/sh\n\nset -e\n\nreadonly force_register=\"${1}\"\n\nreadonly\
     \ orig_secret=\"$(kubectl -n \"${NAMESPACE}\" \\\n  get secret \"${CLIENT_SECRET_NAME}\"\
-    \ -ojson)\"\n\nif ! [ -f /etc/scripts/acmedns.json ] \\\n  || [ -n \"${force_register}\"\
-    \ ]; then\n\n  reg=$(curl -XPOST -u \"${REG_USERNAME}:${REG_PASSWORD}\" \\\n \
-    \   \"${ACME_DNS_API}/register\")\n  # Create acme-dns-client secret for provided\
+    \ -ojson)\"\n\nreg_auth_args=\nif [ -n \"${REG_USERNAME}\" ]; then\n  reg_auth_args=\"\
+    -u\\\"${REG_USERNAME}:${REG_PASSWORD}\\\"\"\nfi\n\nif ! [ -f /etc/scripts/acmedns.json\
+    \ ] \\\n  || [ -n \"${force_register}\" ]; then\n\n  reg=$(curl -XPOST \"${reg_auth_args}\"\
+    \ \"${ACME_DNS_API}/register\")\n  # Create acme-dns-client secret for provided\
     \ domain names.\n  # Required format for acmedns.json in `stringData`:\n  # {\n\
     \  #   \"example.com\": { registration output },\n  #   \"example.org\": { registration\
     \ output }\n  # }\n  client_secret=$(jq -n \\\n    --argjson orig_secret \"${orig_secret}\"\
