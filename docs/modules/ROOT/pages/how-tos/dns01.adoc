@@ -1,0 +1,82 @@
+= Using DNS01 challenges
+
+Usually DNS01 challenges are required for the following scenarios:
+* Issuing Let's Encrypt wildcard certificates
+* Issuing certificates for services which have a public DNS name, but aren't reachable on the internet
+
+This how-to shows you how to configure the `letsencrypt-staging` and `letsencrypt-production` cluster issuers managed by the component for DNS01 challenges.
+
+This how-to assumes that you have access to an acme-dns instance.
+You can manage your own acme-dns instance with component xref:acme-dns:ROOT:index.adoc[acme-dns].
+
+= Prerequisites
+
+* Access to an acme-dns instance
+* A domain for which you can create `CNAME` records
+* You can compile cluster catalogs locally
+
+== Setup
+
+. Configure the component to register itself on an acme-dns instance.
+Add the following configuration to your cluster or global configuration.
++
+[source,yaml]
+----
+parameters:
+  cert_manager:
+    acme_dns_api:
+      endpoint: https://acme-dns-api.example.com <1>
+      username: acme-dns <2>
+      password: ?{vaultkv:${cluster:tenant}/${cluster:name}/cert-manager/acme-dns-password} <2>
+      domains: <3>
+        - cluster.example.com
+----
+<1> The HTTP API of the acme-dns instance
+<2> The HTTP basic auth username and password for the acme-dns instance (optional)
+<3> The list of domains that you want to use acme-dns challenges for.
++
+This configuration creates a secret `acme-dns-client` with the acme-dns client configuration in key `acmedns.json` in the cert-manager namespace.
+
+. Configure the DNS01 solver
++
+[source,yaml]
+----
+parameters:
+  cert_manager:
+    solvers:
+      nginx_http01: null <1>
+      dns01:
+        acmeDNS:
+          host: https://acme-dns-api.example.com <2>
+          accountSecretRef: <3>
+            name: acme-dns-client
+            key: acmedns.json
+----
+<1> Disable the default `nginx_http01` solver
+<2> The HTTP API of the acme-dns instance.
+This should match parameter `acme_dns_api.endpoint`.
+<3> The account secret for the acme-dns instance.
+Use the values shown here to use the client secret which is created by the configuration from the previous step.
+
+. Compile and push the cluster catalog to apply your configuration.
+
+. Setup CNAME records to point acme challenges to acme-dns on your cluster's domain after the registration job has completed.
++
+.Extract CNAME target from the acme-dns-client secret
+[source,shell]
+----
+$ kubectl -n syn-cert-manager get secret acme-dns-client \
+    -ojsonpath='{.data.acmedns\.json} | \
+    base64 -d | \
+    jq -r '[.[]][0].fulldomain'
+9165e46c-7bc8-4b00-aa0d-d40413271434.acme-dns.example.com
+----
++
+.Add the following record to your cluster's DNS zone
+[source,dns]
+----
+$ORIGIN cluster.example.com <1>
+_acme-challenge IN CNAME 9165e46c-7bc8-4b00-aa0d-d40413271434.acme-dns.example.com. <2>
+----
+<1> This snippet assumes that the cluster's DNS zone is `cluster.example.com`.
+<2> Replace `<UUID>.acme-dns.example.com` with the output of the `kubectl` command.
