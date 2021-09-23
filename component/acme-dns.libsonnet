@@ -99,7 +99,7 @@ local scriptPodSpec(name, script) = {
         SCRIPTS_PATH: mountpaths.scripts,
         CLIENT_SECRET_NAME: clientSecret.metadata.name,
         ACME_DNS_API: acme_dns_api.endpoint,
-        ACME_DNS_DOMAINS: '%s' % [ acme_dns_api.domains ],
+        ACME_DNS_FQDNS: '%s' % [ acme_dns_api.fqdns ],
       },
       envFrom: std.prune([
         if has_registration_secret then {

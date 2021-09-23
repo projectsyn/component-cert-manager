@@ -25,14 +25,14 @@ if ! [ -f /etc/scripts/acmedns.json ] \
   client_secret=$(jq -n \
     --argjson orig_secret "${orig_secret}" \
     --argjson reg "${reg}" \
-    --argjson domains "${ACME_DNS_DOMAINS}" \
+    --argjson fqdns "${ACME_DNS_FQDNS}" \
     --arg client_secret_name "${CLIENT_SECRET_NAME}" \
     --arg namespace "${NAMESPACE}" \
     '($orig_secret
       |del(.metadata.annotations."kubectl.kubernetes.io/last-applied-configuration")
      ) + {
       "stringData": {
-        "acmedns.json": (reduce $domains[] as $d ({}; . + { ($d): $reg })) | tojson
+        "acmedns.json": (reduce $fqdns[] as $d ({}; . + { ($d): $reg })) | tojson
       }
     }')
 

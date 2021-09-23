@@ -28,12 +28,15 @@ parameters:
       endpoint: https://acme-dns-api.example.com <1>
       username: acme-dns <2>
       password: ?{vaultkv:${cluster:tenant}/${cluster:name}/cert-manager/acme-dns-password} <2>
-      domains: <3>
+      fqdns: <3>
         - cluster.example.com
 ----
 <1> The HTTP API of the acme-dns instance
 <2> The HTTP basic auth username and password for the acme-dns instance (optional)
-<3> The list of domains that you want to use acme-dns challenges for.
+<3> The list of FQDNs that you want to use acme-dns challenges for.
+Note that the entries must match FQDNs for which you want to use acme-dns challenges exactly.
+With this configuration, cert-manager will only present DNS01 challenges for certificates with dnsNames `cluster.example.com` or `*.cluster.example.com`.
+In particular, cert-manager won't present DNS01 challenges for any subdomains of `cluster.example.com` with this configuration.
 +
 This configuration creates a secret `acme-dns-client` with the acme-dns client configuration in key `acmedns.json` in the cert-manager namespace.
 

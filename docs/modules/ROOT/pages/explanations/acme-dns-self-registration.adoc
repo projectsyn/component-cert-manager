@@ -16,7 +16,7 @@ If registration is successful, the Job updates the secret `acme-dns-client` to c
 [source,json]
 ----
 {
-  "cluster.example.com": { <1>
+  "api.cluster.example.com": { <1>
     "username":"3a33a0ef-b617-418d-97a4-13cf1cd6b67a",
     "password":"<redacted>",
     "fulldomain":"9165e46c-7bc8-4b00-aa0d-d40413271434.acme-dns.example.com",
@@ -32,7 +32,7 @@ If registration is successful, the Job updates the secret `acme-dns-client` to c
   }
 }
 ----
-<1> The component uses the entries in parameter `acme_dns_api.domains` as keys in the JSON object.
+<1> The component uses the entries in parameter `acme_dns_api.fqdns` as keys in the JSON object.
 The value for each key is the JSON that the call to the acme-dns `/register` endpoint returns.
 
 Each key in the object corresponds to a domain for which cert-manager will use the acme-dns instance to solve DNS01 challenges.

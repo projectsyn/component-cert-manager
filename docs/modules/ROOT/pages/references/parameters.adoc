@@ -87,7 +87,7 @@ See the https://cert-manager.io/docs/configuration/acme/dns01/[cert-manager docu
 
 [horizontal]
 type:: dictionary
-keys:: `endpoint`, `username`, `password`, `domains`
+keys:: `endpoint`, `username`, `password`, `fqdns`
 default:: `{}`
 
 The component sets up a Job and Cronjob to register and check acme-dns client credentials if key `endpoint` is present in this parameter.
@@ -99,10 +99,16 @@ If key `endpoint` is present, the component expects that the other keys listed a
 `username`:: The HTTP basic authorization username for the acme-dns instance `/register` endpoint
 `password`:: The HTTP basic authorization password for the acme-dns instance `/register` endpoint.
 We strongly recommend specifying the password as a Vault secret reference.
-`domains`:: A list of domains for which the acme-dns instance can be used to solve DNS01 challenges.
+`fqdns`:: A list of FQDNs for which the acme-dns instance can be used to solve DNS01 challenges.
 This list must contain at least one entry.
 
 TIP: See xref:how-tos/dns01.acme[Using DNS01 challenges] for instructions to setup and use the acme-dns self-registration mechanism.
+
+[NOTE]
+====
+The entries in `fqdns` must be exact matches the FQDNs for which DNS01 challenges should be presented.
+The only flexibility is that cert-manager will present a DNS01 challenge for the wildcard FQDN `*.example.com`, if `example.com` is listed in `fqdns`.
+====
 
 == Example
 

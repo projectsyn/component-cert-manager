@@ -5,6 +5,6 @@ parameters:
       endpoint: acme-dns-api.example.com
       username: acme-dns
       password: ?{vaultkv:${cluster:tenant}/${cluster:name}/cert-manager/acme-dns-register-password}
-      domains:
+      fqdns:
         - example.com
         - apps.example.com

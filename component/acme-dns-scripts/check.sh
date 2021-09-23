@@ -7,8 +7,8 @@ set -e
 username=
 password=
 subdomain=
-acmedns_config=$(jq -r --argjson domains "${ACME_DNS_DOMAINS}" '
-    .[$domains[0]]
+acmedns_config=$(jq -r --argjson fqdns "${ACME_DNS_FQDNS}" '
+    .[$fqdns[0]]
     | "username=\(.username) password=\(.password) subdomain=\(.subdomain)"
   ' "${CONFIG_PATH}/acmedns.json")
 # This overrides the empty variables declared above
