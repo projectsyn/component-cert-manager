@@ -6,7 +6,16 @@
 
 local kube = import 'lib/kube.libjsonnet';
 
-local groupVersion = 'cert-manager.io/v1alpha2';
+local groupVersion =
+  if
+    std.objectHas(params, 'cert_manager') &&
+    std.startsWith(params.cert_manager.charts['cert-manager'], 'v0')
+  then
+    // legacy variant: use v1alpha2 for v0.x chart versions
+    'cert-manager.io/v1alpha2'
+  else
+    // default to v1
+    'cert-manager.io/v1';
 
 /**
   * \brief Helper to create Certificate objects.
