@@ -4,7 +4,11 @@
  *        API reference: https://cert-manager.io/docs/reference/api-docs/
  */
 
+local kap = import 'lib/kapitan.libjsonnet';
 local kube = import 'lib/kube.libjsonnet';
+
+local inv = kap.inventory();
+local params = inv.parameters;
 
 local groupVersion =
   if
