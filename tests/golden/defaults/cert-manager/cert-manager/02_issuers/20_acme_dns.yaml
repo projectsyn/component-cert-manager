@@ -55,23 +55,24 @@ data:
     /update; then\n  echo \"Failed to update record... trying reregistration\"\n \
     \ reregister=\"yes\"\nfi\n\nif [ -n \"${reregister}\" ]; then\n  \"${SCRIPTS_PATH}/register.sh\"\
     \ force\nfi\n"
-  register.sh: "#!/bin/sh\n\nset -e\n\nreadonly force_register=\"${1}\"\n\nreadonly\
-    \ orig_secret=\"$(kubectl -n \"${NAMESPACE}\" \\\n  get secret \"${CLIENT_SECRET_NAME}\"\
-    \ -ojson)\"\n\nreg_auth_args=\nif [ -n \"${REG_USERNAME}\" ]; then\n  reg_auth_args=\"\
-    -u\\\"${REG_USERNAME}:${REG_PASSWORD}\\\"\"\nfi\n\nif ! [ -f /etc/scripts/acmedns.json\
-    \ ] \\\n  || [ -n \"${force_register}\" ]; then\n\n  reg=$(curl -XPOST \"${reg_auth_args}\"\
-    \ \"${ACME_DNS_API}/register\")\n  # Create acme-dns-client secret for provided\
-    \ domain names.\n  # Required format for acmedns.json in `stringData`:\n  # {\n\
-    \  #   \"example.com\": { registration output },\n  #   \"example.org\": { registration\
-    \ output }\n  # }\n  client_secret=$(jq -n \\\n    --argjson orig_secret \"${orig_secret}\"\
-    \ \\\n    --argjson reg \"${reg}\" \\\n    --argjson fqdns \"${ACME_DNS_FQDNS}\"\
-    \ \\\n    --arg client_secret_name \"${CLIENT_SECRET_NAME}\" \\\n    --arg namespace\
-    \ \"${NAMESPACE}\" \\\n    '($orig_secret\n      |del(.metadata.annotations.\"\
-    kubectl.kubernetes.io/last-applied-configuration\")\n     ) + {\n      \"stringData\"\
-    : {\n        \"acmedns.json\": (reduce $fqdns[] as $d ({}; . + { ($d): $reg }))\
-    \ | tojson\n      }\n    }')\n\n  echo \"${client_secret}\" >\"${HOME}/secret.json\"\
-    \n  # Use kubectl apply as the empty secret is created by ArgoCD\n  kubectl apply\
-    \ -f \"${HOME}/secret.json\"\nfi\n"
+  register.sh: "#!/bin/sh\n\nset -e\n\nreadonly force_register=\"${1}\"\nreadonly\
+    \ client_creds_file=\"${CONFIG_PATH}/acmedns.json\"\n\nreadonly orig_secret=\"\
+    $(kubectl -n \"${NAMESPACE}\" \\\n  get secret \"${CLIENT_SECRET_NAME}\" -ojson)\"\
+    \n\nreg_auth_args=\nif [ -n \"${REG_USERNAME}\" ]; then\n  reg_auth_args=\"-u${REG_USERNAME}:${REG_PASSWORD}\"\
+    \nfi\n\n\nif ! [ -f \"${client_creds_file}\" ] \\\n  || [ -n \"${force_register}\"\
+    \ ]; then\n\n  reg=$(curl -XPOST \"${reg_auth_args}\" \"${ACME_DNS_API}/register\"\
+    )\n  # Create acme-dns-client secret for provided domain names.\n  # Required\
+    \ format for acmedns.json in `stringData`:\n  # {\n  #   \"example.com\": { registration\
+    \ output },\n  #   \"example.org\": { registration output }\n  # }\n  client_secret=$(jq\
+    \ -n \\\n    --argjson orig_secret \"${orig_secret}\" \\\n    --argjson reg \"\
+    ${reg}\" \\\n    --argjson fqdns \"${ACME_DNS_FQDNS}\" \\\n    --arg client_secret_name\
+    \ \"${CLIENT_SECRET_NAME}\" \\\n    --arg namespace \"${NAMESPACE}\" \\\n    '($orig_secret\n\
+    \      |del(.metadata.annotations.\"kubectl.kubernetes.io/last-applied-configuration\"\
+    )\n     ) + {\n      \"stringData\": {\n        \"acmedns.json\": (reduce $fqdns[]\
+    \ as $d ({}; . + { ($d): $reg })) | tojson\n      }\n    }')\n\n  echo \"${client_secret}\"\
+    \ >\"${HOME}/secret.json\"\n  # Use kubectl apply as the empty secret is created\
+    \ by ArgoCD\n  kubectl apply -f \"${HOME}/secret.json\"\nelse\n  echo \"Client\
+    \ credentials config '${client_creds_file}' already exists.\"\nfi\n"
 kind: ConfigMap
 metadata:
   annotations: {}

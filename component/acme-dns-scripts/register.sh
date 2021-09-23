@@ -3,16 +3,18 @@
 set -e
 
 readonly force_register="${1}"
+readonly client_creds_file="${CONFIG_PATH}/acmedns.json"
 
 readonly orig_secret="$(kubectl -n "${NAMESPACE}" \
   get secret "${CLIENT_SECRET_NAME}" -ojson)"
 
 reg_auth_args=
 if [ -n "${REG_USERNAME}" ]; then
-  reg_auth_args="-u\"${REG_USERNAME}:${REG_PASSWORD}\""
+  reg_auth_args="-u${REG_USERNAME}:${REG_PASSWORD}"
 fi
 
-if ! [ -f /etc/scripts/acmedns.json ] \
+
+if ! [ -f "${client_creds_file}" ] \
   || [ -n "${force_register}" ]; then
 
   reg=$(curl -XPOST "${reg_auth_args}" "${ACME_DNS_API}/register")
@@ -39,4 +41,6 @@ if ! [ -f /etc/scripts/acmedns.json ] \
   echo "${client_secret}" >"${HOME}/secret.json"
   # Use kubectl apply as the empty secret is created by ArgoCD
   kubectl apply -f "${HOME}/secret.json"
+else
+  echo "Client credentials config '${client_creds_file}' already exists."
 fi
