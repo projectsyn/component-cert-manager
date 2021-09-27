@@ -1,6 +1,7 @@
 = Using DNS01 challenges
 
 Usually DNS01 challenges are required for the following scenarios:
+
 * Issuing Let's Encrypt wildcard certificates
 * Issuing certificates for services which have a public DNS name, but aren't reachable on the internet
 
