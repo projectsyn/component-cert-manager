@@ -83,6 +83,33 @@ By default, secrets are created in the namespace in which cert-manager is deploy
 
 See the https://cert-manager.io/docs/configuration/acme/dns01/[cert-manager documentation] for DNS01 solvers which are supported by cert-manager.
 
+== `acme_dns_api`
+
+[horizontal]
+type:: dictionary
+keys:: `endpoint`, `username`, `password`, `fqdns`
+default:: `{}`
+
+The component sets up a Job and Cronjob to register and check acme-dns client credentials if key `endpoint` is present in this parameter.
+For a detailed explanation of how the self-registration works, see the xref:explanations/acme-dns-self-registration.adoc[acme-dns self-registration] documentation.
+
+If key `endpoint` is present, the component expects that the other keys listed above are also present. The keys have the following meaning:
+
+`endpoint`:: The HTTP API endpoint of the acme-dns instance
+`username`:: The HTTP basic authorization username for the acme-dns instance `/register` endpoint
+`password`:: The HTTP basic authorization password for the acme-dns instance `/register` endpoint.
+We strongly recommend specifying the password as a Vault secret reference.
+`fqdns`:: A list of FQDNs for which the acme-dns instance can be used to solve DNS01 challenges.
+This list must contain at least one entry.
+
+TIP: See xref:how-tos/dns01.acme[Using DNS01 challenges] for instructions to setup and use the acme-dns self-registration mechanism.
+
+[NOTE]
+====
+The entries in `fqdns` must be exact matches the FQDNs for which DNS01 challenges should be presented.
+The only flexibility is that cert-manager will present a DNS01 challenge for the wildcard FQDN `*.example.com`, if `example.com` is listed in `fqdns`.
+====
+
 == Example
 
 [source,yaml]

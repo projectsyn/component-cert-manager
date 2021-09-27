@@ -1,6 +1,9 @@
-apiVersion: cert-manager.io/v1alpha2
+apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
 metadata:
+  annotations: {}
+  labels:
+    name: letsencrypt-staging
   name: letsencrypt-staging
 spec:
   acme:
@@ -13,9 +16,12 @@ spec:
           ingress:
             class: nginx
 ---
-apiVersion: cert-manager.io/v1alpha2
+apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
 metadata:
+  annotations: {}
+  labels:
+    name: letsencrypt-production
   name: letsencrypt-production
 spec:
   acme:

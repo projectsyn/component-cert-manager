@@ -1,0 +1,257 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  annotations: {}
+  labels:
+    name: acme-dns
+  name: acme-dns
+  namespace: syn-cert-manager
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  annotations: {}
+  labels:
+    name: acme-dns-secret-editor
+  name: acme-dns-secret-editor
+  namespace: syn-cert-manager
+rules:
+  - apiGroups:
+      - ''
+    resources:
+      - secrets
+    verbs:
+      - create
+      - patch
+      - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  annotations: {}
+  labels:
+    name: acme-dns-secret-editor
+  name: acme-dns-secret-editor
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: acme-dns-secret-editor
+subjects:
+  - kind: ServiceAccount
+    name: acme-dns
+    namespace: syn-cert-manager
+---
+apiVersion: v1
+data:
+  check.sh: "#!/bin/sh\n\nset -e\n\n# Extract acme-dns client config from mounted\
+    \ secret file with `jq` and inject\n# as variables into the script environment\
+    \ with `eval`.\nusername=\npassword=\nsubdomain=\nacmedns_config=$(jq -r --argjson\
+    \ fqdns \"${ACME_DNS_FQDNS}\" '\n    .[$fqdns[0]]\n    | \"username=\\(.username)\
+    \ password=\\(.password) subdomain=\\(.subdomain)\"\n  ' \"${CONFIG_PATH}/acmedns.json\"\
+    )\n# This overrides the empty variables declared above\neval \"${acmedns_config}\"\
+    \n\nreregister=\nif ! curl \\\n  -H\"X-Api-User: ${username}\" \\\n  -H\"X-Api-Key:\
+    \ ${password}\" \\\n  -d '{\n    \"subdomain\": \"'\"${subdomain}\"'\",\n    \"\
+    txt\": \"___self___verify___client___credentials____\"\n  }' \"${ACME_DNS_API}\"\
+    /update; then\n  echo \"Failed to update record... trying reregistration\"\n \
+    \ reregister=\"yes\"\nfi\n\nif [ -n \"${reregister}\" ]; then\n  \"${SCRIPTS_PATH}/register.sh\"\
+    \ force\nfi\n"
+  register.sh: "#!/bin/sh\n\nset -e\n\nreadonly force_register=\"${1}\"\nreadonly\
+    \ client_creds_file=\"${CONFIG_PATH}/acmedns.json\"\n\nreadonly orig_secret=\"\
+    $(kubectl -n \"${NAMESPACE}\" \\\n  get secret \"${CLIENT_SECRET_NAME}\" -ojson)\"\
+    \n\nreg_auth_args=\nif [ -n \"${REG_USERNAME}\" ]; then\n  reg_auth_args=\"-u${REG_USERNAME}:${REG_PASSWORD}\"\
+    \nfi\n\n\nif ! [ -f \"${client_creds_file}\" ] \\\n  || [ -n \"${force_register}\"\
+    \ ]; then\n\n  reg=$(curl -XPOST \"${reg_auth_args}\" \"${ACME_DNS_API}/register\"\
+    )\n  # Create acme-dns-client secret for provided domain names.\n  # Required\
+    \ format for acmedns.json in `stringData`:\n  # {\n  #   \"example.com\": { registration\
+    \ output },\n  #   \"example.org\": { registration output }\n  # }\n  client_secret=$(jq\
+    \ -n \\\n    --argjson orig_secret \"${orig_secret}\" \\\n    --argjson reg \"\
+    ${reg}\" \\\n    --argjson fqdns \"${ACME_DNS_FQDNS}\" \\\n    --arg client_secret_name\
+    \ \"${CLIENT_SECRET_NAME}\" \\\n    --arg namespace \"${NAMESPACE}\" \\\n    '($orig_secret\n\
+    \      |del(.metadata.annotations.\"kubectl.kubernetes.io/last-applied-configuration\"\
+    )\n     ) + {\n      \"stringData\": {\n        \"acmedns.json\": (reduce $fqdns[]\
+    \ as $d ({}; . + { ($d): $reg })) | tojson\n      }\n    }')\n\n  echo \"${client_secret}\"\
+    \ >\"${HOME}/secret.json\"\n  # Use kubectl apply as the empty secret is created\
+    \ by ArgoCD\n  kubectl apply -f \"${HOME}/secret.json\"\nelse\n  echo \"Client\
+    \ credentials config '${client_creds_file}' already exists.\"\nfi\n"
+kind: ConfigMap
+metadata:
+  annotations: {}
+  labels:
+    name: register-acme-dns-client
+  name: register-acme-dns-client
+  namespace: syn-cert-manager
+---
+apiVersion: v1
+data: {}
+kind: Secret
+metadata:
+  annotations: {}
+  labels:
+    name: acme-dns-register
+  name: acme-dns-register
+  namespace: syn-cert-manager
+stringData:
+  REG_PASSWORD: t-silent-test-1234/c-green-test-1234/cert-manager/acme-dns-register-password
+  REG_USERNAME: acme-dns
+type: Opaque
+---
+apiVersion: v1
+data: {}
+kind: Secret
+metadata:
+  annotations:
+    cert-manager.syn.tools/managed-by: The contents of this secret are managed by
+      resources Job/register-acme-dns-client and CronJob/check-acme-dns-client
+  labels:
+    name: acme-dns-client
+  name: acme-dns-client
+  namespace: syn-cert-manager
+type: Opaque
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  annotations: {}
+  labels:
+    name: register-acme-dns-client
+  name: register-acme-dns-client
+  namespace: syn-cert-manager
+spec:
+  completions: 1
+  parallelism: 1
+  template:
+    metadata:
+      labels:
+        name: register-acme-dns-client
+    spec:
+      containers:
+        - args: []
+          command:
+            - /scripts/register.sh
+          env:
+            - name: ACME_DNS_API
+              value: acme-dns-api.example.com
+            - name: ACME_DNS_FQDNS
+              value: '["example.com", "apps.example.com"]'
+            - name: CLIENT_SECRET_NAME
+              value: acme-dns-client
+            - name: CONFIG_PATH
+              value: /etc/acme-dns
+            - name: HOME
+              value: /home/acme-dns
+            - name: NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: SCRIPTS_PATH
+              value: /scripts
+          envFrom:
+            - secretRef:
+                name: acme-dns-register
+          image: quay.io/bitnami/kubectl:1.21.2@sha256:a6c97fa2af65cf390447d96e7d0ca04f2d8c5035a50e62e1bc6b9eac28c3f576
+          imagePullPolicy: IfNotPresent
+          name: register-client
+          ports: []
+          stdin: false
+          tty: false
+          volumeMounts:
+            - mountPath: /etc/acme-dns
+              name: acmedns-client-secret
+              readOnly: true
+            - mountPath: /home/acme-dns
+              name: home
+            - mountPath: /scripts
+              name: scripts
+          workingDir: /home/acme-dns
+      imagePullSecrets: []
+      initContainers: []
+      restartPolicy: OnFailure
+      serviceAccountName: acme-dns
+      terminationGracePeriodSeconds: 30
+      volumes:
+        - name: acmedns-client-secret
+          secret:
+            secretName: acme-dns-client
+        - emptyDir: {}
+          name: home
+        - configMap:
+            defaultMode: 448
+            name: register-acme-dns-client
+          name: scripts
+---
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  annotations: {}
+  labels:
+    name: check-acme-dns-client
+  name: check-acme-dns-client
+  namespace: syn-cert-manager
+spec:
+  concurrencyPolicy: Forbid
+  failedJobsHistoryLimit: 20
+  jobTemplate:
+    spec:
+      completions: 1
+      parallelism: 1
+      template:
+        metadata:
+          labels:
+            name: check-acme-dns-client
+        spec:
+          containers:
+            - args: []
+              command:
+                - /scripts/check.sh
+              env:
+                - name: ACME_DNS_API
+                  value: acme-dns-api.example.com
+                - name: ACME_DNS_FQDNS
+                  value: '["example.com", "apps.example.com"]'
+                - name: CLIENT_SECRET_NAME
+                  value: acme-dns-client
+                - name: CONFIG_PATH
+                  value: /etc/acme-dns
+                - name: HOME
+                  value: /home/acme-dns
+                - name: NAMESPACE
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.namespace
+                - name: SCRIPTS_PATH
+                  value: /scripts
+              envFrom:
+                - secretRef:
+                    name: acme-dns-register
+              image: quay.io/bitnami/kubectl:1.21.2@sha256:a6c97fa2af65cf390447d96e7d0ca04f2d8c5035a50e62e1bc6b9eac28c3f576
+              imagePullPolicy: IfNotPresent
+              name: check-client
+              ports: []
+              stdin: false
+              tty: false
+              volumeMounts:
+                - mountPath: /etc/acme-dns
+                  name: acmedns-client-secret
+                  readOnly: true
+                - mountPath: /home/acme-dns
+                  name: home
+                - mountPath: /scripts
+                  name: scripts
+              workingDir: /home/acme-dns
+          imagePullSecrets: []
+          initContainers: []
+          restartPolicy: OnFailure
+          serviceAccountName: acme-dns
+          terminationGracePeriodSeconds: 30
+          volumes:
+            - name: acmedns-client-secret
+              secret:
+                secretName: acme-dns-client
+            - emptyDir: {}
+              name: home
+            - configMap:
+                defaultMode: 448
+                name: register-acme-dns-client
+              name: scripts
+  schedule: 47 1 * * *
+  successfulJobsHistoryLimit: 10
