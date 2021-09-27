@@ -90,10 +90,12 @@ type:: dictionary
 keys:: `endpoint`, `username`, `password`, `fqdns`
 default:: `{}`
 
-The component sets up a Job and Cronjob to register and check acme-dns client credentials if key `endpoint` is present in this parameter.
+The component sets up a Job and Cronjob to register and check acme-dns client credentials if key `endpoint` is present and non-null in this parameter.
+If key `endpoint` is missing or `null` the component doesn't configure the acme-dns client registration.
+
 For a detailed explanation of how the self-registration works, see the xref:explanations/acme-dns-self-registration.adoc[acme-dns self-registration] documentation.
 
-If key `endpoint` is present, the component expects that the other keys listed above are also present. The keys have the following meaning:
+If key `endpoint` is present and non-null, the component expects that the other keys listed above are also present. The keys have the following meaning:
 
 `endpoint`:: The HTTP API endpoint of the acme-dns instance
 `username`:: The HTTP basic authorization username for the acme-dns instance `/register` endpoint
