@@ -2,7 +2,7 @@
 
 The component provides support to register a client on an acme-dns instance through parameter xref:references/parameters.adoc#_acme_dns_api[`acme_dns_api`].
 
-This page explains how the self-registraion mechanism works in detail.
+This page explains how the self-registration mechanism works in detail.
 The mechanism consists of two parts: registration and checking.
 
 == Registration

@@ -91,7 +91,7 @@ keys:: `endpoint`, `username`, `password`, `fqdns`
 default:: `{}`
 
 The component sets up a Job and Cronjob to register and check acme-dns client credentials if key `endpoint` is present in this parameter.
-For a detailed explanation of how the self-registration works, see the xref:explanations/acme-dns-self-registration.adoc[acme-dns self-registraion] documentation.
+For a detailed explanation of how the self-registration works, see the xref:explanations/acme-dns-self-registration.adoc[acme-dns self-registration] documentation.
 
 If key `endpoint` is present, the component expects that the other keys listed above are also present. The keys have the following meaning:
 
