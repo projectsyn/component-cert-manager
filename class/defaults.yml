@@ -16,7 +16,7 @@ parameters:
     acme_dns_api: {}
     # acme_dns_api:
     #   endpoint: acme-dns-api.example.com
-    #   user: dns_api_registration_user
+    #   username: dns_api_registration_user
     #   password: dns_api_registration_password
     #   fqdns: [ "api.cluster.example.com", "apps.cluster.example.com" ]
     images:
