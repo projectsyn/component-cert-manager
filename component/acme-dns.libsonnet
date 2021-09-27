@@ -179,7 +179,10 @@ local clientcheckCronjob =
     },
   };
 
-if std.objectHas(acme_dns_api, 'endpoint') then
+if
+  std.objectHas(acme_dns_api, 'endpoint')
+  && acme_dns_api.endpoint != null
+then
   {
     manifests: std.filter(
       function(it) it != null,
