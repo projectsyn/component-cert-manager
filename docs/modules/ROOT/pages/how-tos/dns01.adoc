@@ -70,7 +70,7 @@ Use the values shown here to use the client secret which is created by the confi
 [source,shell]
 ----
 $ kubectl -n syn-cert-manager get secret acme-dns-client \
-    -ojsonpath='{.data.acmedns\.json} | \
+    -ojsonpath='{.data.acmedns\.json}' | \
     base64 -d | \
     jq -r '[.[]][0].fulldomain'
 9165e46c-7bc8-4b00-aa0d-d40413271434.acme-dns.example.com
