@@ -10,7 +10,7 @@ This how-to shows you how to configure the `letsencrypt-staging` and `letsencryp
 This how-to assumes that you have access to an acme-dns instance.
 You can manage your own acme-dns instance with component xref:acme-dns:ROOT:index.adoc[acme-dns].
 
-= Prerequisites
+== Prerequisites
 
 * Access to an acme-dns instance
 * A domain for which you can create `CNAME` records
