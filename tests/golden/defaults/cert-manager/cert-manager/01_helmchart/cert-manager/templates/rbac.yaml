@@ -1,79 +1,11 @@
 apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
-metadata:
-  labels:
-    app: cert-manager
-    app.kubernetes.io/component: controller
-    app.kubernetes.io/instance: cert-manager
-    app.kubernetes.io/managed-by: Tiller
-    app.kubernetes.io/name: cert-manager
-    helm.sh/chart: cert-manager-v1.4.0
-  name: cert-manager:leaderelection
-  namespace: syn-cert-manager
-rules:
-- apiGroups:
-  - ''
-  resourceNames:
-  - cert-manager-controller
-  resources:
-  - configmaps
-  verbs:
-  - get
-  - update
-  - patch
-- apiGroups:
-  - ''
-  resources:
-  - configmaps
-  verbs:
-  - create
-- apiGroups:
-  - coordination.k8s.io
-  resourceNames:
-  - cert-manager-controller
-  resources:
-  - leases
-  verbs:
-  - get
-  - update
-  - patch
-- apiGroups:
-  - coordination.k8s.io
-  resources:
-  - leases
-  verbs:
-  - create
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
-metadata:
-  labels:
-    app: cert-manager
-    app.kubernetes.io/component: controller
-    app.kubernetes.io/instance: cert-manager
-    app.kubernetes.io/managed-by: Tiller
-    app.kubernetes.io/name: cert-manager
-    helm.sh/chart: cert-manager-v1.4.0
-  name: cert-manager:leaderelection
-  namespace: syn-cert-manager
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: Role
-  name: cert-manager:leaderelection
-subjects:
-- apiGroup: ''
-  kind: ServiceAccount
-  name: cert-manager
-  namespace: syn-cert-manager
----
-apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   labels:
     app: cert-manager
     app.kubernetes.io/component: controller
     app.kubernetes.io/instance: cert-manager
-    app.kubernetes.io/managed-by: Tiller
+    app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
     helm.sh/chart: cert-manager-v1.4.0
   name: cert-manager-controller-issuers
@@ -120,7 +52,7 @@ metadata:
     app: cert-manager
     app.kubernetes.io/component: controller
     app.kubernetes.io/instance: cert-manager
-    app.kubernetes.io/managed-by: Tiller
+    app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
     helm.sh/chart: cert-manager-v1.4.0
   name: cert-manager-controller-clusterissuers
@@ -167,7 +99,7 @@ metadata:
     app: cert-manager
     app.kubernetes.io/component: controller
     app.kubernetes.io/instance: cert-manager
-    app.kubernetes.io/managed-by: Tiller
+    app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
     helm.sh/chart: cert-manager-v1.4.0
   name: cert-manager-controller-certificates
@@ -236,7 +168,7 @@ metadata:
     app: cert-manager
     app.kubernetes.io/component: controller
     app.kubernetes.io/instance: cert-manager
-    app.kubernetes.io/managed-by: Tiller
+    app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
     helm.sh/chart: cert-manager-v1.4.0
   name: cert-manager-controller-orders
@@ -303,7 +235,7 @@ metadata:
     app: cert-manager
     app.kubernetes.io/component: controller
     app.kubernetes.io/instance: cert-manager
-    app.kubernetes.io/managed-by: Tiller
+    app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
     helm.sh/chart: cert-manager-v1.4.0
   name: cert-manager-controller-challenges
@@ -398,7 +330,7 @@ metadata:
     app: cert-manager
     app.kubernetes.io/component: controller
     app.kubernetes.io/instance: cert-manager
-    app.kubernetes.io/managed-by: Tiller
+    app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
     helm.sh/chart: cert-manager-v1.4.0
   name: cert-manager-controller-ingress-shim
@@ -447,139 +379,13 @@ rules:
   - patch
 ---
 apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  labels:
-    app: cert-manager
-    app.kubernetes.io/component: controller
-    app.kubernetes.io/instance: cert-manager
-    app.kubernetes.io/managed-by: Tiller
-    app.kubernetes.io/name: cert-manager
-    helm.sh/chart: cert-manager-v1.4.0
-  name: cert-manager-controller-issuers
-  namespace: syn-cert-manager
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: cert-manager-controller-issuers
-subjects:
-- kind: ServiceAccount
-  name: cert-manager
-  namespace: syn-cert-manager
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  labels:
-    app: cert-manager
-    app.kubernetes.io/component: controller
-    app.kubernetes.io/instance: cert-manager
-    app.kubernetes.io/managed-by: Tiller
-    app.kubernetes.io/name: cert-manager
-    helm.sh/chart: cert-manager-v1.4.0
-  name: cert-manager-controller-clusterissuers
-  namespace: syn-cert-manager
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: cert-manager-controller-clusterissuers
-subjects:
-- kind: ServiceAccount
-  name: cert-manager
-  namespace: syn-cert-manager
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  labels:
-    app: cert-manager
-    app.kubernetes.io/component: controller
-    app.kubernetes.io/instance: cert-manager
-    app.kubernetes.io/managed-by: Tiller
-    app.kubernetes.io/name: cert-manager
-    helm.sh/chart: cert-manager-v1.4.0
-  name: cert-manager-controller-certificates
-  namespace: syn-cert-manager
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: cert-manager-controller-certificates
-subjects:
-- kind: ServiceAccount
-  name: cert-manager
-  namespace: syn-cert-manager
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  labels:
-    app: cert-manager
-    app.kubernetes.io/component: controller
-    app.kubernetes.io/instance: cert-manager
-    app.kubernetes.io/managed-by: Tiller
-    app.kubernetes.io/name: cert-manager
-    helm.sh/chart: cert-manager-v1.4.0
-  name: cert-manager-controller-orders
-  namespace: syn-cert-manager
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: cert-manager-controller-orders
-subjects:
-- kind: ServiceAccount
-  name: cert-manager
-  namespace: syn-cert-manager
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  labels:
-    app: cert-manager
-    app.kubernetes.io/component: controller
-    app.kubernetes.io/instance: cert-manager
-    app.kubernetes.io/managed-by: Tiller
-    app.kubernetes.io/name: cert-manager
-    helm.sh/chart: cert-manager-v1.4.0
-  name: cert-manager-controller-challenges
-  namespace: syn-cert-manager
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: cert-manager-controller-challenges
-subjects:
-- kind: ServiceAccount
-  name: cert-manager
-  namespace: syn-cert-manager
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  labels:
-    app: cert-manager
-    app.kubernetes.io/component: controller
-    app.kubernetes.io/instance: cert-manager
-    app.kubernetes.io/managed-by: Tiller
-    app.kubernetes.io/name: cert-manager
-    helm.sh/chart: cert-manager-v1.4.0
-  name: cert-manager-controller-ingress-shim
-  namespace: syn-cert-manager
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: cert-manager-controller-ingress-shim
-subjects:
-- kind: ServiceAccount
-  name: cert-manager
-  namespace: syn-cert-manager
----
-apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   labels:
     app: cert-manager
     app.kubernetes.io/component: controller
     app.kubernetes.io/instance: cert-manager
-    app.kubernetes.io/managed-by: Tiller
+    app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
     helm.sh/chart: cert-manager-v1.4.0
     rbac.authorization.k8s.io/aggregate-to-admin: 'true'
@@ -615,7 +421,7 @@ metadata:
     app: cert-manager
     app.kubernetes.io/component: controller
     app.kubernetes.io/instance: cert-manager
-    app.kubernetes.io/managed-by: Tiller
+    app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
     helm.sh/chart: cert-manager-v1.4.0
     rbac.authorization.k8s.io/aggregate-to-admin: 'true'
@@ -654,7 +460,7 @@ metadata:
     app: cert-manager
     app.kubernetes.io/component: cert-manager
     app.kubernetes.io/instance: cert-manager
-    app.kubernetes.io/managed-by: Tiller
+    app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
     helm.sh/chart: cert-manager-v1.4.0
   name: cert-manager-controller-approve:cert-manager-io
@@ -671,34 +477,13 @@ rules:
   - approve
 ---
 apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  labels:
-    app: cert-manager
-    app.kubernetes.io/component: cert-manager
-    app.kubernetes.io/instance: cert-manager
-    app.kubernetes.io/managed-by: Tiller
-    app.kubernetes.io/name: cert-manager
-    helm.sh/chart: cert-manager-v1.4.0
-  name: cert-manager-controller-approve:cert-manager-io
-  namespace: syn-cert-manager
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: cert-manager-controller-approve:cert-manager-io
-subjects:
-- kind: ServiceAccount
-  name: cert-manager
-  namespace: syn-cert-manager
----
-apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   labels:
     app: cert-manager
     app.kubernetes.io/component: cert-manager
     app.kubernetes.io/instance: cert-manager
-    app.kubernetes.io/managed-by: Tiller
+    app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
     helm.sh/chart: cert-manager-v1.4.0
   name: cert-manager-controller-certificatesigningrequests
@@ -740,9 +525,156 @@ kind: ClusterRoleBinding
 metadata:
   labels:
     app: cert-manager
+    app.kubernetes.io/component: controller
+    app.kubernetes.io/instance: cert-manager
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: cert-manager
+    helm.sh/chart: cert-manager-v1.4.0
+  name: cert-manager-controller-issuers
+  namespace: syn-cert-manager
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cert-manager-controller-issuers
+subjects:
+- kind: ServiceAccount
+  name: cert-manager
+  namespace: syn-cert-manager
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    app: cert-manager
+    app.kubernetes.io/component: controller
+    app.kubernetes.io/instance: cert-manager
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: cert-manager
+    helm.sh/chart: cert-manager-v1.4.0
+  name: cert-manager-controller-clusterissuers
+  namespace: syn-cert-manager
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cert-manager-controller-clusterissuers
+subjects:
+- kind: ServiceAccount
+  name: cert-manager
+  namespace: syn-cert-manager
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    app: cert-manager
+    app.kubernetes.io/component: controller
+    app.kubernetes.io/instance: cert-manager
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: cert-manager
+    helm.sh/chart: cert-manager-v1.4.0
+  name: cert-manager-controller-certificates
+  namespace: syn-cert-manager
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cert-manager-controller-certificates
+subjects:
+- kind: ServiceAccount
+  name: cert-manager
+  namespace: syn-cert-manager
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    app: cert-manager
+    app.kubernetes.io/component: controller
+    app.kubernetes.io/instance: cert-manager
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: cert-manager
+    helm.sh/chart: cert-manager-v1.4.0
+  name: cert-manager-controller-orders
+  namespace: syn-cert-manager
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cert-manager-controller-orders
+subjects:
+- kind: ServiceAccount
+  name: cert-manager
+  namespace: syn-cert-manager
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    app: cert-manager
+    app.kubernetes.io/component: controller
+    app.kubernetes.io/instance: cert-manager
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: cert-manager
+    helm.sh/chart: cert-manager-v1.4.0
+  name: cert-manager-controller-challenges
+  namespace: syn-cert-manager
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cert-manager-controller-challenges
+subjects:
+- kind: ServiceAccount
+  name: cert-manager
+  namespace: syn-cert-manager
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    app: cert-manager
+    app.kubernetes.io/component: controller
+    app.kubernetes.io/instance: cert-manager
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: cert-manager
+    helm.sh/chart: cert-manager-v1.4.0
+  name: cert-manager-controller-ingress-shim
+  namespace: syn-cert-manager
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cert-manager-controller-ingress-shim
+subjects:
+- kind: ServiceAccount
+  name: cert-manager
+  namespace: syn-cert-manager
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    app: cert-manager
     app.kubernetes.io/component: cert-manager
     app.kubernetes.io/instance: cert-manager
-    app.kubernetes.io/managed-by: Tiller
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: cert-manager
+    helm.sh/chart: cert-manager-v1.4.0
+  name: cert-manager-controller-approve:cert-manager-io
+  namespace: syn-cert-manager
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cert-manager-controller-approve:cert-manager-io
+subjects:
+- kind: ServiceAccount
+  name: cert-manager
+  namespace: syn-cert-manager
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    app: cert-manager
+    app.kubernetes.io/component: cert-manager
+    app.kubernetes.io/instance: cert-manager
+    app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
     helm.sh/chart: cert-manager-v1.4.0
   name: cert-manager-controller-certificatesigningrequests
@@ -753,5 +685,73 @@ roleRef:
   name: cert-manager-controller-certificatesigningrequests
 subjects:
 - kind: ServiceAccount
+  name: cert-manager
+  namespace: syn-cert-manager
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  labels:
+    app: cert-manager
+    app.kubernetes.io/component: controller
+    app.kubernetes.io/instance: cert-manager
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: cert-manager
+    helm.sh/chart: cert-manager-v1.4.0
+  name: cert-manager:leaderelection
+  namespace: syn-cert-manager
+rules:
+- apiGroups:
+  - ''
+  resourceNames:
+  - cert-manager-controller
+  resources:
+  - configmaps
+  verbs:
+  - get
+  - update
+  - patch
+- apiGroups:
+  - ''
+  resources:
+  - configmaps
+  verbs:
+  - create
+- apiGroups:
+  - coordination.k8s.io
+  resourceNames:
+  - cert-manager-controller
+  resources:
+  - leases
+  verbs:
+  - get
+  - update
+  - patch
+- apiGroups:
+  - coordination.k8s.io
+  resources:
+  - leases
+  verbs:
+  - create
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  labels:
+    app: cert-manager
+    app.kubernetes.io/component: controller
+    app.kubernetes.io/instance: cert-manager
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: cert-manager
+    helm.sh/chart: cert-manager-v1.4.0
+  name: cert-manager:leaderelection
+  namespace: syn-cert-manager
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: cert-manager:leaderelection
+subjects:
+- apiGroup: ''
+  kind: ServiceAccount
   name: cert-manager
   namespace: syn-cert-manager

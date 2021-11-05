@@ -5,7 +5,7 @@ metadata:
     app: cainjector
     app.kubernetes.io/component: cainjector
     app.kubernetes.io/instance: cert-manager
-    app.kubernetes.io/managed-by: Tiller
+    app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cainjector
     helm.sh/chart: cert-manager-v1.4.0
   name: cert-manager-cainjector
@@ -81,7 +81,7 @@ metadata:
     app: cainjector
     app.kubernetes.io/component: cainjector
     app.kubernetes.io/instance: cert-manager
-    app.kubernetes.io/managed-by: Tiller
+    app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cainjector
     helm.sh/chart: cert-manager-v1.4.0
   name: cert-manager-cainjector
@@ -102,7 +102,7 @@ metadata:
     app: cainjector
     app.kubernetes.io/component: cainjector
     app.kubernetes.io/instance: cert-manager
-    app.kubernetes.io/managed-by: Tiller
+    app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cainjector
     helm.sh/chart: cert-manager-v1.4.0
   name: cert-manager-cainjector:leaderelection
@@ -150,7 +150,7 @@ metadata:
     app: cainjector
     app.kubernetes.io/component: cainjector
     app.kubernetes.io/instance: cert-manager
-    app.kubernetes.io/managed-by: Tiller
+    app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cainjector
     helm.sh/chart: cert-manager-v1.4.0
   name: cert-manager-cainjector:leaderelection

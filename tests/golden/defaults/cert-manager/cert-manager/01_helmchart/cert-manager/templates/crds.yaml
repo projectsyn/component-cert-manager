@@ -6,7 +6,7 @@ metadata:
   labels:
     app: cert-manager
     app.kubernetes.io/instance: cert-manager
-    app.kubernetes.io/managed-by: Tiller
+    app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
     helm.sh/chart: cert-manager-v1.4.0
   name: certificaterequests.cert-manager.io
@@ -952,7 +952,7 @@ metadata:
   labels:
     app: cert-manager
     app.kubernetes.io/instance: cert-manager
-    app.kubernetes.io/managed-by: Tiller
+    app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
     helm.sh/chart: cert-manager-v1.4.0
   name: certificates.cert-manager.io
@@ -2726,7 +2726,7 @@ metadata:
   labels:
     app: cert-manager
     app.kubernetes.io/instance: cert-manager
-    app.kubernetes.io/managed-by: Tiller
+    app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
     helm.sh/chart: cert-manager-v1.4.0
   name: challenges.acme.cert-manager.io
@@ -10093,7 +10093,7 @@ metadata:
   labels:
     app: cert-manager
     app.kubernetes.io/instance: cert-manager
-    app.kubernetes.io/managed-by: Tiller
+    app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
     helm.sh/chart: cert-manager-v1.4.0
   name: clusterissuers.cert-manager.io
@@ -19715,7 +19715,7 @@ metadata:
   labels:
     app: cert-manager
     app.kubernetes.io/instance: cert-manager
-    app.kubernetes.io/managed-by: Tiller
+    app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
     helm.sh/chart: cert-manager-v1.4.0
   name: issuers.cert-manager.io
@@ -29333,7 +29333,7 @@ metadata:
   labels:
     app: cert-manager
     app.kubernetes.io/instance: cert-manager
-    app.kubernetes.io/managed-by: Tiller
+    app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
     helm.sh/chart: cert-manager-v1.4.0
   name: orders.acme.cert-manager.io
