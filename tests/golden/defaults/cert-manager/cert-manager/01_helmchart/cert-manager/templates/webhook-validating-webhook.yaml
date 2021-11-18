@@ -9,7 +9,8 @@ metadata:
     app.kubernetes.io/instance: cert-manager
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: webhook
-    helm.sh/chart: cert-manager-v1.4.0
+    app.kubernetes.io/version: v1.5.4
+    helm.sh/chart: cert-manager-v1.5.4
   name: cert-manager-webhook
   namespace: syn-cert-manager
 webhooks:
@@ -22,6 +23,7 @@ webhooks:
       namespace: syn-cert-manager
       path: /validate
   failurePolicy: Fail
+  matchPolicy: Equivalent
   name: webhook.cert-manager.io
   namespaceSelector:
     matchExpressions:
@@ -38,7 +40,7 @@ webhooks:
     - cert-manager.io
     - acme.cert-manager.io
     apiVersions:
-    - '*'
+    - v1
     operations:
     - CREATE
     - UPDATE
