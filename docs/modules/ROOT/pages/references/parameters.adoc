@@ -14,7 +14,7 @@ The namespace in which to install cert-manager.
 
 [horizontal]
 type:: string
-default:: `v0.15.1`
+default:: see `defaults.yml`
 
 The version of the Helm chart to use.
 

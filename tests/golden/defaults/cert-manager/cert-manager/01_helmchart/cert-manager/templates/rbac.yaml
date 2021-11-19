@@ -7,7 +7,8 @@ metadata:
     app.kubernetes.io/instance: cert-manager
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
-    helm.sh/chart: cert-manager-v1.4.0
+    app.kubernetes.io/version: v1.5.4
+    helm.sh/chart: cert-manager-v1.5.4
   name: cert-manager-controller-issuers
   namespace: syn-cert-manager
 rules:
@@ -54,7 +55,8 @@ metadata:
     app.kubernetes.io/instance: cert-manager
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
-    helm.sh/chart: cert-manager-v1.4.0
+    app.kubernetes.io/version: v1.5.4
+    helm.sh/chart: cert-manager-v1.5.4
   name: cert-manager-controller-clusterissuers
   namespace: syn-cert-manager
 rules:
@@ -101,7 +103,8 @@ metadata:
     app.kubernetes.io/instance: cert-manager
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
-    helm.sh/chart: cert-manager-v1.4.0
+    app.kubernetes.io/version: v1.5.4
+    helm.sh/chart: cert-manager-v1.5.4
   name: cert-manager-controller-certificates
   namespace: syn-cert-manager
 rules:
@@ -170,7 +173,8 @@ metadata:
     app.kubernetes.io/instance: cert-manager
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
-    helm.sh/chart: cert-manager-v1.4.0
+    app.kubernetes.io/version: v1.5.4
+    helm.sh/chart: cert-manager-v1.5.4
   name: cert-manager-controller-orders
   namespace: syn-cert-manager
 rules:
@@ -237,7 +241,8 @@ metadata:
     app.kubernetes.io/instance: cert-manager
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
-    helm.sh/chart: cert-manager-v1.4.0
+    app.kubernetes.io/version: v1.5.4
+    helm.sh/chart: cert-manager-v1.5.4
   name: cert-manager-controller-challenges
   namespace: syn-cert-manager
 rules:
@@ -303,6 +308,17 @@ rules:
   - delete
   - update
 - apiGroups:
+  - networking.x-k8s.io
+  resources:
+  - httproutes
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - delete
+  - update
+- apiGroups:
   - route.openshift.io
   resources:
   - routes/custom-host
@@ -332,7 +348,8 @@ metadata:
     app.kubernetes.io/instance: cert-manager
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
-    helm.sh/chart: cert-manager-v1.4.0
+    app.kubernetes.io/version: v1.5.4
+    helm.sh/chart: cert-manager-v1.5.4
   name: cert-manager-controller-ingress-shim
   namespace: syn-cert-manager
 rules:
@@ -371,6 +388,22 @@ rules:
   verbs:
   - update
 - apiGroups:
+  - networking.x-k8s.io
+  resources:
+  - gateways
+  - httproutes
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - networking.x-k8s.io
+  resources:
+  - gateways/finalizers
+  - httproutes/finalizers
+  verbs:
+  - update
+- apiGroups:
   - ''
   resources:
   - events
@@ -387,7 +420,8 @@ metadata:
     app.kubernetes.io/instance: cert-manager
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
-    helm.sh/chart: cert-manager-v1.4.0
+    app.kubernetes.io/version: v1.5.4
+    helm.sh/chart: cert-manager-v1.5.4
     rbac.authorization.k8s.io/aggregate-to-admin: 'true'
     rbac.authorization.k8s.io/aggregate-to-edit: 'true'
     rbac.authorization.k8s.io/aggregate-to-view: 'true'
@@ -423,7 +457,8 @@ metadata:
     app.kubernetes.io/instance: cert-manager
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
-    helm.sh/chart: cert-manager-v1.4.0
+    app.kubernetes.io/version: v1.5.4
+    helm.sh/chart: cert-manager-v1.5.4
     rbac.authorization.k8s.io/aggregate-to-admin: 'true'
     rbac.authorization.k8s.io/aggregate-to-edit: 'true'
   name: cert-manager-edit
@@ -462,7 +497,8 @@ metadata:
     app.kubernetes.io/instance: cert-manager
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
-    helm.sh/chart: cert-manager-v1.4.0
+    app.kubernetes.io/version: v1.5.4
+    helm.sh/chart: cert-manager-v1.5.4
   name: cert-manager-controller-approve:cert-manager-io
   namespace: syn-cert-manager
 rules:
@@ -485,7 +521,8 @@ metadata:
     app.kubernetes.io/instance: cert-manager
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
-    helm.sh/chart: cert-manager-v1.4.0
+    app.kubernetes.io/version: v1.5.4
+    helm.sh/chart: cert-manager-v1.5.4
   name: cert-manager-controller-certificatesigningrequests
   namespace: syn-cert-manager
 rules:
@@ -529,7 +566,8 @@ metadata:
     app.kubernetes.io/instance: cert-manager
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
-    helm.sh/chart: cert-manager-v1.4.0
+    app.kubernetes.io/version: v1.5.4
+    helm.sh/chart: cert-manager-v1.5.4
   name: cert-manager-controller-issuers
   namespace: syn-cert-manager
 roleRef:
@@ -550,7 +588,8 @@ metadata:
     app.kubernetes.io/instance: cert-manager
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
-    helm.sh/chart: cert-manager-v1.4.0
+    app.kubernetes.io/version: v1.5.4
+    helm.sh/chart: cert-manager-v1.5.4
   name: cert-manager-controller-clusterissuers
   namespace: syn-cert-manager
 roleRef:
@@ -571,7 +610,8 @@ metadata:
     app.kubernetes.io/instance: cert-manager
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
-    helm.sh/chart: cert-manager-v1.4.0
+    app.kubernetes.io/version: v1.5.4
+    helm.sh/chart: cert-manager-v1.5.4
   name: cert-manager-controller-certificates
   namespace: syn-cert-manager
 roleRef:
@@ -592,7 +632,8 @@ metadata:
     app.kubernetes.io/instance: cert-manager
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
-    helm.sh/chart: cert-manager-v1.4.0
+    app.kubernetes.io/version: v1.5.4
+    helm.sh/chart: cert-manager-v1.5.4
   name: cert-manager-controller-orders
   namespace: syn-cert-manager
 roleRef:
@@ -613,7 +654,8 @@ metadata:
     app.kubernetes.io/instance: cert-manager
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
-    helm.sh/chart: cert-manager-v1.4.0
+    app.kubernetes.io/version: v1.5.4
+    helm.sh/chart: cert-manager-v1.5.4
   name: cert-manager-controller-challenges
   namespace: syn-cert-manager
 roleRef:
@@ -634,7 +676,8 @@ metadata:
     app.kubernetes.io/instance: cert-manager
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
-    helm.sh/chart: cert-manager-v1.4.0
+    app.kubernetes.io/version: v1.5.4
+    helm.sh/chart: cert-manager-v1.5.4
   name: cert-manager-controller-ingress-shim
   namespace: syn-cert-manager
 roleRef:
@@ -655,7 +698,8 @@ metadata:
     app.kubernetes.io/instance: cert-manager
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
-    helm.sh/chart: cert-manager-v1.4.0
+    app.kubernetes.io/version: v1.5.4
+    helm.sh/chart: cert-manager-v1.5.4
   name: cert-manager-controller-approve:cert-manager-io
   namespace: syn-cert-manager
 roleRef:
@@ -676,7 +720,8 @@ metadata:
     app.kubernetes.io/instance: cert-manager
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
-    helm.sh/chart: cert-manager-v1.4.0
+    app.kubernetes.io/version: v1.5.4
+    helm.sh/chart: cert-manager-v1.5.4
   name: cert-manager-controller-certificatesigningrequests
   namespace: syn-cert-manager
 roleRef:
@@ -697,7 +742,8 @@ metadata:
     app.kubernetes.io/instance: cert-manager
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
-    helm.sh/chart: cert-manager-v1.4.0
+    app.kubernetes.io/version: v1.5.4
+    helm.sh/chart: cert-manager-v1.5.4
   name: cert-manager:leaderelection
   namespace: syn-cert-manager
 rules:
@@ -743,7 +789,8 @@ metadata:
     app.kubernetes.io/instance: cert-manager
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
-    helm.sh/chart: cert-manager-v1.4.0
+    app.kubernetes.io/version: v1.5.4
+    helm.sh/chart: cert-manager-v1.5.4
   name: cert-manager:leaderelection
   namespace: syn-cert-manager
 roleRef:
