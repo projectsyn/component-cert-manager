@@ -24,3 +24,21 @@ parameters:
         registry: quay.io
         image: bitnami/kubectl
         tag: '1.21.2@sha256:a6c97fa2af65cf390447d96e7d0ca04f2d8c5035a50e62e1bc6b9eac28c3f576'
+
+    helm_values:
+      global:
+        leaderElection:
+          namespace: ${cert_manager:namespace}
+      extraEnv:
+        - name: HTTP_PROXY
+          value: ${cert_manager:http_proxy}
+        - name: HTTPS_PROXY
+          value: ${cert_manager:https_proxy}
+        - name: NO_PROXY
+          value: ${cert_manager:no_proxy}
+      installCRDs: true
+      prometheus:
+        servicemonitor:
+          enabled: true
+      extraArgs:
+        - --dns01-recursive-nameservers="${cert_manager:dns01-recursive-nameservers}"
