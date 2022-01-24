@@ -52,7 +52,10 @@ spec:
         ports:
         - containerPort: 9402
           protocol: TCP
-        resources: {}
+        resources:
+          requests:
+            cpu: 50m
+            memory: 512Mi
       securityContext:
         runAsNonRoot: true
       serviceAccountName: cert-manager

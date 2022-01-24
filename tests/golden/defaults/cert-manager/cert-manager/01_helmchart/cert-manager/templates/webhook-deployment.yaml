@@ -68,7 +68,10 @@ spec:
           periodSeconds: 5
           successThreshold: 1
           timeoutSeconds: 1
-        resources: {}
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
       securityContext:
         runAsNonRoot: true
       serviceAccountName: cert-manager-webhook
