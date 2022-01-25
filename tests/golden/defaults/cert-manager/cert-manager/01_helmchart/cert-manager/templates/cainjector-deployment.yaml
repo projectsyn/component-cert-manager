@@ -41,7 +41,10 @@ spec:
         image: quay.io/jetstack/cert-manager-cainjector:v1.5.4
         imagePullPolicy: IfNotPresent
         name: cert-manager
-        resources: {}
+        resources:
+          requests:
+            cpu: 50m
+            memory: 512Mi
       securityContext:
         runAsNonRoot: true
       serviceAccountName: cert-manager-cainjector
