@@ -16,23 +16,7 @@ parameters:
         input_type: helm
         input_paths:
           - cert-manager/helmcharts/cert-manager/${cert_manager:charts:cert-manager}/
-        helm_values:
-          global:
-            leaderElection:
-              namespace: ${cert_manager:namespace}
-          extraEnv:
-            - name: HTTP_PROXY
-              value: ${cert_manager:http_proxy}
-            - name: HTTPS_PROXY
-              value: ${cert_manager:https_proxy}
-            - name: NO_PROXY
-              value: ${cert_manager:no_proxy}
-          installCRDs: true
-          prometheus:
-            servicemonitor:
-              enabled: true
-          extraArgs:
-            - --dns01-recursive-nameservers="${cert_manager:dns01-recursive-nameservers}"
+        helm_values: ${cert_manager:helm_values}
         helm_params:
           release_name: cert-manager
           namespace: ${cert_manager:namespace}

@@ -35,6 +35,8 @@ default:: `1.1.1.1:53`
 Recursive nameservers to use for validating DNS01 challenges.
 See the https://cert-manager.io/docs/configuration/acme/dns01/#setting-nameservers-for-dns01-self-check[cert-manager documentation] for more details.
 
+This parameter is injected into parameter `helm_values` as an extra argument to cert-manager (`helm_values.extraArgs`).
+
 == `http_proxy`
 
 [horizontal]
@@ -43,6 +45,7 @@ default:: ``
 
 The value of `http_proxy` is passed to cert-manager in environment variable `HTTP_PROXY`.
 
+This parameter is injected into parameter `helm_values` in field `extraEnv`.
 
 == `https_proxy`
 
@@ -52,6 +55,8 @@ default:: ``
 
 The value of `https_proxy` is passed to cert-manager in environment variable `HTTPS_PROXY`.
 
+This parameter is injected into parameter `helm_values` in field `extraEnv`.
+
 == `no_proxy`
 
 [horizontal]
@@ -59,6 +64,8 @@ type:: string
 default:: ``
 
 The value of `no_proxy` is passed to cert-manager in environment variable `NO_PROXY`.
+
+This parameter is injected into parameter `helm_values` in field `extraEnv`.
 
 == `solvers`
 
@@ -111,6 +118,16 @@ TIP: See xref:how-tos/dns01.acme[Using DNS01 challenges] for instructions to set
 The entries in `fqdns` must be exact matches the FQDNs for which DNS01 challenges should be presented.
 The only flexibility is that cert-manager will present a DNS01 challenge for the wildcard FQDN `*.example.com`, if `example.com` is listed in `fqdns`.
 ====
+
+== `helm_values`
+
+[horizontal]
+type:: dict
+value:: https://github.com/projectsyn/component-cert-manager/blob/master/class/defaults.yml[See `class/defaults.yml`]
+
+The Helm values which the component uses to render the cert-manager Helm chart.
+
+See https://github.com/jetstack/cert-manager/blob/v1.5.4/deploy/charts/cert-manager/values.yaml[the cert-manager Helm chart] for all possible configurations.
 
 == Example
 
