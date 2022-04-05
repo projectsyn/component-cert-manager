@@ -3,7 +3,7 @@ parameters:
     namespace: syn-cert-manager
     dns01-recursive-nameservers: "1.1.1.1:53"
     charts:
-      cert-manager: v1.5.4
+      cert-manager: v1.5.5
     http_proxy: ""
     https_proxy: ""
     no_proxy: ""
