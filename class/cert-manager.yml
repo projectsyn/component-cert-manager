@@ -18,7 +18,7 @@ parameters:
           - cert-manager/helmcharts/cert-manager/${cert_manager:charts:cert-manager}/
         helm_values: ${cert_manager:helm_values}
         helm_params:
-          release_name: cert-manager
+          name: cert-manager
           namespace: ${cert_manager:namespace}
       - output_path: cert-manager/02_issuers
         input_type: jsonnet
