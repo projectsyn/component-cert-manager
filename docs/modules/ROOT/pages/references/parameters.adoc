@@ -127,7 +127,7 @@ value:: https://github.com/projectsyn/component-cert-manager/blob/master/class/d
 
 The Helm values which the component uses to render the cert-manager Helm chart.
 
-See https://github.com/jetstack/cert-manager/blob/v1.5.4/deploy/charts/cert-manager/values.yaml[the cert-manager Helm chart] for all possible configurations.
+See https://github.com/jetstack/cert-manager/blob/v1.5.5/deploy/charts/cert-manager/values.yaml[the cert-manager Helm chart] for all possible configurations.
 
 == Example
 

@@ -8,8 +8,8 @@ metadata:
     app.kubernetes.io/instance: cert-manager
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
-    app.kubernetes.io/version: v1.5.4
-    helm.sh/chart: cert-manager-v1.5.4
+    app.kubernetes.io/version: v1.5.5
+    helm.sh/chart: cert-manager-v1.5.5
   name: certificaterequests.cert-manager.io
   namespace: syn-cert-manager
 spec:
@@ -949,8 +949,8 @@ metadata:
     app.kubernetes.io/instance: cert-manager
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
-    app.kubernetes.io/version: v1.5.4
-    helm.sh/chart: cert-manager-v1.5.4
+    app.kubernetes.io/version: v1.5.5
+    helm.sh/chart: cert-manager-v1.5.5
   name: certificates.cert-manager.io
   namespace: syn-cert-manager
 spec:
@@ -2797,8 +2797,8 @@ metadata:
     app.kubernetes.io/instance: cert-manager
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
-    app.kubernetes.io/version: v1.5.4
-    helm.sh/chart: cert-manager-v1.5.4
+    app.kubernetes.io/version: v1.5.5
+    helm.sh/chart: cert-manager-v1.5.5
   name: challenges.acme.cert-manager.io
   namespace: syn-cert-manager
 spec:
@@ -10251,8 +10251,8 @@ metadata:
     app.kubernetes.io/instance: cert-manager
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
-    app.kubernetes.io/version: v1.5.4
-    helm.sh/chart: cert-manager-v1.5.4
+    app.kubernetes.io/version: v1.5.5
+    helm.sh/chart: cert-manager-v1.5.5
   name: clusterissuers.cert-manager.io
   namespace: syn-cert-manager
 spec:
@@ -19961,8 +19961,8 @@ metadata:
     app.kubernetes.io/instance: cert-manager
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
-    app.kubernetes.io/version: v1.5.4
-    helm.sh/chart: cert-manager-v1.5.4
+    app.kubernetes.io/version: v1.5.5
+    helm.sh/chart: cert-manager-v1.5.5
   name: issuers.cert-manager.io
   namespace: syn-cert-manager
 spec:
@@ -29667,8 +29667,8 @@ metadata:
     app.kubernetes.io/instance: cert-manager
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
-    app.kubernetes.io/version: v1.5.4
-    helm.sh/chart: cert-manager-v1.5.4
+    app.kubernetes.io/version: v1.5.5
+    helm.sh/chart: cert-manager-v1.5.5
   name: orders.acme.cert-manager.io
   namespace: syn-cert-manager
 spec:
