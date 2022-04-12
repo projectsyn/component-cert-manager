@@ -37,6 +37,12 @@ See the https://cert-manager.io/docs/configuration/acme/dns01/#setting-nameserve
 
 This parameter is injected into parameter `helm_values` as an extra argument to cert-manager (`helm_values.extraArgs`).
 
+[NOTE]
+====
+We additionally also set `--dns01-recursive-nameservers-only` as an argument to cert-manager.
+This ensures that only the nameservers configured in this parameter are used to validate DNS01 challenges.
+====
+
 == `http_proxy`
 
 [horizontal]

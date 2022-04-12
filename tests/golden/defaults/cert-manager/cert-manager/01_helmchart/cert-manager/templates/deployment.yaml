@@ -35,6 +35,7 @@ spec:
         - --cluster-resource-namespace=$(POD_NAMESPACE)
         - --leader-election-namespace=syn-cert-manager
         - --dns01-recursive-nameservers="1.1.1.1:53"
+        - --dns01-recursive-nameservers-only
         env:
         - name: POD_NAMESPACE
           valueFrom:
