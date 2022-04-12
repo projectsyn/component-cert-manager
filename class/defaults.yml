@@ -42,6 +42,7 @@ parameters:
           enabled: true
       extraArgs:
         - --dns01-recursive-nameservers="${cert_manager:dns01-recursive-nameservers}"
+        - --dns01-recursive-nameservers-only
       resources:
         requests:
           cpu: 50m
