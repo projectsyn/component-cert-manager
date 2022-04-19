@@ -23,7 +23,7 @@ parameters:
       kubectl:
         registry: quay.io
         image: bitnami/kubectl
-        tag: '1.21.2@sha256:a6c97fa2af65cf390447d96e7d0ca04f2d8c5035a50e62e1bc6b9eac28c3f576'
+        tag: '1.23.5@sha256:d0e24ae78c1f70fa347b5ca9518d91d9a65a29ca8e38e936123746f4d70b9cdb'
 
     helm_values:
       global:
