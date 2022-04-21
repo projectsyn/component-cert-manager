@@ -101,7 +101,7 @@ kind: Secret
 metadata:
   annotations:
     cert-manager.syn.tools/managed-by: The contents of this secret are managed by
-      resources Job/register-acme-dns-client and CronJob/check-acme-dns-client
+      resources Job/create-acme-dns-client and CronJob/check-acme-dns-client
   labels:
     name: acme-dns-client
   name: acme-dns-client
@@ -111,10 +111,12 @@ type: Opaque
 apiVersion: batch/v1
 kind: Job
 metadata:
-  annotations: {}
+  annotations:
+    argocd.argoproj.io/hook: Sync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded
   labels:
-    name: register-acme-dns-client
-  name: register-acme-dns-client
+    name: create-acme-dns-client
+  name: create-acme-dns-client
   namespace: syn-cert-manager
 spec:
   completions: 1
@@ -122,7 +124,7 @@ spec:
   template:
     metadata:
       labels:
-        name: register-acme-dns-client
+        name: create-acme-dns-client
     spec:
       containers:
         - args: []
