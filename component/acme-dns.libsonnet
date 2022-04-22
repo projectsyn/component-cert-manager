@@ -21,7 +21,7 @@ local registrationSecret =
     };
 
 local jobnames = {
-  registration: 'register-acme-dns-client',
+  registration: 'create-acme-dns-client',
   check: 'check-acme-dns-client',
 };
 local clientSecret =
@@ -144,8 +144,18 @@ local scriptPodSpec(name, script) = {
 
 local registrationJob =
   kube.Job(jobnames.registration) {
+    local job = self,
     metadata+: {
       namespace: params.namespace,
+      annotations+: {
+        // Make registration job an ArgoCD hook.
+        // Updating plain Jobs is basically impossible, so we run the
+        // registration job as an ArgoCD hook and ensure it gets deleted when
+        // it succeeds. The registration script should always be a no-op when
+        // acme-dns credentials already exist for in the secret.
+        'argocd.argoproj.io/hook': 'Sync',
+        'argocd.argoproj.io/hook-delete-policy': 'HookSucceeded',
+      },
     },
     spec+: {
       template+: {
