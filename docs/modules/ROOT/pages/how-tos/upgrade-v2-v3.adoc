@@ -1,0 +1,73 @@
+= Upgrade `component-cert-manager` from `v2.x` to `v3.x`
+
+Version 2.x upgrades the underlying `cert-manager` Helm chart from `v1.5.x` to `v1.8.x`.
+With this release old API versions (`v1alpha2`, `v1alpha3`, and `v1beta1`) will no longer be served by the API.
+
+This upgrade should require no manual steps, but older software and definitions might still use the older API versions.
+
+== Check for usage of old API versions
+
+To check if old API versions are still in use, run the following command:
+
+[source,shell]
+----
+kubectl --as=cluster-admin get apirequestcount -ojson | jq '
+    .items[] |
+        select(
+            (.metadata.name | in({
+              "certificaterequests.v1beta1.cert-manager.io":null,
+              "certificates.v1beta1.cert-manager.io":null,
+              "challenges.v1beta1.acme.cert-manager.io":null,
+              "clusterissuers.v1beta1.cert-manager.io":null,
+              "issuers.v1beta1.cert-manager.io":null,
+              "orders.v1beta1.acme.cert-manager.io":null,
+
+              "certificaterequests.v1alpha2.cert-manager.io":null,
+              "certificates.v1alpha2.cert-manager.io":null,
+              "challenges.v1alpha2.acme.cert-manager.io":null,
+              "clusterissuers.v1alpha2.cert-manager.io":null,
+              "issuers.v1alpha2.cert-manager.io":null,
+              "orders.v1alpha2.acme.cert-manager.io":null,
+
+              "certificaterequests.v1alpha3.cert-manager.io":null,
+              "certificates.v1alpha3.cert-manager.io":null,
+              "challenges.v1alpha3.acme.cert-manager.io":null,
+              "clusterissuers.v1alpha3.cert-manager.io":null,
+              "issuers.v1alpha3.cert-manager.io":null,
+              "orders.v1alpha3.acme.cert-manager.io":null,
+            }))
+          and
+            .status.requestCount > 0
+        ) |
+        {
+            resource: .metadata.name,
+            requests: (
+                reduce .status.last24h[] as $hour ({"requests": 0}; .requests += (
+                    reduce $hour.byNode[]? as $node ({"requests": 0}; .requests += (
+                        reduce $node.byUser[]? as $user ({"requests": 0}; .requests += (
+                            reduce $user.byVerb[]? as $verb (0; . + (
+                                if $verb.verb == "watch" or $verb.verb == "list" or $verb.verb == "get" then <1>
+                                    0
+                                else
+                                    $verb.requestCount
+                                end
+                            ))
+                        ))
+                    ).requests)
+                ).requests)
+            ).requests
+        }
+'
+----
+<1> The `watch`, `get` and `list` verbs aren't counted, requests for these endpoints usually comes from auto discovery.
+
+== Convert CRDs to `v1`
+
+`cmctl` has a https://cert-manager.io/docs/usage/cmctl/#convert[convert command] that can be used to convert CRDs to `v1`
+
+[source,shell]
+----
+cmctl convert -f cert.yaml
+----
+
+NOTE: There is also a Docker image available at https://quay.io/repository/jetstack/cert-manager-ctl
