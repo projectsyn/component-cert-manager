@@ -4,7 +4,7 @@
 * xref:how-tos/dns01.adoc[Using DNS01 challenges]
 * xref:how-tos/http01-ocp.adoc[Use HTTP01 solver on OpenShift]
 * xref:how-tos/upgrade-v1-v2.adoc[Upgrade from `v1.x` to `v2.x`]
-* xref:how-tos/upgrade-v1-v2.adoc[Upgrade from `v2.x` to `v3.x`]
+* xref:how-tos/upgrade-v2-v3.adoc[Upgrade from `v2.x` to `v3.x`]
 
 .Technical reference
 * xref:references/parameters.adoc[Parameters]
