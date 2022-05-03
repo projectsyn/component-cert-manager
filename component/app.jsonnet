@@ -14,6 +14,14 @@ local app = argocd.App('cert-manager', params.namespace) {
           '/data',
         ],
       },
+      {
+        group: 'admissionregistration.k8s.io',
+        kind: 'ValidatingWebhookConfiguration',
+        name: 'cert-manager-webhook',
+        jqPathExpressions: [
+          '.webhooks[].namespaceSelector.matchExpressions[] | select(.key == "control-plane")',
+        ],
+      },
     ],
   },
 };
