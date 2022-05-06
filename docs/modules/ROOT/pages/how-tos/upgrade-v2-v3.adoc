@@ -3,9 +3,33 @@
 Version 2.x upgrades the underlying `cert-manager` Helm chart from `v1.5.x` to `v1.8.x`.
 With this release old API versions (`v1alpha2`, `v1alpha3`, and `v1beta1`) will no longer be served by the API.
 
-This upgrade should require no manual steps, but older software and definitions might still use the older API versions.
+This upgrade may require manual steps and older software and definitions might still use the older API versions.
 
-== Check for usage of old API versions
+== `cmctl`
+
+`cmctl` offers various helpers to simplify cert-manager upgrades.
+
+NOTE: There is also a Docker image available at https://quay.io/repository/jetstack/cert-manager-ctl
+
+=== Upgrade existing objects to `v1`
+
+To upgrade existing resources to `v1`, run the following command **before** upgrading cert-manager:
+
+[source,shell]
+----
+cmctl upgrade migrate-api-version --as=cluster-admin
+----
+
+=== Convert manifests to `v1`
+
+In order to upgrade manifest files in your repositories, `cmctl` also has a https://cert-manager.io/docs/usage/cmctl/#convert[convert command] that can be used to convert local manifest files to `v1`.
+
+[source,shell]
+----
+cmctl convert -f cert.yaml
+----
+
+== Check for usage of old API versions on OpenShift
 
 To check if old API versions are still in use, run the following command:
 
@@ -60,14 +84,3 @@ kubectl --as=cluster-admin get apirequestcount -ojson | jq '
 '
 ----
 <1> The `watch`, `get` and `list` verbs aren't counted, requests for these endpoints usually comes from auto discovery.
-
-== Convert CRDs to `v1`
-
-`cmctl` has a https://cert-manager.io/docs/usage/cmctl/#convert[convert command] that can be used to convert CRDs to `v1`
-
-[source,shell]
-----
-cmctl convert -f cert.yaml
-----
-
-NOTE: There is also a Docker image available at https://quay.io/repository/jetstack/cert-manager-ctl
