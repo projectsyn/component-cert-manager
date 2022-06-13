@@ -141,10 +141,16 @@ spec:
               value: /etc/acme-dns
             - name: HOME
               value: /home/acme-dns
+            - name: HTTPS_PROXY
+              value: ''
+            - name: HTTP_PROXY
+              value: ''
             - name: NAMESPACE
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.namespace
+            - name: NO_PROXY
+              value: ''
             - name: SCRIPTS_PATH
               value: /scripts
           envFrom:
@@ -216,10 +222,16 @@ spec:
                   value: /etc/acme-dns
                 - name: HOME
                   value: /home/acme-dns
+                - name: HTTPS_PROXY
+                  value: ''
+                - name: HTTP_PROXY
+                  value: ''
                 - name: NAMESPACE
                   valueFrom:
                     fieldRef:
                       fieldPath: metadata.namespace
+                - name: NO_PROXY
+                  value: ''
                 - name: SCRIPTS_PATH
                   value: /scripts
               envFrom:
