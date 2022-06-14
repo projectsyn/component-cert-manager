@@ -100,6 +100,9 @@ local scriptPodSpec(name, script) = {
         CLIENT_SECRET_NAME: clientSecret.metadata.name,
         ACME_DNS_API: acme_dns_api.endpoint,
         ACME_DNS_FQDNS: '%s' % [ acme_dns_api.fqdns ],
+        HTTP_PROXY: params.http_proxy,
+        HTTPS_PROXY: params.https_proxy,
+        NO_PROXY: params.no_proxy,
       },
       envFrom: std.prune([
         if has_registration_secret then {
