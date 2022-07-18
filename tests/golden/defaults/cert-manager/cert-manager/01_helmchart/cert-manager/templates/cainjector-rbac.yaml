@@ -7,8 +7,8 @@ metadata:
     app.kubernetes.io/instance: cert-manager
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cainjector
-    app.kubernetes.io/version: v1.8.0
-    helm.sh/chart: cert-manager-v1.8.0
+    app.kubernetes.io/version: v1.8.2
+    helm.sh/chart: cert-manager-v1.8.2
   name: cert-manager-cainjector
   namespace: syn-cert-manager
 rules:
@@ -75,8 +75,8 @@ metadata:
     app.kubernetes.io/instance: cert-manager
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cainjector
-    app.kubernetes.io/version: v1.8.0
-    helm.sh/chart: cert-manager-v1.8.0
+    app.kubernetes.io/version: v1.8.2
+    helm.sh/chart: cert-manager-v1.8.2
   name: cert-manager-cainjector
   namespace: syn-cert-manager
 roleRef:
@@ -97,8 +97,8 @@ metadata:
     app.kubernetes.io/instance: cert-manager
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cainjector
-    app.kubernetes.io/version: v1.8.0
-    helm.sh/chart: cert-manager-v1.8.0
+    app.kubernetes.io/version: v1.8.2
+    helm.sh/chart: cert-manager-v1.8.2
   name: cert-manager-cainjector:leaderelection
   namespace: syn-cert-manager
 rules:
@@ -129,8 +129,8 @@ metadata:
     app.kubernetes.io/instance: cert-manager
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cainjector
-    app.kubernetes.io/version: v1.8.0
-    helm.sh/chart: cert-manager-v1.8.0
+    app.kubernetes.io/version: v1.8.2
+    helm.sh/chart: cert-manager-v1.8.2
   name: cert-manager-cainjector:leaderelection
   namespace: syn-cert-manager
 roleRef:

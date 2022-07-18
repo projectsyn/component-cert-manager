@@ -7,8 +7,8 @@ metadata:
     app.kubernetes.io/instance: cert-manager
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
-    app.kubernetes.io/version: v1.8.0
-    helm.sh/chart: cert-manager-v1.8.0
+    app.kubernetes.io/version: v1.8.2
+    helm.sh/chart: cert-manager-v1.8.2
   name: cert-manager
   namespace: syn-cert-manager
 spec:
@@ -26,8 +26,8 @@ spec:
         app.kubernetes.io/instance: cert-manager
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: cert-manager
-        app.kubernetes.io/version: v1.8.0
-        helm.sh/chart: cert-manager-v1.8.0
+        app.kubernetes.io/version: v1.8.2
+        helm.sh/chart: cert-manager-v1.8.2
     spec:
       containers:
       - args:
@@ -47,7 +47,7 @@ spec:
           value: ''
         - name: NO_PROXY
           value: ''
-        image: quay.io/jetstack/cert-manager-controller:v1.8.0
+        image: quay.io/jetstack/cert-manager-controller:v1.8.2
         imagePullPolicy: IfNotPresent
         name: cert-manager
         ports:
