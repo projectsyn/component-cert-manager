@@ -156,7 +156,7 @@ spec:
           envFrom:
             - secretRef:
                 name: acme-dns-register
-          image: docker.io/bitnami/kubectl:1.24.3@sha256:22927f2937e9d11fa04c3a5284350f73c5dd254a6ceea7ea0bb8e902d0f41441
+          image: docker.io/bitnami/kubectl:1.24.4@sha256:d3c17f1dc6e665dcc78e8c14a83ae630bc3d65b07ea11c5f1a012c2c6786d039
           imagePullPolicy: IfNotPresent
           name: register-client
           ports: []
@@ -237,7 +237,7 @@ spec:
               envFrom:
                 - secretRef:
                     name: acme-dns-register
-              image: docker.io/bitnami/kubectl:1.24.3@sha256:22927f2937e9d11fa04c3a5284350f73c5dd254a6ceea7ea0bb8e902d0f41441
+              image: docker.io/bitnami/kubectl:1.24.4@sha256:d3c17f1dc6e665dcc78e8c14a83ae630bc3d65b07ea11c5f1a012c2c6786d039
               imagePullPolicy: IfNotPresent
               name: check-client
               ports: []
