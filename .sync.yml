@@ -1,5 +1,0 @@
-:global:
-  componentName: cert-manager
-  githubUrl: https://github.com/projectsyn/component-cert-manager
-  feature_goUnitTests: false
-  feature_goldenTests: true
