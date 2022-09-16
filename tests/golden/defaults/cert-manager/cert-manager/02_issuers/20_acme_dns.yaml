@@ -183,7 +183,7 @@ spec:
         - emptyDir: {}
           name: home
         - configMap:
-            defaultMode: 448
+            defaultMode: 504
             name: register-acme-dns-client
           name: scripts
 ---
@@ -264,7 +264,7 @@ spec:
             - emptyDir: {}
               name: home
             - configMap:
-                defaultMode: 448
+                defaultMode: 504
                 name: register-acme-dns-client
               name: scripts
   schedule: 47 1 * * *
