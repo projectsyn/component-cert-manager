@@ -137,8 +137,9 @@ local scriptPodSpec(name, script) = {
     },
     scripts: {
       configMap: {
-        // 0700
-        defaultMode: 448,
+        // We need mode 0770 for the scripts, so they work correctly on OCP
+        // 4.11 where the configmap contents are owned by root:<pod-GID>.
+        defaultMode: std.parseOctal('770'),
         name: scriptConfigmap.metadata.name,
       },
     },
