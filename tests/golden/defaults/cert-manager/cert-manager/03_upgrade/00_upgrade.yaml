@@ -86,7 +86,7 @@ spec:
                 orders.acme.cert-manager.io
             - name: HOME
               value: /export
-          image: docker.io/bitnami/kubectl:1.25.3@sha256:1841cb16fddd9660c34f9b5bcec51f8c77bedba76c56381537753976b24649df
+          image: docker.io/bitnami/kubectl:1.25.4@sha256:eee4beb281d8943838ab04bff3072857bffcb52f5a9c55a75506158df852e2c3
           imagePullPolicy: IfNotPresent
           name: cert-manager-crd-upgrade
           ports: []
