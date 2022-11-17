@@ -30,36 +30,36 @@ spec:
         helm.sh/chart: cert-manager-v1.8.2
     spec:
       containers:
-      - args:
-        - --v=2
-        - --cluster-resource-namespace=$(POD_NAMESPACE)
-        - --leader-election-namespace=syn-cert-manager
-        - --dns01-recursive-nameservers="1.1.1.1:53"
-        - --dns01-recursive-nameservers-only
-        env:
-        - name: POD_NAMESPACE
-          valueFrom:
-            fieldRef:
-              fieldPath: metadata.namespace
-        - name: HTTP_PROXY
-          value: ''
-        - name: HTTPS_PROXY
-          value: ''
-        - name: NO_PROXY
-          value: ''
-        image: quay.io/jetstack/cert-manager-controller:v1.8.2
-        imagePullPolicy: IfNotPresent
-        name: cert-manager
-        ports:
-        - containerPort: 9402
-          name: http-metrics
-          protocol: TCP
-        resources:
-          requests:
-            cpu: 50m
-            memory: 512Mi
-        securityContext:
-          allowPrivilegeEscalation: false
+        - args:
+            - --v=2
+            - --cluster-resource-namespace=$(POD_NAMESPACE)
+            - --leader-election-namespace=syn-cert-manager
+            - --dns01-recursive-nameservers="1.1.1.1:53"
+            - --dns01-recursive-nameservers-only
+          env:
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: HTTP_PROXY
+              value: ''
+            - name: HTTPS_PROXY
+              value: ''
+            - name: NO_PROXY
+              value: ''
+          image: quay.io/jetstack/cert-manager-controller:v1.8.2
+          imagePullPolicy: IfNotPresent
+          name: cert-manager
+          ports:
+            - containerPort: 9402
+              name: http-metrics
+              protocol: TCP
+          resources:
+            requests:
+              cpu: 50m
+              memory: 512Mi
+          securityContext:
+            allowPrivilegeEscalation: false
       nodeSelector:
         kubernetes.io/os: linux
       securityContext:

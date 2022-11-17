@@ -12,40 +12,40 @@ metadata:
   name: cert-manager-controller-issuers
   namespace: syn-cert-manager
 rules:
-- apiGroups:
-  - cert-manager.io
-  resources:
-  - issuers
-  - issuers/status
-  verbs:
-  - update
-  - patch
-- apiGroups:
-  - cert-manager.io
-  resources:
-  - issuers
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - ''
-  resources:
-  - secrets
-  verbs:
-  - get
-  - list
-  - watch
-  - create
-  - update
-  - delete
-- apiGroups:
-  - ''
-  resources:
-  - events
-  verbs:
-  - create
-  - patch
+  - apiGroups:
+      - cert-manager.io
+    resources:
+      - issuers
+      - issuers/status
+    verbs:
+      - update
+      - patch
+  - apiGroups:
+      - cert-manager.io
+    resources:
+      - issuers
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - ''
+    resources:
+      - secrets
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+      - update
+      - delete
+  - apiGroups:
+      - ''
+    resources:
+      - events
+    verbs:
+      - create
+      - patch
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -61,40 +61,40 @@ metadata:
   name: cert-manager-controller-clusterissuers
   namespace: syn-cert-manager
 rules:
-- apiGroups:
-  - cert-manager.io
-  resources:
-  - clusterissuers
-  - clusterissuers/status
-  verbs:
-  - update
-  - patch
-- apiGroups:
-  - cert-manager.io
-  resources:
-  - clusterissuers
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - ''
-  resources:
-  - secrets
-  verbs:
-  - get
-  - list
-  - watch
-  - create
-  - update
-  - delete
-- apiGroups:
-  - ''
-  resources:
-  - events
-  verbs:
-  - create
-  - patch
+  - apiGroups:
+      - cert-manager.io
+    resources:
+      - clusterissuers
+      - clusterissuers/status
+    verbs:
+      - update
+      - patch
+  - apiGroups:
+      - cert-manager.io
+    resources:
+      - clusterissuers
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - ''
+    resources:
+      - secrets
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+      - update
+      - delete
+  - apiGroups:
+      - ''
+    resources:
+      - events
+    verbs:
+      - create
+      - patch
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -110,63 +110,63 @@ metadata:
   name: cert-manager-controller-certificates
   namespace: syn-cert-manager
 rules:
-- apiGroups:
-  - cert-manager.io
-  resources:
-  - certificates
-  - certificates/status
-  - certificaterequests
-  - certificaterequests/status
-  verbs:
-  - update
-  - patch
-- apiGroups:
-  - cert-manager.io
-  resources:
-  - certificates
-  - certificaterequests
-  - clusterissuers
-  - issuers
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - cert-manager.io
-  resources:
-  - certificates/finalizers
-  - certificaterequests/finalizers
-  verbs:
-  - update
-- apiGroups:
-  - acme.cert-manager.io
-  resources:
-  - orders
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - watch
-- apiGroups:
-  - ''
-  resources:
-  - secrets
-  verbs:
-  - get
-  - list
-  - watch
-  - create
-  - update
-  - delete
-  - patch
-- apiGroups:
-  - ''
-  resources:
-  - events
-  verbs:
-  - create
-  - patch
+  - apiGroups:
+      - cert-manager.io
+    resources:
+      - certificates
+      - certificates/status
+      - certificaterequests
+      - certificaterequests/status
+    verbs:
+      - update
+      - patch
+  - apiGroups:
+      - cert-manager.io
+    resources:
+      - certificates
+      - certificaterequests
+      - clusterissuers
+      - issuers
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - cert-manager.io
+    resources:
+      - certificates/finalizers
+      - certificaterequests/finalizers
+    verbs:
+      - update
+  - apiGroups:
+      - acme.cert-manager.io
+    resources:
+      - orders
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - ''
+    resources:
+      - secrets
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+      - update
+      - delete
+      - patch
+  - apiGroups:
+      - ''
+    resources:
+      - events
+    verbs:
+      - create
+      - patch
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -182,60 +182,60 @@ metadata:
   name: cert-manager-controller-orders
   namespace: syn-cert-manager
 rules:
-- apiGroups:
-  - acme.cert-manager.io
-  resources:
-  - orders
-  - orders/status
-  verbs:
-  - update
-  - patch
-- apiGroups:
-  - acme.cert-manager.io
-  resources:
-  - orders
-  - challenges
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - cert-manager.io
-  resources:
-  - clusterissuers
-  - issuers
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - acme.cert-manager.io
-  resources:
-  - challenges
-  verbs:
-  - create
-  - delete
-- apiGroups:
-  - acme.cert-manager.io
-  resources:
-  - orders/finalizers
-  verbs:
-  - update
-- apiGroups:
-  - ''
-  resources:
-  - secrets
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - ''
-  resources:
-  - events
-  verbs:
-  - create
-  - patch
+  - apiGroups:
+      - acme.cert-manager.io
+    resources:
+      - orders
+      - orders/status
+    verbs:
+      - update
+      - patch
+  - apiGroups:
+      - acme.cert-manager.io
+    resources:
+      - orders
+      - challenges
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - cert-manager.io
+    resources:
+      - clusterissuers
+      - issuers
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - acme.cert-manager.io
+    resources:
+      - challenges
+    verbs:
+      - create
+      - delete
+  - apiGroups:
+      - acme.cert-manager.io
+    resources:
+      - orders/finalizers
+    verbs:
+      - update
+  - apiGroups:
+      - ''
+    resources:
+      - secrets
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - ''
+    resources:
+      - events
+    verbs:
+      - create
+      - patch
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -251,99 +251,99 @@ metadata:
   name: cert-manager-controller-challenges
   namespace: syn-cert-manager
 rules:
-- apiGroups:
-  - acme.cert-manager.io
-  resources:
-  - challenges
-  - challenges/status
-  verbs:
-  - update
-  - patch
-- apiGroups:
-  - acme.cert-manager.io
-  resources:
-  - challenges
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - cert-manager.io
-  resources:
-  - issuers
-  - clusterissuers
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - ''
-  resources:
-  - secrets
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - ''
-  resources:
-  - events
-  verbs:
-  - create
-  - patch
-- apiGroups:
-  - ''
-  resources:
-  - pods
-  - services
-  verbs:
-  - get
-  - list
-  - watch
-  - create
-  - delete
-- apiGroups:
-  - networking.k8s.io
-  resources:
-  - ingresses
-  verbs:
-  - get
-  - list
-  - watch
-  - create
-  - delete
-  - update
-- apiGroups:
-  - gateway.networking.k8s.io
-  resources:
-  - httproutes
-  verbs:
-  - get
-  - list
-  - watch
-  - create
-  - delete
-  - update
-- apiGroups:
-  - route.openshift.io
-  resources:
-  - routes/custom-host
-  verbs:
-  - create
-- apiGroups:
-  - acme.cert-manager.io
-  resources:
-  - challenges/finalizers
-  verbs:
-  - update
-- apiGroups:
-  - ''
-  resources:
-  - secrets
-  verbs:
-  - get
-  - list
-  - watch
+  - apiGroups:
+      - acme.cert-manager.io
+    resources:
+      - challenges
+      - challenges/status
+    verbs:
+      - update
+      - patch
+  - apiGroups:
+      - acme.cert-manager.io
+    resources:
+      - challenges
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - cert-manager.io
+    resources:
+      - issuers
+      - clusterissuers
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - ''
+    resources:
+      - secrets
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - ''
+    resources:
+      - events
+    verbs:
+      - create
+      - patch
+  - apiGroups:
+      - ''
+    resources:
+      - pods
+      - services
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+      - delete
+  - apiGroups:
+      - networking.k8s.io
+    resources:
+      - ingresses
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+      - delete
+      - update
+  - apiGroups:
+      - gateway.networking.k8s.io
+    resources:
+      - httproutes
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+      - delete
+      - update
+  - apiGroups:
+      - route.openshift.io
+    resources:
+      - routes/custom-host
+    verbs:
+      - create
+  - apiGroups:
+      - acme.cert-manager.io
+    resources:
+      - challenges/finalizers
+    verbs:
+      - update
+  - apiGroups:
+      - ''
+    resources:
+      - secrets
+    verbs:
+      - get
+      - list
+      - watch
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -359,63 +359,63 @@ metadata:
   name: cert-manager-controller-ingress-shim
   namespace: syn-cert-manager
 rules:
-- apiGroups:
-  - cert-manager.io
-  resources:
-  - certificates
-  - certificaterequests
-  verbs:
-  - create
-  - update
-  - delete
-- apiGroups:
-  - cert-manager.io
-  resources:
-  - certificates
-  - certificaterequests
-  - issuers
-  - clusterissuers
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - networking.k8s.io
-  resources:
-  - ingresses
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - networking.k8s.io
-  resources:
-  - ingresses/finalizers
-  verbs:
-  - update
-- apiGroups:
-  - gateway.networking.k8s.io
-  resources:
-  - gateways
-  - httproutes
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - gateway.networking.k8s.io
-  resources:
-  - gateways/finalizers
-  - httproutes/finalizers
-  verbs:
-  - update
-- apiGroups:
-  - ''
-  resources:
-  - events
-  verbs:
-  - create
-  - patch
+  - apiGroups:
+      - cert-manager.io
+    resources:
+      - certificates
+      - certificaterequests
+    verbs:
+      - create
+      - update
+      - delete
+  - apiGroups:
+      - cert-manager.io
+    resources:
+      - certificates
+      - certificaterequests
+      - issuers
+      - clusterissuers
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - networking.k8s.io
+    resources:
+      - ingresses
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - networking.k8s.io
+    resources:
+      - ingresses/finalizers
+    verbs:
+      - update
+  - apiGroups:
+      - gateway.networking.k8s.io
+    resources:
+      - gateways
+      - httproutes
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - gateway.networking.k8s.io
+    resources:
+      - gateways/finalizers
+      - httproutes/finalizers
+    verbs:
+      - update
+  - apiGroups:
+      - ''
+    resources:
+      - events
+    verbs:
+      - create
+      - patch
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -434,25 +434,25 @@ metadata:
   name: cert-manager-view
   namespace: syn-cert-manager
 rules:
-- apiGroups:
-  - cert-manager.io
-  resources:
-  - certificates
-  - certificaterequests
-  - issuers
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - acme.cert-manager.io
-  resources:
-  - challenges
-  - orders
-  verbs:
-  - get
-  - list
-  - watch
+  - apiGroups:
+      - cert-manager.io
+    resources:
+      - certificates
+      - certificaterequests
+      - issuers
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - acme.cert-manager.io
+    resources:
+      - challenges
+      - orders
+    verbs:
+      - get
+      - list
+      - watch
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -470,35 +470,35 @@ metadata:
   name: cert-manager-edit
   namespace: syn-cert-manager
 rules:
-- apiGroups:
-  - cert-manager.io
-  resources:
-  - certificates
-  - certificaterequests
-  - issuers
-  verbs:
-  - create
-  - delete
-  - deletecollection
-  - patch
-  - update
-- apiGroups:
-  - cert-manager.io
-  resources:
-  - certificates/status
-  verbs:
-  - update
-- apiGroups:
-  - acme.cert-manager.io
-  resources:
-  - challenges
-  - orders
-  verbs:
-  - create
-  - delete
-  - deletecollection
-  - patch
-  - update
+  - apiGroups:
+      - cert-manager.io
+    resources:
+      - certificates
+      - certificaterequests
+      - issuers
+    verbs:
+      - create
+      - delete
+      - deletecollection
+      - patch
+      - update
+  - apiGroups:
+      - cert-manager.io
+    resources:
+      - certificates/status
+    verbs:
+      - update
+  - apiGroups:
+      - acme.cert-manager.io
+    resources:
+      - challenges
+      - orders
+    verbs:
+      - create
+      - delete
+      - deletecollection
+      - patch
+      - update
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -514,15 +514,15 @@ metadata:
   name: cert-manager-controller-approve:cert-manager-io
   namespace: syn-cert-manager
 rules:
-- apiGroups:
-  - cert-manager.io
-  resourceNames:
-  - issuers.cert-manager.io/*
-  - clusterissuers.cert-manager.io/*
-  resources:
-  - signers
-  verbs:
-  - approve
+  - apiGroups:
+      - cert-manager.io
+    resourceNames:
+      - issuers.cert-manager.io/*
+      - clusterissuers.cert-manager.io/*
+    resources:
+      - signers
+    verbs:
+      - approve
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -538,37 +538,37 @@ metadata:
   name: cert-manager-controller-certificatesigningrequests
   namespace: syn-cert-manager
 rules:
-- apiGroups:
-  - certificates.k8s.io
-  resources:
-  - certificatesigningrequests
-  verbs:
-  - get
-  - list
-  - watch
-  - update
-- apiGroups:
-  - certificates.k8s.io
-  resources:
-  - certificatesigningrequests/status
-  verbs:
-  - update
-  - patch
-- apiGroups:
-  - certificates.k8s.io
-  resourceNames:
-  - issuers.cert-manager.io/*
-  - clusterissuers.cert-manager.io/*
-  resources:
-  - signers
-  verbs:
-  - sign
-- apiGroups:
-  - authorization.k8s.io
-  resources:
-  - subjectaccessreviews
-  verbs:
-  - create
+  - apiGroups:
+      - certificates.k8s.io
+    resources:
+      - certificatesigningrequests
+    verbs:
+      - get
+      - list
+      - watch
+      - update
+  - apiGroups:
+      - certificates.k8s.io
+    resources:
+      - certificatesigningrequests/status
+    verbs:
+      - update
+      - patch
+  - apiGroups:
+      - certificates.k8s.io
+    resourceNames:
+      - issuers.cert-manager.io/*
+      - clusterissuers.cert-manager.io/*
+    resources:
+      - signers
+    verbs:
+      - sign
+  - apiGroups:
+      - authorization.k8s.io
+    resources:
+      - subjectaccessreviews
+    verbs:
+      - create
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -588,9 +588,9 @@ roleRef:
   kind: ClusterRole
   name: cert-manager-controller-issuers
 subjects:
-- kind: ServiceAccount
-  name: cert-manager
-  namespace: syn-cert-manager
+  - kind: ServiceAccount
+    name: cert-manager
+    namespace: syn-cert-manager
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -610,9 +610,9 @@ roleRef:
   kind: ClusterRole
   name: cert-manager-controller-clusterissuers
 subjects:
-- kind: ServiceAccount
-  name: cert-manager
-  namespace: syn-cert-manager
+  - kind: ServiceAccount
+    name: cert-manager
+    namespace: syn-cert-manager
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -632,9 +632,9 @@ roleRef:
   kind: ClusterRole
   name: cert-manager-controller-certificates
 subjects:
-- kind: ServiceAccount
-  name: cert-manager
-  namespace: syn-cert-manager
+  - kind: ServiceAccount
+    name: cert-manager
+    namespace: syn-cert-manager
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -654,9 +654,9 @@ roleRef:
   kind: ClusterRole
   name: cert-manager-controller-orders
 subjects:
-- kind: ServiceAccount
-  name: cert-manager
-  namespace: syn-cert-manager
+  - kind: ServiceAccount
+    name: cert-manager
+    namespace: syn-cert-manager
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -676,9 +676,9 @@ roleRef:
   kind: ClusterRole
   name: cert-manager-controller-challenges
 subjects:
-- kind: ServiceAccount
-  name: cert-manager
-  namespace: syn-cert-manager
+  - kind: ServiceAccount
+    name: cert-manager
+    namespace: syn-cert-manager
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -698,9 +698,9 @@ roleRef:
   kind: ClusterRole
   name: cert-manager-controller-ingress-shim
 subjects:
-- kind: ServiceAccount
-  name: cert-manager
-  namespace: syn-cert-manager
+  - kind: ServiceAccount
+    name: cert-manager
+    namespace: syn-cert-manager
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -720,9 +720,9 @@ roleRef:
   kind: ClusterRole
   name: cert-manager-controller-approve:cert-manager-io
 subjects:
-- kind: ServiceAccount
-  name: cert-manager
-  namespace: syn-cert-manager
+  - kind: ServiceAccount
+    name: cert-manager
+    namespace: syn-cert-manager
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -742,9 +742,9 @@ roleRef:
   kind: ClusterRole
   name: cert-manager-controller-certificatesigningrequests
 subjects:
-- kind: ServiceAccount
-  name: cert-manager
-  namespace: syn-cert-manager
+  - kind: ServiceAccount
+    name: cert-manager
+    namespace: syn-cert-manager
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
@@ -760,22 +760,22 @@ metadata:
   name: cert-manager:leaderelection
   namespace: syn-cert-manager
 rules:
-- apiGroups:
-  - coordination.k8s.io
-  resourceNames:
-  - cert-manager-controller
-  resources:
-  - leases
-  verbs:
-  - get
-  - update
-  - patch
-- apiGroups:
-  - coordination.k8s.io
-  resources:
-  - leases
-  verbs:
-  - create
+  - apiGroups:
+      - coordination.k8s.io
+    resourceNames:
+      - cert-manager-controller
+    resources:
+      - leases
+    verbs:
+      - get
+      - update
+      - patch
+  - apiGroups:
+      - coordination.k8s.io
+    resources:
+      - leases
+    verbs:
+      - create
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
@@ -795,7 +795,7 @@ roleRef:
   kind: Role
   name: cert-manager:leaderelection
 subjects:
-- apiGroup: ''
-  kind: ServiceAccount
-  name: cert-manager
-  namespace: syn-cert-manager
+  - apiGroup: ''
+    kind: ServiceAccount
+    name: cert-manager
+    namespace: syn-cert-manager
