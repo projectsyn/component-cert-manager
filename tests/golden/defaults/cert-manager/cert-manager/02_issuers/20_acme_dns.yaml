@@ -156,7 +156,7 @@ spec:
           envFrom:
             - secretRef:
                 name: acme-dns-register
-          image: docker.io/bitnami/kubectl:1.25.4@sha256:980b67a7e5bd903d75033c51a14cdfd9eba9ddbc3de415bc0feae21b6c62ecc5
+          image: docker.io/bitnami/kubectl:1.25.5@sha256:e89e40b940a2addd9b6bcadd127bb253ec12561f6d59e2557b4d44f8bd3ee774
           imagePullPolicy: IfNotPresent
           name: register-client
           ports: []
@@ -187,7 +187,7 @@ spec:
             name: register-acme-dns-client
           name: scripts
 ---
-apiVersion: batch/v1beta1
+apiVersion: batch/v1
 kind: CronJob
 metadata:
   annotations: {}
@@ -237,7 +237,7 @@ spec:
               envFrom:
                 - secretRef:
                     name: acme-dns-register
-              image: docker.io/bitnami/kubectl:1.25.4@sha256:980b67a7e5bd903d75033c51a14cdfd9eba9ddbc3de415bc0feae21b6c62ecc5
+              image: docker.io/bitnami/kubectl:1.25.5@sha256:e89e40b940a2addd9b6bcadd127bb253ec12561f6d59e2557b4d44f8bd3ee774
               imagePullPolicy: IfNotPresent
               name: check-client
               ports: []
