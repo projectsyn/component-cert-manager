@@ -23,7 +23,7 @@ parameters:
       kubectl:
         registry: docker.io
         image: bitnami/kubectl
-        tag: '1.25.5@sha256:d2edf7c733fde92124cedacbca535e7225555f7e8bf3bcf8675891d25ca94af5'
+        tag: '1.25.5@sha256:2a476434788e989312643962395cfef524cd84631034385843d5b735ae181f3f'
 
     helm_values:
       global:
