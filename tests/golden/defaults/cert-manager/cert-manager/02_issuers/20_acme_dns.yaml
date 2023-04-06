@@ -43,36 +43,85 @@ subjects:
 ---
 apiVersion: v1
 data:
-  check.sh: "#!/bin/sh\n\nset -e\n\n# Extract acme-dns client config from mounted\
-    \ secret file with `jq` and inject\n# as variables into the script environment\
-    \ with `eval`.\nusername=\npassword=\nsubdomain=\nacmedns_config=$(jq -r --argjson\
-    \ fqdns \"${ACME_DNS_FQDNS}\" '\n    .[$fqdns[0]]\n    | \"username=\\(.username)\
-    \ password=\\(.password) subdomain=\\(.subdomain)\"\n  ' \"${CONFIG_PATH}/acmedns.json\"\
-    )\n# This overrides the empty variables declared above\neval \"${acmedns_config}\"\
-    \n\nreregister=\nif ! curl \\\n  -H\"X-Api-User: ${username}\" \\\n  -H\"X-Api-Key:\
-    \ ${password}\" \\\n  -d '{\n    \"subdomain\": \"'\"${subdomain}\"'\",\n    \"\
-    txt\": \"___self___verify___client___credentials____\"\n  }' \"${ACME_DNS_API}\"\
-    /update; then\n  echo \"Failed to update record... trying reregistration\"\n \
-    \ reregister=\"yes\"\nfi\n\nif [ -n \"${reregister}\" ]; then\n  \"${SCRIPTS_PATH}/register.sh\"\
-    \ force\nfi\n"
-  register.sh: "#!/bin/sh\n\nset -e\n\nreadonly force_register=\"${1}\"\nreadonly\
-    \ client_creds_file=\"${CONFIG_PATH}/acmedns.json\"\n\nreadonly orig_secret=\"\
-    $(kubectl -n \"${NAMESPACE}\" \\\n  get secret \"${CLIENT_SECRET_NAME}\" -ojson)\"\
-    \n\nreg_auth_args=\nif [ -n \"${REG_USERNAME}\" ]; then\n  reg_auth_args=\"-u${REG_USERNAME}:${REG_PASSWORD}\"\
-    \nfi\n\n\nif ! [ -f \"${client_creds_file}\" ] \\\n  || [ -n \"${force_register}\"\
-    \ ]; then\n\n  reg=$(curl -XPOST \"${reg_auth_args}\" \"${ACME_DNS_API}/register\"\
-    )\n  # Create acme-dns-client secret for provided domain names.\n  # Required\
-    \ format for acmedns.json in `stringData`:\n  # {\n  #   \"example.com\": { registration\
-    \ output },\n  #   \"example.org\": { registration output }\n  # }\n  client_secret=$(jq\
-    \ -n \\\n    --argjson orig_secret \"${orig_secret}\" \\\n    --argjson reg \"\
-    ${reg}\" \\\n    --argjson fqdns \"${ACME_DNS_FQDNS}\" \\\n    --arg client_secret_name\
-    \ \"${CLIENT_SECRET_NAME}\" \\\n    --arg namespace \"${NAMESPACE}\" \\\n    '($orig_secret\n\
-    \      |del(.metadata.annotations.\"kubectl.kubernetes.io/last-applied-configuration\"\
-    )\n     ) + {\n      \"stringData\": {\n        \"acmedns.json\": (reduce $fqdns[]\
-    \ as $d ({}; . + { ($d): $reg })) | tojson\n      }\n    }')\n\n  echo \"${client_secret}\"\
-    \ >\"${HOME}/secret.json\"\n  # Use kubectl apply as the empty secret is created\
-    \ by ArgoCD\n  kubectl apply -f \"${HOME}/secret.json\"\nelse\n  echo \"Client\
-    \ credentials config '${client_creds_file}' already exists.\"\nfi\n"
+  check.sh: |
+    #!/bin/sh
+
+    set -e
+
+    # Extract acme-dns client config from mounted secret file with `jq` and inject
+    # as variables into the script environment with `eval`.
+    username=
+    password=
+    subdomain=
+    acmedns_config=$(jq -r --argjson fqdns "${ACME_DNS_FQDNS}" '
+        .[$fqdns[0]]
+        | "username=\(.username) password=\(.password) subdomain=\(.subdomain)"
+      ' "${CONFIG_PATH}/acmedns.json")
+    # This overrides the empty variables declared above
+    eval "${acmedns_config}"
+
+    reregister=
+    if ! curl \
+      -H"X-Api-User: ${username}" \
+      -H"X-Api-Key: ${password}" \
+      -d '{
+        "subdomain": "'"${subdomain}"'",
+        "txt": "___self___verify___client___credentials____"
+      }' "${ACME_DNS_API}"/update; then
+      echo "Failed to update record... trying reregistration"
+      reregister="yes"
+    fi
+
+    if [ -n "${reregister}" ]; then
+      "${SCRIPTS_PATH}/register.sh" force
+    fi
+  register.sh: |
+    #!/bin/sh
+
+    set -e
+
+    readonly force_register="${1}"
+    readonly client_creds_file="${CONFIG_PATH}/acmedns.json"
+
+    readonly orig_secret="$(kubectl -n "${NAMESPACE}" \
+      get secret "${CLIENT_SECRET_NAME}" -ojson)"
+
+    reg_auth_args=
+    if [ -n "${REG_USERNAME}" ]; then
+      reg_auth_args="-u${REG_USERNAME}:${REG_PASSWORD}"
+    fi
+
+
+    if ! [ -f "${client_creds_file}" ] \
+      || [ -n "${force_register}" ]; then
+
+      reg=$(curl -XPOST "${reg_auth_args}" "${ACME_DNS_API}/register")
+      # Create acme-dns-client secret for provided domain names.
+      # Required format for acmedns.json in `stringData`:
+      # {
+      #   "example.com": { registration output },
+      #   "example.org": { registration output }
+      # }
+      client_secret=$(jq -n \
+        --argjson orig_secret "${orig_secret}" \
+        --argjson reg "${reg}" \
+        --argjson fqdns "${ACME_DNS_FQDNS}" \
+        --arg client_secret_name "${CLIENT_SECRET_NAME}" \
+        --arg namespace "${NAMESPACE}" \
+        '($orig_secret
+          |del(.metadata.annotations."kubectl.kubernetes.io/last-applied-configuration")
+         ) + {
+          "stringData": {
+            "acmedns.json": (reduce $fqdns[] as $d ({}; . + { ($d): $reg })) | tojson
+          }
+        }')
+
+      echo "${client_secret}" >"${HOME}/secret.json"
+      # Use kubectl apply as the empty secret is created by ArgoCD
+      kubectl apply -f "${HOME}/secret.json"
+    else
+      echo "Client credentials config '${client_creds_file}' already exists."
+    fi
 kind: ConfigMap
 metadata:
   annotations: {}
