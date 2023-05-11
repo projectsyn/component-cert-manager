@@ -7,6 +7,9 @@ parameters:
     http_proxy: ""
     https_proxy: ""
     no_proxy: ""
+    ca:
+      enabled: false
+      name: ${cluster:name}
     solvers:
       nginx_http01:
         http01:

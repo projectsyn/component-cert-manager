@@ -73,6 +73,39 @@ The value of `no_proxy` is passed to cert-manager in environment variable `NO_PR
 
 This parameter is injected into parameter `helm_values` in field `extraEnv`.
 
+== `ca`
+
+[horizontal]
+type:: dict
+default::
++
+[source,yaml]
+----
+enabled: false
+name: ${cluster:name}
+----
+
+This parameter allows users to optionally create a `ClusterIssuer` backed by a local CA certificate.
+By default, this `ClusterIssuer` is not deployed.
+This is controller through field `enabled`.
+
+If the feature is enabled, field `name` is used as the `Common Name` for the CA certificate.
+The resulting `ClusterIssuer` uses field `name` as `metadata.name`.
+
+When the feature is enabled, users can issue certificates from this `ClusterIssuer` by providing the following configuration in a `Certificate` resource:
+
+[source,yaml]
+----
+spec:
+  issuerRef:
+    group: cert-manager.io
+    kind: ClusterIssuer
+    name: c-green-test-1234 <1>
+----
+<1> Replace with the chosen value of field `name`.
+
+This implements the CA issuer bootstrap pattern documented in the https://cert-manager.io/docs/configuration/selfsigned/#bootstrapping-ca-issuers[cert-manager documentation].
+
 == `solvers`
 
 [horizontal]
