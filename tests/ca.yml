@@ -1,0 +1,12 @@
+parameters:
+  cert_manager:
+    ca:
+      enabled: true
+    letsencrypt_email: test@syn.tools
+    acme_dns_api:
+      endpoint: acme-dns-api.example.com
+      username: acme-dns
+      password: ?{vaultkv:${cluster:tenant}/${cluster:name}/cert-manager/acme-dns-register-password}
+      fqdns:
+        - example.com
+        - apps.example.com
