@@ -1,0 +1,37 @@
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  annotations: {}
+  labels:
+    name: c-green-test-1234-selfsigned
+  name: c-green-test-1234-selfsigned
+spec:
+  selfSigned: {}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  annotations: {}
+  labels:
+    name: c-green-test-1234-cacert
+  name: c-green-test-1234-cacert
+spec:
+  commonName: c-green-test-1234
+  isCA: true
+  issuerRef:
+    name: c-green-test-1234-selfsigned
+  privateKey:
+    algorithm: ECDSA
+    size: 256
+  secretName: c-green-test-1234-cacert
+---
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  annotations: {}
+  labels:
+    name: c-green-test-1234
+  name: c-green-test-1234
+spec:
+  ca:
+    secretName: c-green-test-1234-cacert

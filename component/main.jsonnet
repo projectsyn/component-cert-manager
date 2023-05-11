@@ -49,8 +49,14 @@ local secrets = [
 ];
 
 local acmedns = import 'acme-dns.libsonnet';
+local ca = import 'ca.libsonnet';
 
 {
+  [if params.ca.enabled then '00_ca']: [
+    ca.selfsigned_issuer,
+    ca.cacert,
+    ca.clusterissuer,
+  ],
   '00_clusterissuer': [
     letsencrypt_staging,
     letsencrypt_production,

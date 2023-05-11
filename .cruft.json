@@ -1,17 +1,17 @@
 {
   "template": "https://github.com/projectsyn/commodore-component-template.git",
-  "commit": "e19c98ad519b11c3e0c5b7440f4d5ee939972036",
+  "commit": "880649ead47cceac7eaffd954f836e1428160fca",
   "checkout": "main",
   "context": {
     "cookiecutter": {
       "name": "cert-manager",
       "slug": "cert-manager",
       "parameter_key": "cert_manager",
-      "test_cases": "defaults",
+      "test_cases": "defaults ca",
       "add_lib": "y",
       "add_pp": "y",
       "add_golden": "y",
-      "add_matrix": "n",
+      "add_matrix": "y",
       "add_go_unit": "n",
       "copyright_holder": "VSHN AG <info@vshn.ch>",
       "copyright_year": "2021",
