@@ -7,21 +7,26 @@ parameters:
     http_proxy: ""
     https_proxy: ""
     no_proxy: ""
+
     ca:
       enabled: false
       name: ${cluster:name}
+
     solvers:
       nginx_http01:
         http01:
           ingress:
             class: 'nginx'
+
     secrets: {}
+
     acme_dns_api: {}
     # acme_dns_api:
     #   endpoint: acme-dns-api.example.com
     #   username: dns_api_registration_user
     #   password: dns_api_registration_password
     #   fqdns: [ "api.cluster.example.com", "apps.cluster.example.com" ]
+
     images:
       kubectl:
         registry: docker.io
