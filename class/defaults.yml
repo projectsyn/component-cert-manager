@@ -21,9 +21,9 @@ parameters:
     #   fqdns: [ "api.cluster.example.com", "apps.cluster.example.com" ]
     images:
       kubectl:
-        registry: docker.io
-        image: bitnami/kubectl
-        tag: '1.25.5@sha256:d4a21c081ec10396029758e340ec9ba09bc9dbc9066bb0f55f1cba56ab1cf598'
+        registry: quay.io
+        image: appuio/oc
+        tag: 'v4.12'
 
     helm_values:
       global:
