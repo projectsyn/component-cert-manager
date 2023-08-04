@@ -26,7 +26,7 @@ parameters:
       kubectl:
         registry: quay.io
         image: appuio/oc
-        tag: 'v4.12'
+        tag: 'v4.13'
 
     helm_values:
       global:
