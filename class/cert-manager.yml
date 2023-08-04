@@ -5,17 +5,17 @@ parameters:
         source: https://charts.jetstack.io
         chart_name: cert-manager
         version: ${cert_manager:charts:cert-manager}
-        output_path: dependencies/cert-manager/helmcharts/cert-manager/${cert_manager:charts:cert-manager}/
+        output_path: ${_base_directory}/helmcharts/cert-manager/${cert_manager:charts:cert-manager}/
 
     compile:
       - input_paths:
-          - cert-manager/component/app.jsonnet
+          - ${_base_directory}/component/app.jsonnet
         input_type: jsonnet
         output_path: apps/
       - output_path: cert-manager/01_helmchart
         input_type: helm
         input_paths:
-          - cert-manager/helmcharts/cert-manager/${cert_manager:charts:cert-manager}/
+          - ${_base_directory}/helmcharts/cert-manager/${cert_manager:charts:cert-manager}/
         helm_values: ${cert_manager:helm_values}
         helm_params:
           name: cert-manager
@@ -24,12 +24,12 @@ parameters:
         input_type: jsonnet
         output_type: yaml
         input_paths:
-          - cert-manager/component/main.jsonnet
+          - ${_base_directory}/component/main.jsonnet
       - output_path: cert-manager/03_upgrade
         input_type: jsonnet
         output_type: yaml
         input_paths:
-          - cert-manager/component/upgrade.jsonnet
+          - ${_base_directory}/component/upgrade.jsonnet
 
   commodore:
     postprocess:
