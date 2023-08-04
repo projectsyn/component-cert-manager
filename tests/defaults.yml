@@ -1,4 +1,13 @@
+applications:
+  - prometheus
+
 parameters:
+  kapitan:
+    dependencies:
+      - type: https
+        source: https://raw.githubusercontent.com/projectsyn/component-prometheus/master/lib/prometheus.libsonnet
+        output_path: vendor/lib/prometheus.libsonnet
+
   cert_manager:
     letsencrypt_email: test@syn.tools
     acme_dns_api:
@@ -8,3 +17,6 @@ parameters:
       fqdns:
         - example.com
         - apps.example.com
+
+  prometheus:
+    defaultInstance: infra-monitoring
