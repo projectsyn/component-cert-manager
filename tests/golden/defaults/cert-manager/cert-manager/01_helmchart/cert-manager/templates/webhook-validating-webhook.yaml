@@ -12,7 +12,6 @@ metadata:
     app.kubernetes.io/version: v1.8.2
     helm.sh/chart: cert-manager-v1.8.2
   name: cert-manager-webhook
-  namespace: syn-cert-manager
 webhooks:
   - admissionReviewVersions:
       - v1

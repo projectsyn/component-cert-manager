@@ -10,7 +10,6 @@ metadata:
     app.kubernetes.io/version: v1.8.2
     helm.sh/chart: cert-manager-v1.8.2
   name: cert-manager-webhook:subjectaccessreviews
-  namespace: syn-cert-manager
 rules:
   - apiGroups:
       - authorization.k8s.io
@@ -31,7 +30,6 @@ metadata:
     app.kubernetes.io/version: v1.8.2
     helm.sh/chart: cert-manager-v1.8.2
   name: cert-manager-webhook:subjectaccessreviews
-  namespace: syn-cert-manager
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole

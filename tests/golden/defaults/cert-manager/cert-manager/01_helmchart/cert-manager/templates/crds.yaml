@@ -9,7 +9,6 @@ metadata:
     app.kubernetes.io/version: v1.8.2
     helm.sh/chart: cert-manager-v1.8.2
   name: certificaterequests.cert-manager.io
-  namespace: syn-cert-manager
 spec:
   group: cert-manager.io
   names:
@@ -267,7 +266,6 @@ metadata:
     app.kubernetes.io/version: v1.8.2
     helm.sh/chart: cert-manager-v1.8.2
   name: certificates.cert-manager.io
-  namespace: syn-cert-manager
 spec:
   group: cert-manager.io
   names:
@@ -794,7 +792,6 @@ metadata:
     app.kubernetes.io/version: v1.8.2
     helm.sh/chart: cert-manager-v1.8.2
   name: challenges.acme.cert-manager.io
-  namespace: syn-cert-manager
 spec:
   group: acme.cert-manager.io
   names:
@@ -2861,7 +2858,6 @@ metadata:
     app.kubernetes.io/version: v1.8.2
     helm.sh/chart: cert-manager-v1.8.2
   name: clusterissuers.cert-manager.io
-  namespace: syn-cert-manager
 spec:
   group: cert-manager.io
   names:
@@ -5525,7 +5521,6 @@ metadata:
     app.kubernetes.io/version: v1.8.2
     helm.sh/chart: cert-manager-v1.8.2
   name: issuers.cert-manager.io
-  namespace: syn-cert-manager
 spec:
   group: cert-manager.io
   names:
@@ -8188,7 +8183,6 @@ metadata:
     app.kubernetes.io/version: v1.8.2
     helm.sh/chart: cert-manager-v1.8.2
   name: orders.acme.cert-manager.io
-  namespace: syn-cert-manager
 spec:
   group: acme.cert-manager.io
   names:
