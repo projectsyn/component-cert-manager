@@ -92,7 +92,7 @@ spec:
                 orders.acme.cert-manager.io
             - name: HOME
               value: /export
-          image: docker.io/bitnami/kubectl:1.25.5@sha256:d4a21c081ec10396029758e340ec9ba09bc9dbc9066bb0f55f1cba56ab1cf598
+          image: quay.io/appuio/oc:v4.12
           imagePullPolicy: IfNotPresent
           name: cert-manager-crd-upgrade
           ports: []
