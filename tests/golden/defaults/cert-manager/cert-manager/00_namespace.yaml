@@ -3,5 +3,7 @@ kind: Namespace
 metadata:
   annotations: {}
   labels:
+    monitoring.syn.tools/infra-monitoring: 'true'
     name: syn-cert-manager
+    openshift.io/cluster-monitoring: 'true'
   name: syn-cert-manager
