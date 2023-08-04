@@ -10,7 +10,6 @@ metadata:
     app.kubernetes.io/version: v1.8.2
     helm.sh/chart: cert-manager-v1.8.2
   name: cert-manager-controller-issuers
-  namespace: syn-cert-manager
 rules:
   - apiGroups:
       - cert-manager.io
@@ -59,7 +58,6 @@ metadata:
     app.kubernetes.io/version: v1.8.2
     helm.sh/chart: cert-manager-v1.8.2
   name: cert-manager-controller-clusterissuers
-  namespace: syn-cert-manager
 rules:
   - apiGroups:
       - cert-manager.io
@@ -108,7 +106,6 @@ metadata:
     app.kubernetes.io/version: v1.8.2
     helm.sh/chart: cert-manager-v1.8.2
   name: cert-manager-controller-certificates
-  namespace: syn-cert-manager
 rules:
   - apiGroups:
       - cert-manager.io
@@ -180,7 +177,6 @@ metadata:
     app.kubernetes.io/version: v1.8.2
     helm.sh/chart: cert-manager-v1.8.2
   name: cert-manager-controller-orders
-  namespace: syn-cert-manager
 rules:
   - apiGroups:
       - acme.cert-manager.io
@@ -249,7 +245,6 @@ metadata:
     app.kubernetes.io/version: v1.8.2
     helm.sh/chart: cert-manager-v1.8.2
   name: cert-manager-controller-challenges
-  namespace: syn-cert-manager
 rules:
   - apiGroups:
       - acme.cert-manager.io
@@ -357,7 +352,6 @@ metadata:
     app.kubernetes.io/version: v1.8.2
     helm.sh/chart: cert-manager-v1.8.2
   name: cert-manager-controller-ingress-shim
-  namespace: syn-cert-manager
 rules:
   - apiGroups:
       - cert-manager.io
@@ -432,7 +426,6 @@ metadata:
     rbac.authorization.k8s.io/aggregate-to-edit: 'true'
     rbac.authorization.k8s.io/aggregate-to-view: 'true'
   name: cert-manager-view
-  namespace: syn-cert-manager
 rules:
   - apiGroups:
       - cert-manager.io
@@ -468,7 +461,6 @@ metadata:
     rbac.authorization.k8s.io/aggregate-to-admin: 'true'
     rbac.authorization.k8s.io/aggregate-to-edit: 'true'
   name: cert-manager-edit
-  namespace: syn-cert-manager
 rules:
   - apiGroups:
       - cert-manager.io
@@ -512,7 +504,6 @@ metadata:
     app.kubernetes.io/version: v1.8.2
     helm.sh/chart: cert-manager-v1.8.2
   name: cert-manager-controller-approve:cert-manager-io
-  namespace: syn-cert-manager
 rules:
   - apiGroups:
       - cert-manager.io
@@ -536,7 +527,6 @@ metadata:
     app.kubernetes.io/version: v1.8.2
     helm.sh/chart: cert-manager-v1.8.2
   name: cert-manager-controller-certificatesigningrequests
-  namespace: syn-cert-manager
 rules:
   - apiGroups:
       - certificates.k8s.io
@@ -582,7 +572,6 @@ metadata:
     app.kubernetes.io/version: v1.8.2
     helm.sh/chart: cert-manager-v1.8.2
   name: cert-manager-controller-issuers
-  namespace: syn-cert-manager
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
@@ -604,7 +593,6 @@ metadata:
     app.kubernetes.io/version: v1.8.2
     helm.sh/chart: cert-manager-v1.8.2
   name: cert-manager-controller-clusterissuers
-  namespace: syn-cert-manager
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
@@ -626,7 +614,6 @@ metadata:
     app.kubernetes.io/version: v1.8.2
     helm.sh/chart: cert-manager-v1.8.2
   name: cert-manager-controller-certificates
-  namespace: syn-cert-manager
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
@@ -648,7 +635,6 @@ metadata:
     app.kubernetes.io/version: v1.8.2
     helm.sh/chart: cert-manager-v1.8.2
   name: cert-manager-controller-orders
-  namespace: syn-cert-manager
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
@@ -670,7 +656,6 @@ metadata:
     app.kubernetes.io/version: v1.8.2
     helm.sh/chart: cert-manager-v1.8.2
   name: cert-manager-controller-challenges
-  namespace: syn-cert-manager
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
@@ -692,7 +677,6 @@ metadata:
     app.kubernetes.io/version: v1.8.2
     helm.sh/chart: cert-manager-v1.8.2
   name: cert-manager-controller-ingress-shim
-  namespace: syn-cert-manager
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
@@ -714,7 +698,6 @@ metadata:
     app.kubernetes.io/version: v1.8.2
     helm.sh/chart: cert-manager-v1.8.2
   name: cert-manager-controller-approve:cert-manager-io
-  namespace: syn-cert-manager
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
@@ -736,7 +719,6 @@ metadata:
     app.kubernetes.io/version: v1.8.2
     helm.sh/chart: cert-manager-v1.8.2
   name: cert-manager-controller-certificatesigningrequests
-  namespace: syn-cert-manager
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole

@@ -20,6 +20,11 @@ parameters:
         helm_params:
           name: cert-manager
           namespace: ${cert_manager:namespace}
+      - output_path: cert-manager/
+        input_type: jsonnet
+        output_type: yaml
+        input_paths:
+          - ${_base_directory}/component/namespace.jsonnet
       - output_path: cert-manager/02_issuers
         input_type: jsonnet
         output_type: yaml
@@ -30,13 +35,3 @@ parameters:
         output_type: yaml
         input_paths:
           - ${_base_directory}/component/upgrade.jsonnet
-
-  commodore:
-    postprocess:
-      filters:
-        - path: cert-manager/01_helmchart/cert-manager/templates
-          type: builtin
-          filter: helm_namespace
-          filterargs:
-            namespace: ${cert_manager:namespace}
-            create_namespace: "true"
