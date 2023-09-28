@@ -20,6 +20,7 @@ local app = argocd.App('cert-manager', params.namespace) {
         name: 'cert-manager-webhook',
         jqPathExpressions: [
           '.webhooks[].namespaceSelector.matchExpressions[] | select(.key == "control-plane")',
+          '.webhooks[].namespaceSelector.matchExpressions[] | select(.key == "kubernetes.azure.com/managedby")',
         ],
       },
     ],
