@@ -6,8 +6,8 @@ metadata:
     app.kubernetes.io/instance: cert-manager
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
-    app.kubernetes.io/version: v1.8.2
-    helm.sh/chart: cert-manager-v1.8.2
+    app.kubernetes.io/version: v1.13.2
+    helm.sh/chart: cert-manager-v1.13.2
   name: certificaterequests.cert-manager.io
 spec:
   group: cert-manager.io
@@ -56,9 +56,10 @@ spec:
           description: "A CertificateRequest is used to request a signed certificate\
             \ from one of the configured issuers. \n All fields within the CertificateRequest's\
             \ `spec` are immutable after creation. A CertificateRequest will either\
-            \ succeed or fail, as denoted by its `status.state` field. \n A CertificateRequest\
-            \ is a one-shot resource, meaning it represents a single point in time\
-            \ request for a certificate and cannot be re-used."
+            \ succeed or fail, as denoted by its `Ready` status condition and its\
+            \ `status.failureTime` field. \n A CertificateRequest is a one-shot resource,\
+            \ meaning it represents a single point in time request for a certificate\
+            \ and cannot be re-used."
           properties:
             apiVersion:
               description: 'APIVersion defines the versioned schema of this representation
@@ -74,11 +75,13 @@ spec:
             metadata:
               type: object
             spec:
-              description: Desired state of the CertificateRequest resource.
+              description: Specification of the desired state of the CertificateRequest
+                resource. https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
               properties:
                 duration:
-                  description: The requested 'duration' (i.e. lifetime) of the Certificate.
-                    This option may be ignored/overridden by some issuer types.
+                  description: Requested 'duration' (i.e. lifetime) of the Certificate.
+                    Note that the issuer may choose to ignore the requested duration,
+                    just like any other requested attribute.
                   type: string
                 extra:
                   additionalProperties:
@@ -98,19 +101,20 @@ spec:
                   type: array
                   x-kubernetes-list-type: atomic
                 isCA:
-                  description: IsCA will request to mark the certificate as valid
-                    for certificate signing when submitting to the issuer. This will
-                    automatically add the `cert sign` usage to the list of `usages`.
+                  description: "Requested basic constraints isCA value. Note that\
+                    \ the issuer may choose to ignore the requested isCA value, just\
+                    \ like any other requested attribute. \n NOTE: If the CSR in the\
+                    \ `Request` field has a BasicConstraints extension, it must have\
+                    \ the same isCA value as specified here. \n If true, this will\
+                    \ automatically add the `cert sign` usage to the list of requested\
+                    \ `usages`."
                   type: boolean
                 issuerRef:
-                  description: IssuerRef is a reference to the issuer for this CertificateRequest.  If
-                    the `kind` field is not set, or set to `Issuer`, an Issuer resource
-                    with the given name in the same namespace as the CertificateRequest
-                    will be used.  If the `kind` field is set to `ClusterIssuer`,
-                    a ClusterIssuer with the provided name will be used. The `name`
-                    field in this stanza is required at all times. The group field
-                    refers to the API group of the issuer which defaults to `cert-manager.io`
-                    if empty.
+                  description: "Reference to the issuer responsible for issuing the\
+                    \ certificate. If the issuer is namespace-scoped, it must be in\
+                    \ the same namespace as the Certificate. If the issuer is cluster-scoped,\
+                    \ it can be used from any namespace. \n The `name` field of the\
+                    \ reference must always be specified."
                   properties:
                     group:
                       description: Group of the resource being referred to.
@@ -125,8 +129,14 @@ spec:
                     - name
                   type: object
                 request:
-                  description: The PEM-encoded x509 certificate signing request to
-                    be submitted to the CA for signing.
+                  description: "The PEM-encoded X.509 certificate signing request\
+                    \ to be submitted to the issuer for signing. \n If the CSR has\
+                    \ a BasicConstraints extension, its isCA attribute must match\
+                    \ the `isCA` value of this CertificateRequest. If the CSR has\
+                    \ a KeyUsage extension, its key usages must match the key usages\
+                    \ in the `usages` field of this CertificateRequest. If the CSR\
+                    \ has a ExtKeyUsage extension, its extended key usages must match\
+                    \ the extended key usages in the `usages` field of this CertificateRequest."
                   format: byte
                   type: string
                 uid:
@@ -134,20 +144,22 @@ spec:
                     Populated by the cert-manager webhook on creation and immutable.
                   type: string
                 usages:
-                  description: Usages is the set of x509 usages that are requested
-                    for the certificate. If usages are set they SHOULD be encoded
-                    inside the CSR spec Defaults to `digital signature` and `key encipherment`
-                    if not specified.
+                  description: "Requested key usages and extended key usages. \n NOTE:\
+                    \ If the CSR in the `Request` field has uses the KeyUsage or ExtKeyUsage\
+                    \ extension, these extensions must have the same values as specified\
+                    \ here without any additional values. \n If unset, defaults to\
+                    \ `digital signature` and `key encipherment`."
                   items:
-                    description: 'KeyUsage specifies valid usage contexts for keys.
-                      See: https://tools.ietf.org/html/rfc5280#section-4.2.1.3      https://tools.ietf.org/html/rfc5280#section-4.2.1.12
-                      Valid KeyUsage values are as follows: "signing", "digital signature",
-                      "content commitment", "key encipherment", "key agreement", "data
-                      encipherment", "cert sign", "crl sign", "encipher only", "decipher
-                      only", "any", "server auth", "client auth", "code signing",
-                      "email protection", "s/mime", "ipsec end system", "ipsec tunnel",
-                      "ipsec user", "timestamping", "ocsp signing", "microsoft sgc",
-                      "netscape sgc"'
+                    description: "KeyUsage specifies valid usage contexts for keys.\
+                      \ See: https://tools.ietf.org/html/rfc5280#section-4.2.1.3 https://tools.ietf.org/html/rfc5280#section-4.2.1.12\
+                      \ \n Valid KeyUsage values are as follows: \"signing\", \"digital\
+                      \ signature\", \"content commitment\", \"key encipherment\"\
+                      , \"key agreement\", \"data encipherment\", \"cert sign\", \"\
+                      crl sign\", \"encipher only\", \"decipher only\", \"any\", \"\
+                      server auth\", \"client auth\", \"code signing\", \"email protection\"\
+                      , \"s/mime\", \"ipsec end system\", \"ipsec tunnel\", \"ipsec\
+                      \ user\", \"timestamping\", \"ocsp signing\", \"microsoft sgc\"\
+                      , \"netscape sgc\""
                     enum:
                       - signing
                       - digital signature
@@ -184,18 +196,18 @@ spec:
                 - request
               type: object
             status:
-              description: Status of the CertificateRequest. This is set and managed
-                automatically.
+              description: 'Status of the CertificateRequest. This is set and managed
+                automatically. Read-only. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status'
               properties:
                 ca:
-                  description: The PEM encoded x509 certificate of the signer, also
+                  description: The PEM encoded X.509 certificate of the signer, also
                     known as the CA (Certificate Authority). This is set on a best-effort
                     basis by different issuers. If not set, the CA is assumed to be
                     unknown/not available.
                   format: byte
                   type: string
                 certificate:
-                  description: The PEM encoded x509 certificate resulting from the
+                  description: The PEM encoded X.509 certificate resulting from the
                     certificate signing request. If not set, the CertificateRequest
                     has either not been completed or has failed. More information
                     on failure can be found by checking the `conditions` field.
@@ -203,7 +215,8 @@ spec:
                   type: string
                 conditions:
                   description: List of status conditions to indicate the status of
-                    a CertificateRequest. Known condition types are `Ready` and `InvalidRequest`.
+                    a CertificateRequest. Known condition types are `Ready`, `InvalidRequest`,
+                    `Approved` and `Denied`.
                   items:
                     description: CertificateRequestCondition contains condition information
                       for a CertificateRequest.
@@ -247,8 +260,6 @@ spec:
                   format: date-time
                   type: string
               type: object
-          required:
-            - spec
           type: object
       served: true
       storage: true
@@ -263,8 +274,8 @@ metadata:
     app.kubernetes.io/instance: cert-manager
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
-    app.kubernetes.io/version: v1.8.2
-    helm.sh/chart: cert-manager-v1.8.2
+    app.kubernetes.io/version: v1.13.2
+    helm.sh/chart: cert-manager-v1.13.2
   name: certificates.cert-manager.io
 spec:
   group: cert-manager.io
@@ -306,7 +317,7 @@ spec:
       schema:
         openAPIV3Schema:
           description: "A Certificate resource should be created to ensure an up to\
-            \ date and signed x509 certificate is stored in the Kubernetes Secret\
+            \ date and signed X.509 certificate is stored in the Kubernetes Secret\
             \ resource named in `spec.secretName`. \n The stored certificate will\
             \ be renewed before it expires (as configured by `spec.renewBefore`)."
           properties:
@@ -324,14 +335,15 @@ spec:
             metadata:
               type: object
             spec:
-              description: Desired state of the Certificate resource.
+              description: Specification of the desired state of the Certificate resource.
+                https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
               properties:
                 additionalOutputFormats:
-                  description: AdditionalOutputFormats defines extra output formats
-                    of the private key and signed certificate chain to be written
-                    to this Certificate's target Secret. This is an Alpha Feature
-                    and is only enabled with the `--feature-gates=AdditionalCertificateOutputFormats=true`
-                    option on both the controller and webhook components.
+                  description: "Defines extra output formats of the private key and\
+                    \ signed certificate chain to be written to this Certificate's\
+                    \ target Secret. \n This is an Alpha Feature and is only enabled\
+                    \ with the `--feature-gates=AdditionalCertificateOutputFormats=true`\
+                    \ option set on both the controller and webhook components."
                   items:
                     description: CertificateAdditionalOutputFormat defines an additional
                       output format of a Certificate resource. These contain supplementary
@@ -350,54 +362,56 @@ spec:
                     type: object
                   type: array
                 commonName:
-                  description: 'CommonName is a common name to be used on the Certificate.
-                    The CommonName should have a length of 64 characters or fewer
-                    to avoid generating invalid CSRs. This value is ignored by TLS
-                    clients when any subject alt name is set. This is x509 behaviour:
-                    https://tools.ietf.org/html/rfc6125#section-6.4.4'
+                  description: "Requested common name X509 certificate subject attribute.\
+                    \ More info: https://datatracker.ietf.org/doc/html/rfc5280#section-4.1.2.6\
+                    \ NOTE: TLS clients will ignore this value when any subject alternative\
+                    \ name is set (see https://tools.ietf.org/html/rfc6125#section-6.4.4).\
+                    \ \n Should have a length of 64 characters or fewer to avoid generating\
+                    \ invalid CSRs. Cannot be set if the `literalSubject` field is\
+                    \ set."
                   type: string
                 dnsNames:
-                  description: DNSNames is a list of DNS subjectAltNames to be set
-                    on the Certificate.
+                  description: Requested DNS subject alternative names.
                   items:
                     type: string
                   type: array
                 duration:
-                  description: The requested 'duration' (i.e. lifetime) of the Certificate.
-                    This option may be ignored/overridden by some issuer types. If
-                    unset this defaults to 90 days. Certificate will be renewed either
-                    2/3 through its duration or `renewBefore` period before its expiry,
-                    whichever is later. Minimum accepted duration is 1 hour. Value
-                    must be in units accepted by Go time.ParseDuration https://golang.org/pkg/time/#ParseDuration
+                  description: "Requested 'duration' (i.e. lifetime) of the Certificate.\
+                    \ Note that the issuer may choose to ignore the requested duration,\
+                    \ just like any other requested attribute. \n If unset, this defaults\
+                    \ to 90 days. Minimum accepted duration is 1 hour. Value must\
+                    \ be in units accepted by Go time.ParseDuration https://golang.org/pkg/time/#ParseDuration."
                   type: string
                 emailAddresses:
-                  description: EmailAddresses is a list of email subjectAltNames to
-                    be set on the Certificate.
+                  description: Requested email subject alternative names.
                   items:
                     type: string
                   type: array
                 encodeUsagesInRequest:
-                  description: EncodeUsagesInRequest controls whether key usages should
-                    be present in the CertificateRequest
+                  description: "Whether the KeyUsage and ExtKeyUsage extensions should\
+                    \ be set in the encoded CSR. \n This option defaults to true,\
+                    \ and should only be disabled if the target issuer does not support\
+                    \ CSRs with these X509 KeyUsage/ ExtKeyUsage extensions."
                   type: boolean
                 ipAddresses:
-                  description: IPAddresses is a list of IP address subjectAltNames
-                    to be set on the Certificate.
+                  description: Requested IP address subject alternative names.
                   items:
                     type: string
                   type: array
                 isCA:
-                  description: IsCA will mark this Certificate as valid for certificate
-                    signing. This will automatically add the `cert sign` usage to
-                    the list of `usages`.
+                  description: "Requested basic constraints isCA value. The isCA value\
+                    \ is used to set the `isCA` field on the created CertificateRequest\
+                    \ resources. Note that the issuer may choose to ignore the requested\
+                    \ isCA value, just like any other requested attribute. \n If true,\
+                    \ this will automatically add the `cert sign` usage to the list\
+                    \ of requested `usages`."
                   type: boolean
                 issuerRef:
-                  description: IssuerRef is a reference to the issuer for this certificate.
-                    If the `kind` field is not set, or set to `Issuer`, an Issuer
-                    resource with the given name in the same namespace as the Certificate
-                    will be used. If the `kind` field is set to `ClusterIssuer`, a
-                    ClusterIssuer with the provided name will be used. The `name`
-                    field in this stanza is required at all times.
+                  description: "Reference to the issuer responsible for issuing the\
+                    \ certificate. If the issuer is namespace-scoped, it must be in\
+                    \ the same namespace as the Certificate. If the issuer is cluster-scoped,\
+                    \ it can be used from any namespace. \n The `name` field of the\
+                    \ reference must always be specified."
                   properties:
                     group:
                       description: Group of the resource being referred to.
@@ -412,8 +426,8 @@ spec:
                     - name
                   type: object
                 keystores:
-                  description: Keystores configures additional keystore output formats
-                    stored in the `secretName` Secret resource.
+                  description: Additional keystore output formats to be stored in
+                    the Certificate's Secret.
                   properties:
                     jks:
                       description: JKS configures options for storing a JKS keystore
@@ -424,10 +438,11 @@ spec:
                             Certificate. If true, a file named `keystore.jks` will
                             be created in the target Secret resource, encrypted using
                             the password stored in `passwordSecretRef`. The keystore
-                            file will only be updated upon re-issuance. A file named
-                            `truststore.jks` will also be created in the target Secret
-                            resource, encrypted using the password stored in `passwordSecretRef`
-                            containing the issuing Certificate Authority
+                            file will be updated immediately. If the issuer provided
+                            a CA certificate, a file named `truststore.jks` will also
+                            be created in the target Secret resource, encrypted using
+                            the password stored in `passwordSecretRef` containing
+                            the issuing Certificate Authority
                           type: boolean
                         passwordSecretRef:
                           description: PasswordSecretRef is a reference to a key in
@@ -459,11 +474,11 @@ spec:
                             the Certificate. If true, a file named `keystore.p12`
                             will be created in the target Secret resource, encrypted
                             using the password stored in `passwordSecretRef`. The
-                            keystore file will only be updated upon re-issuance. A
-                            file named `truststore.p12` will also be created in the
-                            target Secret resource, encrypted using the password stored
-                            in `passwordSecretRef` containing the issuing Certificate
-                            Authority
+                            keystore file will be updated immediately. If the issuer
+                            provided a CA certificate, a file named `truststore.p12`
+                            will also be created in the target Secret resource, encrypted
+                            using the password stored in `passwordSecretRef` containing
+                            the issuing Certificate Authority
                           type: boolean
                         passwordSecretRef:
                           description: PasswordSecretRef is a reference to a key in
@@ -487,86 +502,111 @@ spec:
                         - passwordSecretRef
                       type: object
                   type: object
+                literalSubject:
+                  description: "Requested X.509 certificate subject, represented using\
+                    \ the LDAP \"String Representation of a Distinguished Name\" [1].\
+                    \ Important: the LDAP string format also specifies the order of\
+                    \ the attributes in the subject, this is important when issuing\
+                    \ certs for LDAP authentication. Example: `CN=foo,DC=corp,DC=example,DC=com`\
+                    \ More info [1]: https://datatracker.ietf.org/doc/html/rfc4514\
+                    \ More info: https://github.com/cert-manager/cert-manager/issues/3203\
+                    \ More info: https://github.com/cert-manager/cert-manager/issues/4424\
+                    \ \n Cannot be set if the `subject` or `commonName` field is set.\
+                    \ This is an Alpha Feature and is only enabled with the `--feature-gates=LiteralCertificateSubject=true`\
+                    \ option set on both the controller and webhook components."
+                  type: string
                 privateKey:
-                  description: Options to control private keys used for the Certificate.
+                  description: Private key options. These include the key algorithm
+                    and size, the used encoding and the rotation policy.
                   properties:
                     algorithm:
-                      description: Algorithm is the private key algorithm of the corresponding
-                        private key for this certificate. If provided, allowed values
-                        are either `RSA`,`Ed25519` or `ECDSA` If `algorithm` is specified
-                        and `size` is not provided, key size of 256 will be used for
-                        `ECDSA` key algorithm and key size of 2048 will be used for
-                        `RSA` key algorithm. key size is ignored when using the `Ed25519`
-                        key algorithm.
+                      description: "Algorithm is the private key algorithm of the\
+                        \ corresponding private key for this certificate. \n If provided,\
+                        \ allowed values are either `RSA`, `ECDSA` or `Ed25519`. If\
+                        \ `algorithm` is specified and `size` is not provided, key\
+                        \ size of 2048 will be used for `RSA` key algorithm and key\
+                        \ size of 256 will be used for `ECDSA` key algorithm. key\
+                        \ size is ignored when using the `Ed25519` key algorithm."
                       enum:
                         - RSA
                         - ECDSA
                         - Ed25519
                       type: string
                     encoding:
-                      description: The private key cryptography standards (PKCS) encoding
-                        for this certificate's private key to be encoded in. If provided,
-                        allowed values are `PKCS1` and `PKCS8` standing for PKCS#1
-                        and PKCS#8, respectively. Defaults to `PKCS1` if not specified.
+                      description: "The private key cryptography standards (PKCS)\
+                        \ encoding for this certificate's private key to be encoded\
+                        \ in. \n If provided, allowed values are `PKCS1` and `PKCS8`\
+                        \ standing for PKCS#1 and PKCS#8, respectively. Defaults to\
+                        \ `PKCS1` if not specified."
                       enum:
                         - PKCS1
                         - PKCS8
                       type: string
                     rotationPolicy:
-                      description: RotationPolicy controls how private keys should
-                        be regenerated when a re-issuance is being processed. If set
-                        to Never, a private key will only be generated if one does
-                        not already exist in the target `spec.secretName`. If one
-                        does exists but it does not have the correct algorithm or
-                        size, a warning will be raised to await user intervention.
-                        If set to Always, a private key matching the specified requirements
-                        will be generated whenever a re-issuance occurs. Default is
-                        'Never' for backward compatibility.
+                      description: "RotationPolicy controls how private keys should\
+                        \ be regenerated when a re-issuance is being processed. \n\
+                        \ If set to `Never`, a private key will only be generated\
+                        \ if one does not already exist in the target `spec.secretName`.\
+                        \ If one does exists but it does not have the correct algorithm\
+                        \ or size, a warning will be raised to await user intervention.\
+                        \ If set to `Always`, a private key matching the specified\
+                        \ requirements will be generated whenever a re-issuance occurs.\
+                        \ Default is `Never` for backward compatibility."
                       enum:
                         - Never
                         - Always
                       type: string
                     size:
-                      description: Size is the key bit size of the corresponding private
-                        key for this certificate. If `algorithm` is set to `RSA`,
-                        valid values are `2048`, `4096` or `8192`, and will default
-                        to `2048` if not specified. If `algorithm` is set to `ECDSA`,
-                        valid values are `256`, `384` or `521`, and will default to
-                        `256` if not specified. If `algorithm` is set to `Ed25519`,
-                        Size is ignored. No other values are allowed.
+                      description: "Size is the key bit size of the corresponding\
+                        \ private key for this certificate. \n If `algorithm` is set\
+                        \ to `RSA`, valid values are `2048`, `4096` or `8192`, and\
+                        \ will default to `2048` if not specified. If `algorithm`\
+                        \ is set to `ECDSA`, valid values are `256`, `384` or `521`,\
+                        \ and will default to `256` if not specified. If `algorithm`\
+                        \ is set to `Ed25519`, Size is ignored. No other values are\
+                        \ allowed."
                       type: integer
                   type: object
                 renewBefore:
-                  description: How long before the currently issued certificate's
-                    expiry cert-manager should renew the certificate. The default
-                    is 2/3 of the issued certificate's duration. Minimum accepted
-                    value is 5 minutes. Value must be in units accepted by Go time.ParseDuration
-                    https://golang.org/pkg/time/#ParseDuration
+                  description: "How long before the currently issued certificate's\
+                    \ expiry cert-manager should renew the certificate. For example,\
+                    \ if a certificate is valid for 60 minutes, and `renewBefore=10m`,\
+                    \ cert-manager will begin to attempt to renew the certificate\
+                    \ 50 minutes after it was issued (i.e. when there are 10 minutes\
+                    \ remaining until the certificate is no longer valid). \n NOTE:\
+                    \ The actual lifetime of the issued certificate is used to determine\
+                    \ the renewal time. If an issuer returns a certificate with a\
+                    \ different lifetime than the one requested, cert-manager will\
+                    \ use the lifetime of the issued certificate. \n If unset, this\
+                    \ defaults to 1/3 of the issued certificate's lifetime. Minimum\
+                    \ accepted value is 5 minutes. Value must be in units accepted\
+                    \ by Go time.ParseDuration https://golang.org/pkg/time/#ParseDuration."
                   type: string
                 revisionHistoryLimit:
-                  description: revisionHistoryLimit is the maximum number of CertificateRequest
-                    revisions that are maintained in the Certificate's history. Each
-                    revision represents a single `CertificateRequest` created by this
-                    Certificate, either when it was created, renewed, or Spec was
-                    changed. Revisions will be removed by oldest first if the number
-                    of revisions exceeds this number. If set, revisionHistoryLimit
-                    must be a value of `1` or greater. If unset (`nil`), revisions
-                    will not be garbage collected. Default value is `nil`.
+                  description: "The maximum number of CertificateRequest revisions\
+                    \ that are maintained in the Certificate's history. Each revision\
+                    \ represents a single `CertificateRequest` created by this Certificate,\
+                    \ either when it was created, renewed, or Spec was changed. Revisions\
+                    \ will be removed by oldest first if the number of revisions exceeds\
+                    \ this number. \n If set, revisionHistoryLimit must be a value\
+                    \ of `1` or greater. If unset (`nil`), revisions will not be garbage\
+                    \ collected. Default value is `nil`."
                   format: int32
                   type: integer
                 secretName:
-                  description: SecretName is the name of the secret resource that
-                    will be automatically created and managed by this Certificate
-                    resource. It will be populated with a private key and certificate,
-                    signed by the denoted issuer.
+                  description: Name of the Secret resource that will be automatically
+                    created and managed by this Certificate resource. It will be populated
+                    with a private key and certificate, signed by the denoted issuer.
+                    The Secret resource lives in the same namespace as the Certificate
+                    resource.
                   type: string
                 secretTemplate:
-                  description: SecretTemplate defines annotations and labels to be
-                    copied to the Certificate's Secret. Labels and annotations on
-                    the Secret will be changed as they appear on the SecretTemplate
-                    when added or removed. SecretTemplate annotations are added in
-                    conjunction with, and cannot overwrite, the base set of annotations
-                    cert-manager sets on the Certificate's Secret.
+                  description: Defines annotations and labels to be copied to the
+                    Certificate's Secret. Labels and annotations on the Secret will
+                    be changed as they appear on the SecretTemplate when added or
+                    removed. SecretTemplate annotations are added in conjunction with,
+                    and cannot overwrite, the base set of annotations cert-manager
+                    sets on the Certificate's Secret.
                   properties:
                     annotations:
                       additionalProperties:
@@ -582,7 +622,11 @@ spec:
                       type: object
                   type: object
                 subject:
-                  description: Full X509 name specification (https://golang.org/pkg/crypto/x509/pkix/#Name).
+                  description: "Requested set of X509 certificate subject attributes.\
+                    \ More info: https://datatracker.ietf.org/doc/html/rfc5280#section-4.1.2.6\
+                    \ \n The common name attribute is specified separately in the\
+                    \ `commonName` field. Cannot be set if the `literalSubject` field\
+                    \ is set."
                   properties:
                     countries:
                       description: Countries to be used on the Certificate.
@@ -624,25 +668,28 @@ spec:
                       type: array
                   type: object
                 uris:
-                  description: URIs is a list of URI subjectAltNames to be set on
-                    the Certificate.
+                  description: Requested URI subject alternative names.
                   items:
                     type: string
                   type: array
                 usages:
-                  description: Usages is the set of x509 usages that are requested
-                    for the certificate. Defaults to `digital signature` and `key
-                    encipherment` if not specified.
+                  description: "Requested key usages and extended key usages. These\
+                    \ usages are used to set the `usages` field on the created CertificateRequest\
+                    \ resources. If `encodeUsagesInRequest` is unset or set to `true`,\
+                    \ the usages will additionally be encoded in the `request` field\
+                    \ which contains the CSR blob. \n If unset, defaults to `digital\
+                    \ signature` and `key encipherment`."
                   items:
-                    description: 'KeyUsage specifies valid usage contexts for keys.
-                      See: https://tools.ietf.org/html/rfc5280#section-4.2.1.3      https://tools.ietf.org/html/rfc5280#section-4.2.1.12
-                      Valid KeyUsage values are as follows: "signing", "digital signature",
-                      "content commitment", "key encipherment", "key agreement", "data
-                      encipherment", "cert sign", "crl sign", "encipher only", "decipher
-                      only", "any", "server auth", "client auth", "code signing",
-                      "email protection", "s/mime", "ipsec end system", "ipsec tunnel",
-                      "ipsec user", "timestamping", "ocsp signing", "microsoft sgc",
-                      "netscape sgc"'
+                    description: "KeyUsage specifies valid usage contexts for keys.\
+                      \ See: https://tools.ietf.org/html/rfc5280#section-4.2.1.3 https://tools.ietf.org/html/rfc5280#section-4.2.1.12\
+                      \ \n Valid KeyUsage values are as follows: \"signing\", \"digital\
+                      \ signature\", \"content commitment\", \"key encipherment\"\
+                      , \"key agreement\", \"data encipherment\", \"cert sign\", \"\
+                      crl sign\", \"encipher only\", \"decipher only\", \"any\", \"\
+                      server auth\", \"client auth\", \"code signing\", \"email protection\"\
+                      , \"s/mime\", \"ipsec end system\", \"ipsec tunnel\", \"ipsec\
+                      \ user\", \"timestamping\", \"ocsp signing\", \"microsoft sgc\"\
+                      , \"netscape sgc\""
                     enum:
                       - signing
                       - digital signature
@@ -674,7 +721,8 @@ spec:
                 - secretName
               type: object
             status:
-              description: Status of the Certificate. This is set and managed automatically.
+              description: 'Status of the Certificate. This is set and managed automatically.
+                Read-only. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status'
               properties:
                 conditions:
                   description: List of status conditions to indicate the status of
@@ -732,10 +780,12 @@ spec:
                     using formula time.Hour * 2 ^ (failedIssuanceAttempts - 1).
                   type: integer
                 lastFailureTime:
-                  description: LastFailureTime is the time as recorded by the Certificate
-                    controller of the most recent failure to complete a CertificateRequest
-                    for this Certificate resource. If set, cert-manager will not re-request
-                    another Certificate until 1 hour has elapsed from this time.
+                  description: LastFailureTime is set only if the lastest issuance
+                    for this Certificate failed and contains the time of the failure.
+                    If an issuance has failed, the delay till the next issuance will
+                    be calculated using formula time.Hour * 2 ^ (failedIssuanceAttempts
+                    - 1). If the latest issuance has succeeded this field will be
+                    unset.
                   format: date-time
                   type: string
                 nextPrivateKeySecretName:
@@ -752,7 +802,7 @@ spec:
                   type: string
                 notBefore:
                   description: The time after which the certificate stored in the
-                    secret named by this resource in spec.secretName is valid.
+                    secret named by this resource in `spec.secretName` is valid.
                   format: date-time
                   type: string
                 renewalTime:
@@ -773,8 +823,6 @@ spec:
                     \ revision value in the annotation is greater than this field."
                   type: integer
               type: object
-          required:
-            - spec
           type: object
       served: true
       storage: true
@@ -789,8 +837,8 @@ metadata:
     app.kubernetes.io/instance: cert-manager
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
-    app.kubernetes.io/version: v1.8.2
-    helm.sh/chart: cert-manager-v1.8.2
+    app.kubernetes.io/version: v1.13.2
+    helm.sh/chart: cert-manager-v1.13.2
   name: challenges.acme.cert-manager.io
 spec:
   group: acme.cert-manager.io
@@ -1209,9 +1257,32 @@ spec:
                           properties:
                             accessKeyID:
                               description: 'The AccessKeyID is used for authentication.
-                                If not set we fall-back to using env vars, shared
-                                credentials file or AWS Instance metadata see: https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/configuring-sdk.html#specifying-credentials'
+                                Cannot be set when SecretAccessKeyID is set. If neither
+                                the Access Key nor Key ID are set, we fall-back to
+                                using env vars, shared credentials file or AWS Instance
+                                metadata, see: https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/configuring-sdk.html#specifying-credentials'
                               type: string
+                            accessKeyIDSecretRef:
+                              description: 'The SecretAccessKey is used for authentication.
+                                If set, pull the AWS access key ID from a key within
+                                a Kubernetes Secret. Cannot be set when AccessKeyID
+                                is set. If neither the Access Key nor Key ID are set,
+                                we fall-back to using env vars, shared credentials
+                                file or AWS Instance metadata, see: https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/configuring-sdk.html#specifying-credentials'
+                              properties:
+                                key:
+                                  description: The key of the entry in the Secret
+                                    resource's `data` field to be used. Some instances
+                                    of this field may be defaulted, in others it may
+                                    be required.
+                                  type: string
+                                name:
+                                  description: 'Name of the resource being referred
+                                    to. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names'
+                                  type: string
+                              required:
+                                - name
+                              type: object
                             hostedZoneID:
                               description: If set, the provider will manage only this
                                 zone in Route53 and will not do an lookup using the
@@ -1229,9 +1300,10 @@ spec:
                                 or AWS Instance metadata
                               type: string
                             secretAccessKeySecretRef:
-                              description: The SecretAccessKey is used for authentication.
-                                If not set we fall-back to using env vars, shared
-                                credentials file or AWS Instance metadata https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/configuring-sdk.html#specifying-credentials
+                              description: 'The SecretAccessKey is used for authentication.
+                                If neither the Access Key nor Key ID are set, we fall-back
+                                to using env vars, shared credentials file or AWS
+                                Instance metadata, see: https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/configuring-sdk.html#specifying-credentials'
                               properties:
                                 key:
                                   description: The key of the entry in the Secret
@@ -1305,25 +1377,27 @@ spec:
                                 creates an HTTPRoute. cert-manager needs to know which
                                 parentRefs should be used when creating the HTTPRoute.
                                 Usually, the parentRef references a Gateway. See:
-                                https://gateway-api.sigs.k8s.io/v1alpha2/api-types/httproute/#attaching-to-gateways'
+                                https://gateway-api.sigs.k8s.io/api-types/httproute/#attaching-to-gateways'
                               items:
-                                description: "ParentRef identifies an API object (usually\
-                                  \ a Gateway) that can be considered a parent of\
-                                  \ this resource (usually a route). The only kind\
-                                  \ of parent resource with \"Core\" support is Gateway.\
-                                  \ This API may be extended in the future to support\
-                                  \ additional kinds of parent resources, such as\
-                                  \ HTTPRoute. \n The API object must be valid in\
+                                description: "ParentReference identifies an API object\
+                                  \ (usually a Gateway) that can be considered a parent\
+                                  \ of this resource (usually a route). There are\
+                                  \ two kinds of parent resources with \"Core\" support:\
+                                  \ \n * Gateway (Gateway conformance profile) * Service\
+                                  \ (Mesh conformance profile, experimental, ClusterIP\
+                                  \ Services only) \n This API may be extended in\
+                                  \ the future to support additional kinds of parent\
+                                  \ resources. \n The API object must be valid in\
                                   \ the cluster; the Group and Kind must be registered\
-                                  \ in the cluster for this reference to be valid.\
-                                  \ \n References to objects with invalid Group and\
-                                  \ Kind are not valid, and must be rejected by the\
-                                  \ implementation, with appropriate Conditions set\
-                                  \ on the containing object."
+                                  \ in the cluster for this reference to be valid."
                                 properties:
                                   group:
                                     default: gateway.networking.k8s.io
                                     description: "Group is the group of the referent.\
+                                      \ When unspecified, \"gateway.networking.k8s.io\"\
+                                      \ is inferred. To set the core API group (such\
+                                      \ as for a \"Service\" kind referent), Group\
+                                      \ must be explicitly set to \"\" (empty string).\
                                       \ \n Support: Core"
                                     maxLength: 253
                                     pattern: ^$|^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$
@@ -1331,8 +1405,11 @@ spec:
                                   kind:
                                     default: Gateway
                                     description: "Kind is kind of the referent. \n\
-                                      \ Support: Core (Gateway) Support: Custom (Other\
-                                      \ Resources)"
+                                      \ There are two kinds of parent resources with\
+                                      \ \"Core\" support: \n * Gateway (Gateway conformance\
+                                      \ profile) * Service (Mesh conformance profile,\
+                                      \ experimental, ClusterIP Services only) \n\
+                                      \ Support for other resources is Implementation-Specific."
                                     maxLength: 63
                                     minLength: 1
                                     pattern: ^[a-zA-Z]([-a-zA-Z0-9]*[a-zA-Z0-9])?$
@@ -1345,25 +1422,91 @@ spec:
                                     type: string
                                   namespace:
                                     description: "Namespace is the namespace of the\
-                                      \ referent. When unspecified (or empty string),\
-                                      \ this refers to the local namespace of the\
-                                      \ Route. \n Support: Core"
+                                      \ referent. When unspecified, this refers to\
+                                      \ the local namespace of the Route. \n Note\
+                                      \ that there are specific rules for ParentRefs\
+                                      \ which cross namespace boundaries. Cross-namespace\
+                                      \ references are only valid if they are explicitly\
+                                      \ allowed by something in the namespace they\
+                                      \ are referring to. For example: Gateway has\
+                                      \ the AllowedRoutes field, and ReferenceGrant\
+                                      \ provides a generic way to enable any other\
+                                      \ kind of cross-namespace reference. \n ParentRefs\
+                                      \ from a Route to a Service in the same namespace\
+                                      \ are \"producer\" routes, which apply default\
+                                      \ routing rules to inbound connections from\
+                                      \ any namespace to the Service. \n ParentRefs\
+                                      \ from a Route to a Service in a different namespace\
+                                      \ are \"consumer\" routes, and these routing\
+                                      \ rules are only applied to outbound connections\
+                                      \ originating from the same namespace as the\
+                                      \ Route, for which the intended destination\
+                                      \ of the connections are a Service targeted\
+                                      \ as a ParentRef of the Route. \n Support: Core"
                                     maxLength: 63
                                     minLength: 1
                                     pattern: ^[a-z0-9]([-a-z0-9]*[a-z0-9])?$
                                     type: string
+                                  port:
+                                    description: "Port is the network port this Route\
+                                      \ targets. It can be interpreted differently\
+                                      \ based on the type of parent resource. \n When\
+                                      \ the parent resource is a Gateway, this targets\
+                                      \ all listeners listening on the specified port\
+                                      \ that also support this kind of Route(and select\
+                                      \ this Route). It's not recommended to set `Port`\
+                                      \ unless the networking behaviors specified\
+                                      \ in a Route must apply to a specific port as\
+                                      \ opposed to a listener(s) whose port(s) may\
+                                      \ be changed. When both Port and SectionName\
+                                      \ are specified, the name and port of the selected\
+                                      \ listener must match both specified values.\
+                                      \ \n When the parent resource is a Service,\
+                                      \ this targets a specific port in the Service\
+                                      \ spec. When both Port (experimental) and SectionName\
+                                      \ are specified, the name and port of the selected\
+                                      \ port must match both specified values. \n\
+                                      \ Implementations MAY choose to support other\
+                                      \ parent resources. Implementations supporting\
+                                      \ other types of parent resources MUST clearly\
+                                      \ document how/if Port is interpreted. \n For\
+                                      \ the purpose of status, an attachment is considered\
+                                      \ successful as long as the parent resource\
+                                      \ accepts it partially. For example, Gateway\
+                                      \ listeners can restrict which Routes can attach\
+                                      \ to them by Route kind, namespace, or hostname.\
+                                      \ If 1 of 2 Gateway listeners accept attachment\
+                                      \ from the referencing Route, the Route MUST\
+                                      \ be considered successfully attached. If no\
+                                      \ Gateway listeners accept attachment from this\
+                                      \ Route, the Route MUST be considered detached\
+                                      \ from the Gateway. \n Support: Extended \n\
+                                      \ <gateway:experimental>"
+                                    format: int32
+                                    maximum: 65535
+                                    minimum: 1
+                                    type: integer
                                   sectionName:
                                     description: "SectionName is the name of a section\
                                       \ within the target resource. In the following\
                                       \ resources, SectionName is interpreted as the\
-                                      \ following: \n * Gateway: Listener Name \n\
-                                      \ Implementations MAY choose to support attaching\
-                                      \ Routes to other resources. If that is the\
-                                      \ case, they MUST clearly document how SectionName\
-                                      \ is interpreted. \n When unspecified (empty\
-                                      \ string), this will reference the entire resource.\
-                                      \ For the purpose of status, an attachment is\
-                                      \ considered successful if at least one section\
+                                      \ following: \n * Gateway: Listener Name. When\
+                                      \ both Port (experimental) and SectionName are\
+                                      \ specified, the name and port of the selected\
+                                      \ listener must match both specified values.\
+                                      \ * Service: Port Name. When both Port (experimental)\
+                                      \ and SectionName are specified, the name and\
+                                      \ port of the selected listener must match both\
+                                      \ specified values. Note that attaching Routes\
+                                      \ to Services as Parents is part of experimental\
+                                      \ Mesh support and is not supported for any\
+                                      \ other purpose. \n Implementations MAY choose\
+                                      \ to support attaching Routes to other resources.\
+                                      \ If that is the case, they MUST clearly document\
+                                      \ how SectionName is interpreted. \n When unspecified\
+                                      \ (empty string), this will reference the entire\
+                                      \ resource. For the purpose of status, an attachment\
+                                      \ is considered successful if at least one section\
                                       \ in the parent resource accepts it. For example,\
                                       \ Gateway listeners can restrict which Routes\
                                       \ can attach to them by Route kind, namespace,\
@@ -1395,9 +1538,17 @@ spec:
                             for each Challenge to be completed.
                           properties:
                             class:
-                              description: The ingress class to use when creating
-                                Ingress resources to solve ACME challenges that use
-                                this challenge solver. Only one of 'class' or 'name'
+                              description: This field configures the annotation `kubernetes.io/ingress.class`
+                                when creating Ingress resources to solve ACME challenges
+                                that use this challenge solver. Only one of `class`,
+                                `name` or `ingressClassName` may be specified.
+                              type: string
+                            ingressClassName:
+                              description: This field configures the field `ingressClassName`
+                                on the created Ingress resources used to solve ACME
+                                challenges that use this challenge solver. This is
+                                the recommended way of configuring the ingress class.
+                                Only one of `class`, `name` or `ingressClassName`
                                 may be specified.
                               type: string
                             ingressTemplate:
@@ -1432,7 +1583,8 @@ spec:
                                 in order to solve HTTP01 challenges. This is typically
                                 used in conjunction with ingress controllers like
                                 ingress-gce, which maintains a 1:1 mapping between
-                                external IPs and ingress resources.
+                                external IPs and ingress resources. Only one of `class`,
+                                `name` or `ingressClassName` may be specified.
                               type: string
                             podTemplate:
                               description: Optional pod template used to configure
@@ -1460,10 +1612,9 @@ spec:
                                   type: object
                                 spec:
                                   description: PodSpec defines overrides for the HTTP01
-                                    challenge solver pod. Only the 'priorityClassName',
-                                    'nodeSelector', 'affinity', 'serviceAccountName'
-                                    and 'tolerations' fields are supported currently.
-                                    All other fields will be ignored.
+                                    challenge solver pod. Check ACMEChallengeSolverHTTP01IngressPodSpec
+                                    to find out currently supported fields. All other
+                                    fields will be ignored.
                                   properties:
                                     affinity:
                                       description: If specified, the pod's scheduling
@@ -1608,6 +1759,7 @@ spec:
                                                           type: object
                                                         type: array
                                                     type: object
+                                                    x-kubernetes-map-type: atomic
                                                   weight:
                                                     description: Weight associated
                                                       with matching the corresponding
@@ -1749,10 +1901,12 @@ spec:
                                                           type: object
                                                         type: array
                                                     type: object
+                                                    x-kubernetes-map-type: atomic
                                                   type: array
                                               required:
                                                 - nodeSelectorTerms
                                               type: object
+                                              x-kubernetes-map-type: atomic
                                           type: object
                                         podAffinity:
                                           description: Describes pod affinity scheduling
@@ -1863,6 +2017,7 @@ spec:
                                                               ANDed.
                                                             type: object
                                                         type: object
+                                                        x-kubernetes-map-type: atomic
                                                       namespaceSelector:
                                                         description: A label query
                                                           over the set of namespaces
@@ -1875,10 +2030,7 @@ spec:
                                                           null or empty namespaces
                                                           list means "this pod's namespace".
                                                           An empty selector ({}) matches
-                                                          all namespaces. This field
-                                                          is beta-level and is only
-                                                          honored when PodAffinityNamespaceSelector
-                                                          feature is enabled.
+                                                          all namespaces.
                                                         properties:
                                                           matchExpressions:
                                                             description: matchExpressions
@@ -1950,6 +2102,7 @@ spec:
                                                               ANDed.
                                                             type: object
                                                         type: object
+                                                        x-kubernetes-map-type: atomic
                                                       namespaces:
                                                         description: namespaces specifies
                                                           a static list of namespace
@@ -1960,7 +2113,7 @@ spec:
                                                           the ones selected by namespaceSelector.
                                                           null or empty namespaces
                                                           list and null namespaceSelector
-                                                          means "this pod's namespace"
+                                                          means "this pod's namespace".
                                                         items:
                                                           type: string
                                                         type: array
@@ -2091,6 +2244,7 @@ spec:
                                                           are ANDed.
                                                         type: object
                                                     type: object
+                                                    x-kubernetes-map-type: atomic
                                                   namespaceSelector:
                                                     description: A label query over
                                                       the set of namespaces that the
@@ -2102,10 +2256,7 @@ spec:
                                                       and null or empty namespaces
                                                       list means "this pod's namespace".
                                                       An empty selector ({}) matches
-                                                      all namespaces. This field is
-                                                      beta-level and is only honored
-                                                      when PodAffinityNamespaceSelector
-                                                      feature is enabled.
+                                                      all namespaces.
                                                     properties:
                                                       matchExpressions:
                                                         description: matchExpressions
@@ -2172,6 +2323,7 @@ spec:
                                                           are ANDed.
                                                         type: object
                                                     type: object
+                                                    x-kubernetes-map-type: atomic
                                                   namespaces:
                                                     description: namespaces specifies
                                                       a static list of namespace names
@@ -2182,7 +2334,7 @@ spec:
                                                       by namespaceSelector. null or
                                                       empty namespaces list and null
                                                       namespaceSelector means "this
-                                                      pod's namespace"
+                                                      pod's namespace".
                                                     items:
                                                       type: string
                                                     type: array
@@ -2315,6 +2467,7 @@ spec:
                                                               ANDed.
                                                             type: object
                                                         type: object
+                                                        x-kubernetes-map-type: atomic
                                                       namespaceSelector:
                                                         description: A label query
                                                           over the set of namespaces
@@ -2327,10 +2480,7 @@ spec:
                                                           null or empty namespaces
                                                           list means "this pod's namespace".
                                                           An empty selector ({}) matches
-                                                          all namespaces. This field
-                                                          is beta-level and is only
-                                                          honored when PodAffinityNamespaceSelector
-                                                          feature is enabled.
+                                                          all namespaces.
                                                         properties:
                                                           matchExpressions:
                                                             description: matchExpressions
@@ -2402,6 +2552,7 @@ spec:
                                                               ANDed.
                                                             type: object
                                                         type: object
+                                                        x-kubernetes-map-type: atomic
                                                       namespaces:
                                                         description: namespaces specifies
                                                           a static list of namespace
@@ -2412,7 +2563,7 @@ spec:
                                                           the ones selected by namespaceSelector.
                                                           null or empty namespaces
                                                           list and null namespaceSelector
-                                                          means "this pod's namespace"
+                                                          means "this pod's namespace".
                                                         items:
                                                           type: string
                                                         type: array
@@ -2543,6 +2694,7 @@ spec:
                                                           are ANDed.
                                                         type: object
                                                     type: object
+                                                    x-kubernetes-map-type: atomic
                                                   namespaceSelector:
                                                     description: A label query over
                                                       the set of namespaces that the
@@ -2554,10 +2706,7 @@ spec:
                                                       and null or empty namespaces
                                                       list means "this pod's namespace".
                                                       An empty selector ({}) matches
-                                                      all namespaces. This field is
-                                                      beta-level and is only honored
-                                                      when PodAffinityNamespaceSelector
-                                                      feature is enabled.
+                                                      all namespaces.
                                                     properties:
                                                       matchExpressions:
                                                         description: matchExpressions
@@ -2624,6 +2773,7 @@ spec:
                                                           are ANDed.
                                                         type: object
                                                     type: object
+                                                    x-kubernetes-map-type: atomic
                                                   namespaces:
                                                     description: namespaces specifies
                                                       a static list of namespace names
@@ -2634,7 +2784,7 @@ spec:
                                                       by namespaceSelector. null or
                                                       empty namespaces list and null
                                                       namespaceSelector means "this
-                                                      pod's namespace"
+                                                      pod's namespace".
                                                     items:
                                                       type: string
                                                     type: array
@@ -2658,6 +2808,22 @@ spec:
                                               type: array
                                           type: object
                                       type: object
+                                    imagePullSecrets:
+                                      description: If specified, the pod's imagePullSecrets
+                                      items:
+                                        description: LocalObjectReference contains
+                                          enough information to let you locate the
+                                          referenced object inside the same namespace.
+                                        properties:
+                                          name:
+                                            description: 'Name of the referent. More
+                                              info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                                              TODO: Add other useful fields. apiVersion,
+                                              kind, uid?'
+                                            type: string
+                                        type: object
+                                        x-kubernetes-map-type: atomic
+                                      type: array
                                     nodeSelector:
                                       additionalProperties:
                                         type: string
@@ -2855,8 +3021,8 @@ metadata:
     app.kubernetes.io/instance: cert-manager
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
-    app.kubernetes.io/version: v1.8.2
-    helm.sh/chart: cert-manager-v1.8.2
+    app.kubernetes.io/version: v1.13.2
+    helm.sh/chart: cert-manager-v1.13.2
   name: clusterissuers.cert-manager.io
 spec:
   group: cert-manager.io
@@ -2913,6 +3079,15 @@ spec:
                   description: ACME configures this issuer to communicate with a RFC8555
                     (ACME) server to obtain signed x509 certificates.
                   properties:
+                    caBundle:
+                      description: Base64-encoded bundle of PEM CAs which can be used
+                        to validate the certificate chain presented by the ACME server.
+                        Mutually exclusive with SkipTLSVerify; prefer using CABundle
+                        to prevent various kinds of security vulnerabilities. If CABundle
+                        and SkipTLSVerify are unset, the system certificate bundle
+                        inside the container is used to validate the TLS connection.
+                      format: byte
+                      type: string
                     disableAccountKeyGeneration:
                       description: Enables or disables generating a new ACME account
                         key. If true, the Issuer resource will *not* request a new
@@ -3019,13 +3194,14 @@ spec:
                         Only ACME v2 endpoints (i.e. RFC 8555) are supported.'
                       type: string
                     skipTLSVerify:
-                      description: Enables or disables validation of the ACME server
-                        TLS certificate. If true, requests to the ACME server will
-                        not have their TLS certificate validated (i.e. insecure connections
-                        will be allowed). Only enable this option in development environments.
-                        The cert-manager system installed roots will be used to verify
-                        connections to the ACME server if this is false. Defaults
-                        to false.
+                      description: 'INSECURE: Enables or disables validation of the
+                        ACME server TLS certificate. If true, requests to the ACME
+                        server will not have the TLS certificate chain validated.
+                        Mutually exclusive with CABundle; prefer using CABundle to
+                        prevent various kinds of security vulnerabilities. Only enable
+                        this option in development environments. If CABundle and SkipTLSVerify
+                        are unset, the system certificate bundle inside the container
+                        is used to validate the TLS connection. Defaults to false.'
                       type: boolean
                     solvers:
                       description: 'Solvers is a list of challenge solvers that will
@@ -3369,10 +3545,33 @@ spec:
                                 properties:
                                   accessKeyID:
                                     description: 'The AccessKeyID is used for authentication.
-                                      If not set we fall-back to using env vars, shared
-                                      credentials file or AWS Instance metadata see:
-                                      https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/configuring-sdk.html#specifying-credentials'
+                                      Cannot be set when SecretAccessKeyID is set.
+                                      If neither the Access Key nor Key ID are set,
+                                      we fall-back to using env vars, shared credentials
+                                      file or AWS Instance metadata, see: https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/configuring-sdk.html#specifying-credentials'
                                     type: string
+                                  accessKeyIDSecretRef:
+                                    description: 'The SecretAccessKey is used for
+                                      authentication. If set, pull the AWS access
+                                      key ID from a key within a Kubernetes Secret.
+                                      Cannot be set when AccessKeyID is set. If neither
+                                      the Access Key nor Key ID are set, we fall-back
+                                      to using env vars, shared credentials file or
+                                      AWS Instance metadata, see: https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/configuring-sdk.html#specifying-credentials'
+                                    properties:
+                                      key:
+                                        description: The key of the entry in the Secret
+                                          resource's `data` field to be used. Some
+                                          instances of this field may be defaulted,
+                                          in others it may be required.
+                                        type: string
+                                      name:
+                                        description: 'Name of the resource being referred
+                                          to. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names'
+                                        type: string
+                                    required:
+                                      - name
+                                    type: object
                                   hostedZoneID:
                                     description: If set, the provider will manage
                                       only this zone in Route53 and will not do an
@@ -3391,9 +3590,11 @@ spec:
                                       shared credentials file or AWS Instance metadata
                                     type: string
                                   secretAccessKeySecretRef:
-                                    description: The SecretAccessKey is used for authentication.
-                                      If not set we fall-back to using env vars, shared
-                                      credentials file or AWS Instance metadata https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/configuring-sdk.html#specifying-credentials
+                                    description: 'The SecretAccessKey is used for
+                                      authentication. If neither the Access Key nor
+                                      Key ID are set, we fall-back to using env vars,
+                                      shared credentials file or AWS Instance metadata,
+                                      see: https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/configuring-sdk.html#specifying-credentials'
                                     properties:
                                       key:
                                         description: The key of the entry in the Secret
@@ -3473,35 +3674,42 @@ spec:
                                       cert-manager creates an HTTPRoute. cert-manager
                                       needs to know which parentRefs should be used
                                       when creating the HTTPRoute. Usually, the parentRef
-                                      references a Gateway. See: https://gateway-api.sigs.k8s.io/v1alpha2/api-types/httproute/#attaching-to-gateways'
+                                      references a Gateway. See: https://gateway-api.sigs.k8s.io/api-types/httproute/#attaching-to-gateways'
                                     items:
-                                      description: "ParentRef identifies an API object\
-                                        \ (usually a Gateway) that can be considered\
-                                        \ a parent of this resource (usually a route).\
-                                        \ The only kind of parent resource with \"\
-                                        Core\" support is Gateway. This API may be\
-                                        \ extended in the future to support additional\
-                                        \ kinds of parent resources, such as HTTPRoute.\
-                                        \ \n The API object must be valid in the cluster;\
-                                        \ the Group and Kind must be registered in\
-                                        \ the cluster for this reference to be valid.\
-                                        \ \n References to objects with invalid Group\
-                                        \ and Kind are not valid, and must be rejected\
-                                        \ by the implementation, with appropriate\
-                                        \ Conditions set on the containing object."
+                                      description: "ParentReference identifies an\
+                                        \ API object (usually a Gateway) that can\
+                                        \ be considered a parent of this resource\
+                                        \ (usually a route). There are two kinds of\
+                                        \ parent resources with \"Core\" support:\
+                                        \ \n * Gateway (Gateway conformance profile)\
+                                        \ * Service (Mesh conformance profile, experimental,\
+                                        \ ClusterIP Services only) \n This API may\
+                                        \ be extended in the future to support additional\
+                                        \ kinds of parent resources. \n The API object\
+                                        \ must be valid in the cluster; the Group\
+                                        \ and Kind must be registered in the cluster\
+                                        \ for this reference to be valid."
                                       properties:
                                         group:
                                           default: gateway.networking.k8s.io
                                           description: "Group is the group of the\
-                                            \ referent. \n Support: Core"
+                                            \ referent. When unspecified, \"gateway.networking.k8s.io\"\
+                                            \ is inferred. To set the core API group\
+                                            \ (such as for a \"Service\" kind referent),\
+                                            \ Group must be explicitly set to \"\"\
+                                            \ (empty string). \n Support: Core"
                                           maxLength: 253
                                           pattern: ^$|^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$
                                           type: string
                                         kind:
                                           default: Gateway
                                           description: "Kind is kind of the referent.\
-                                            \ \n Support: Core (Gateway) Support:\
-                                            \ Custom (Other Resources)"
+                                            \ \n There are two kinds of parent resources\
+                                            \ with \"Core\" support: \n * Gateway\
+                                            \ (Gateway conformance profile) * Service\
+                                            \ (Mesh conformance profile, experimental,\
+                                            \ ClusterIP Services only) \n Support\
+                                            \ for other resources is Implementation-Specific."
                                           maxLength: 63
                                           minLength: 1
                                           pattern: ^[a-zA-Z]([-a-zA-Z0-9]*[a-zA-Z0-9])?$
@@ -3514,33 +3722,109 @@ spec:
                                           type: string
                                         namespace:
                                           description: "Namespace is the namespace\
-                                            \ of the referent. When unspecified (or\
-                                            \ empty string), this refers to the local\
-                                            \ namespace of the Route. \n Support:\
-                                            \ Core"
+                                            \ of the referent. When unspecified, this\
+                                            \ refers to the local namespace of the\
+                                            \ Route. \n Note that there are specific\
+                                            \ rules for ParentRefs which cross namespace\
+                                            \ boundaries. Cross-namespace references\
+                                            \ are only valid if they are explicitly\
+                                            \ allowed by something in the namespace\
+                                            \ they are referring to. For example:\
+                                            \ Gateway has the AllowedRoutes field,\
+                                            \ and ReferenceGrant provides a generic\
+                                            \ way to enable any other kind of cross-namespace\
+                                            \ reference. \n ParentRefs from a Route\
+                                            \ to a Service in the same namespace are\
+                                            \ \"producer\" routes, which apply default\
+                                            \ routing rules to inbound connections\
+                                            \ from any namespace to the Service. \n\
+                                            \ ParentRefs from a Route to a Service\
+                                            \ in a different namespace are \"consumer\"\
+                                            \ routes, and these routing rules are\
+                                            \ only applied to outbound connections\
+                                            \ originating from the same namespace\
+                                            \ as the Route, for which the intended\
+                                            \ destination of the connections are a\
+                                            \ Service targeted as a ParentRef of the\
+                                            \ Route. \n Support: Core"
                                           maxLength: 63
                                           minLength: 1
                                           pattern: ^[a-z0-9]([-a-z0-9]*[a-z0-9])?$
                                           type: string
+                                        port:
+                                          description: "Port is the network port this\
+                                            \ Route targets. It can be interpreted\
+                                            \ differently based on the type of parent\
+                                            \ resource. \n When the parent resource\
+                                            \ is a Gateway, this targets all listeners\
+                                            \ listening on the specified port that\
+                                            \ also support this kind of Route(and\
+                                            \ select this Route). It's not recommended\
+                                            \ to set `Port` unless the networking\
+                                            \ behaviors specified in a Route must\
+                                            \ apply to a specific port as opposed\
+                                            \ to a listener(s) whose port(s) may be\
+                                            \ changed. When both Port and SectionName\
+                                            \ are specified, the name and port of\
+                                            \ the selected listener must match both\
+                                            \ specified values. \n When the parent\
+                                            \ resource is a Service, this targets\
+                                            \ a specific port in the Service spec.\
+                                            \ When both Port (experimental) and SectionName\
+                                            \ are specified, the name and port of\
+                                            \ the selected port must match both specified\
+                                            \ values. \n Implementations MAY choose\
+                                            \ to support other parent resources. Implementations\
+                                            \ supporting other types of parent resources\
+                                            \ MUST clearly document how/if Port is\
+                                            \ interpreted. \n For the purpose of status,\
+                                            \ an attachment is considered successful\
+                                            \ as long as the parent resource accepts\
+                                            \ it partially. For example, Gateway listeners\
+                                            \ can restrict which Routes can attach\
+                                            \ to them by Route kind, namespace, or\
+                                            \ hostname. If 1 of 2 Gateway listeners\
+                                            \ accept attachment from the referencing\
+                                            \ Route, the Route MUST be considered\
+                                            \ successfully attached. If no Gateway\
+                                            \ listeners accept attachment from this\
+                                            \ Route, the Route MUST be considered\
+                                            \ detached from the Gateway. \n Support:\
+                                            \ Extended \n <gateway:experimental>"
+                                          format: int32
+                                          maximum: 65535
+                                          minimum: 1
+                                          type: integer
                                         sectionName:
                                           description: "SectionName is the name of\
                                             \ a section within the target resource.\
                                             \ In the following resources, SectionName\
                                             \ is interpreted as the following: \n\
-                                            \ * Gateway: Listener Name \n Implementations\
-                                            \ MAY choose to support attaching Routes\
-                                            \ to other resources. If that is the case,\
-                                            \ they MUST clearly document how SectionName\
-                                            \ is interpreted. \n When unspecified\
-                                            \ (empty string), this will reference\
-                                            \ the entire resource. For the purpose\
-                                            \ of status, an attachment is considered\
-                                            \ successful if at least one section in\
-                                            \ the parent resource accepts it. For\
-                                            \ example, Gateway listeners can restrict\
-                                            \ which Routes can attach to them by Route\
-                                            \ kind, namespace, or hostname. If 1 of\
-                                            \ 2 Gateway listeners accept attachment\
+                                            \ * Gateway: Listener Name. When both\
+                                            \ Port (experimental) and SectionName\
+                                            \ are specified, the name and port of\
+                                            \ the selected listener must match both\
+                                            \ specified values. * Service: Port Name.\
+                                            \ When both Port (experimental) and SectionName\
+                                            \ are specified, the name and port of\
+                                            \ the selected listener must match both\
+                                            \ specified values. Note that attaching\
+                                            \ Routes to Services as Parents is part\
+                                            \ of experimental Mesh support and is\
+                                            \ not supported for any other purpose.\
+                                            \ \n Implementations MAY choose to support\
+                                            \ attaching Routes to other resources.\
+                                            \ If that is the case, they MUST clearly\
+                                            \ document how SectionName is interpreted.\
+                                            \ \n When unspecified (empty string),\
+                                            \ this will reference the entire resource.\
+                                            \ For the purpose of status, an attachment\
+                                            \ is considered successful if at least\
+                                            \ one section in the parent resource accepts\
+                                            \ it. For example, Gateway listeners can\
+                                            \ restrict which Routes can attach to\
+                                            \ them by Route kind, namespace, or hostname.\
+                                            \ If 1 of 2 Gateway listeners accept attachment\
                                             \ from the referencing Route, the Route\
                                             \ MUST be considered successfully attached.\
                                             \ If no Gateway listeners accept attachment\
@@ -3569,10 +3853,19 @@ spec:
                                   by cert-manager for each Challenge to be completed.
                                 properties:
                                   class:
-                                    description: The ingress class to use when creating
+                                    description: This field configures the annotation
+                                      `kubernetes.io/ingress.class` when creating
                                       Ingress resources to solve ACME challenges that
-                                      use this challenge solver. Only one of 'class'
-                                      or 'name' may be specified.
+                                      use this challenge solver. Only one of `class`,
+                                      `name` or `ingressClassName` may be specified.
+                                    type: string
+                                  ingressClassName:
+                                    description: This field configures the field `ingressClassName`
+                                      on the created Ingress resources used to solve
+                                      ACME challenges that use this challenge solver.
+                                      This is the recommended way of configuring the
+                                      ingress class. Only one of `class`, `name` or
+                                      `ingressClassName` may be specified.
                                     type: string
                                   ingressTemplate:
                                     description: Optional ingress template used to
@@ -3609,7 +3902,8 @@ spec:
                                       This is typically used in conjunction with ingress
                                       controllers like ingress-gce, which maintains
                                       a 1:1 mapping between external IPs and ingress
-                                      resources.
+                                      resources. Only one of `class`, `name` or `ingressClassName`
+                                      may be specified.
                                     type: string
                                   podTemplate:
                                     description: Optional pod template used to configure
@@ -3640,11 +3934,9 @@ spec:
                                         type: object
                                       spec:
                                         description: PodSpec defines overrides for
-                                          the HTTP01 challenge solver pod. Only the
-                                          'priorityClassName', 'nodeSelector', 'affinity',
-                                          'serviceAccountName' and 'tolerations' fields
-                                          are supported currently. All other fields
-                                          will be ignored.
+                                          the HTTP01 challenge solver pod. Check ACMEChallengeSolverHTTP01IngressPodSpec
+                                          to find out currently supported fields.
+                                          All other fields will be ignored.
                                         properties:
                                           affinity:
                                             description: If specified, the pod's scheduling
@@ -3813,6 +4105,7 @@ spec:
                                                                 type: object
                                                               type: array
                                                           type: object
+                                                          x-kubernetes-map-type: atomic
                                                         weight:
                                                           description: Weight associated
                                                             with matching the corresponding
@@ -3976,10 +4269,12 @@ spec:
                                                                 type: object
                                                               type: array
                                                           type: object
+                                                          x-kubernetes-map-type: atomic
                                                         type: array
                                                     required:
                                                       - nodeSelectorTerms
                                                     type: object
+                                                    x-kubernetes-map-type: atomic
                                                 type: object
                                               podAffinity:
                                                 description: Describes pod affinity
@@ -4116,6 +4411,7 @@ spec:
                                                                     are ANDed.
                                                                   type: object
                                                               type: object
+                                                              x-kubernetes-map-type: atomic
                                                             namespaceSelector:
                                                               description: A label
                                                                 query over the set
@@ -4132,11 +4428,7 @@ spec:
                                                                 list means "this pod's
                                                                 namespace". An empty
                                                                 selector ({}) matches
-                                                                all namespaces. This
-                                                                field is beta-level
-                                                                and is only honored
-                                                                when PodAffinityNamespaceSelector
-                                                                feature is enabled.
+                                                                all namespaces.
                                                               properties:
                                                                 matchExpressions:
                                                                   description: matchExpressions
@@ -4227,6 +4519,7 @@ spec:
                                                                     are ANDed.
                                                                   type: object
                                                               type: object
+                                                              x-kubernetes-map-type: atomic
                                                             namespaces:
                                                               description: namespaces
                                                                 specifies a static
@@ -4241,7 +4534,7 @@ spec:
                                                                 null or empty namespaces
                                                                 list and null namespaceSelector
                                                                 means "this pod's
-                                                                namespace"
+                                                                namespace".
                                                               items:
                                                                 type: string
                                                               type: array
@@ -4390,6 +4683,7 @@ spec:
                                                                 are ANDed.
                                                               type: object
                                                           type: object
+                                                          x-kubernetes-map-type: atomic
                                                         namespaceSelector:
                                                           description: A label query
                                                             over the set of namespaces
@@ -4404,10 +4698,6 @@ spec:
                                                             means "this pod's namespace".
                                                             An empty selector ({})
                                                             matches all namespaces.
-                                                            This field is beta-level
-                                                            and is only honored when
-                                                            PodAffinityNamespaceSelector
-                                                            feature is enabled.
                                                           properties:
                                                             matchExpressions:
                                                               description: matchExpressions
@@ -4483,6 +4773,7 @@ spec:
                                                                 are ANDed.
                                                               type: object
                                                           type: object
+                                                          x-kubernetes-map-type: atomic
                                                         namespaces:
                                                           description: namespaces
                                                             specifies a static list
@@ -4494,7 +4785,7 @@ spec:
                                                             the ones selected by namespaceSelector.
                                                             null or empty namespaces
                                                             list and null namespaceSelector
-                                                            means "this pod's namespace"
+                                                            means "this pod's namespace".
                                                           items:
                                                             type: string
                                                           type: array
@@ -4654,6 +4945,7 @@ spec:
                                                                     are ANDed.
                                                                   type: object
                                                               type: object
+                                                              x-kubernetes-map-type: atomic
                                                             namespaceSelector:
                                                               description: A label
                                                                 query over the set
@@ -4670,11 +4962,7 @@ spec:
                                                                 list means "this pod's
                                                                 namespace". An empty
                                                                 selector ({}) matches
-                                                                all namespaces. This
-                                                                field is beta-level
-                                                                and is only honored
-                                                                when PodAffinityNamespaceSelector
-                                                                feature is enabled.
+                                                                all namespaces.
                                                               properties:
                                                                 matchExpressions:
                                                                   description: matchExpressions
@@ -4765,6 +5053,7 @@ spec:
                                                                     are ANDed.
                                                                   type: object
                                                               type: object
+                                                              x-kubernetes-map-type: atomic
                                                             namespaces:
                                                               description: namespaces
                                                                 specifies a static
@@ -4779,7 +5068,7 @@ spec:
                                                                 null or empty namespaces
                                                                 list and null namespaceSelector
                                                                 means "this pod's
-                                                                namespace"
+                                                                namespace".
                                                               items:
                                                                 type: string
                                                               type: array
@@ -4928,6 +5217,7 @@ spec:
                                                                 are ANDed.
                                                               type: object
                                                           type: object
+                                                          x-kubernetes-map-type: atomic
                                                         namespaceSelector:
                                                           description: A label query
                                                             over the set of namespaces
@@ -4942,10 +5232,6 @@ spec:
                                                             means "this pod's namespace".
                                                             An empty selector ({})
                                                             matches all namespaces.
-                                                            This field is beta-level
-                                                            and is only honored when
-                                                            PodAffinityNamespaceSelector
-                                                            feature is enabled.
                                                           properties:
                                                             matchExpressions:
                                                               description: matchExpressions
@@ -5021,6 +5307,7 @@ spec:
                                                                 are ANDed.
                                                               type: object
                                                           type: object
+                                                          x-kubernetes-map-type: atomic
                                                         namespaces:
                                                           description: namespaces
                                                             specifies a static list
@@ -5032,7 +5319,7 @@ spec:
                                                             the ones selected by namespaceSelector.
                                                             null or empty namespaces
                                                             list and null namespaceSelector
-                                                            means "this pod's namespace"
+                                                            means "this pod's namespace".
                                                           items:
                                                             type: string
                                                           type: array
@@ -5058,6 +5345,23 @@ spec:
                                                     type: array
                                                 type: object
                                             type: object
+                                          imagePullSecrets:
+                                            description: If specified, the pod's imagePullSecrets
+                                            items:
+                                              description: LocalObjectReference contains
+                                                enough information to let you locate
+                                                the referenced object inside the same
+                                                namespace.
+                                              properties:
+                                                name:
+                                                  description: 'Name of the referent.
+                                                    More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                                                    TODO: Add other useful fields.
+                                                    apiVersion, kind, uid?'
+                                                  type: string
+                                              type: object
+                                              x-kubernetes-map-type: atomic
+                                            type: array
                                           nodeSelector:
                                             additionalProperties:
                                               type: string
@@ -5313,9 +5617,23 @@ spec:
                               required:
                                 - name
                               type: object
+                            serviceAccountRef:
+                              description: A reference to a service account that will
+                                be used to request a bound token (also known as "projected
+                                token"). Compared to using "secretRef", using this
+                                field means that you don't rely on statically bound
+                                tokens. To use this field, you must configure an RBAC
+                                rule to let cert-manager request a token.
+                              properties:
+                                name:
+                                  description: Name of the ServiceAccount used to
+                                    request a token.
+                                  type: string
+                              required:
+                                - name
+                              type: object
                           required:
                             - role
-                            - secretRef
                           type: object
                         tokenSecretRef:
                           description: TokenSecretRef authenticates with Vault by
@@ -5335,13 +5653,36 @@ spec:
                           type: object
                       type: object
                     caBundle:
-                      description: PEM-encoded CA bundle (base64-encoded) used to
-                        validate Vault server certificate. Only used if the Server
-                        URL is using HTTPS protocol. This parameter is ignored for
-                        plain HTTP protocol connection. If not set the system root
-                        certificates are used to validate the TLS connection.
+                      description: Base64-encoded bundle of PEM CAs which will be
+                        used to validate the certificate chain presented by Vault.
+                        Only used if using HTTPS to connect to Vault and ignored for
+                        HTTP connections. Mutually exclusive with CABundleSecretRef.
+                        If neither CABundle nor CABundleSecretRef are defined, the
+                        certificate bundle in the cert-manager controller container
+                        is used to validate the TLS connection.
                       format: byte
                       type: string
+                    caBundleSecretRef:
+                      description: Reference to a Secret containing a bundle of PEM-encoded
+                        CAs to use when verifying the certificate chain presented
+                        by Vault when using HTTPS. Mutually exclusive with CABundle.
+                        If neither CABundle nor CABundleSecretRef are defined, the
+                        certificate bundle in the cert-manager controller container
+                        is used to validate the TLS connection. If no key for the
+                        Secret is specified, cert-manager will default to 'ca.crt'.
+                      properties:
+                        key:
+                          description: The key of the entry in the Secret resource's
+                            `data` field to be used. Some instances of this field
+                            may be defaulted, in others it may be required.
+                          type: string
+                        name:
+                          description: 'Name of the resource being referred to. More
+                            info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names'
+                          type: string
+                      required:
+                        - name
+                      type: object
                     namespace:
                       description: 'Name of the vault namespace. Namespaces is a set
                         of features within Vault Enterprise that allows Vault environments
@@ -5397,12 +5738,11 @@ spec:
                         settings. Only one of TPP or Cloud may be specified.
                       properties:
                         caBundle:
-                          description: CABundle is a PEM encoded TLS certificate to
-                            use to verify connections to the TPP instance. If specified,
-                            system roots will not be used and the issuing CA for the
-                            TPP instance must be verifiable using the provided root.
-                            If not specified, the connection will be verified using
-                            the cert-manager system root certificates.
+                          description: Base64-encoded bundle of PEM CAs which will
+                            be used to validate the certificate chain presented by
+                            the TPP server. Only used if using HTTPS; ignored for
+                            HTTP. If undefined, the certificate bundle in the cert-manager
+                            controller container is used to validate the chain.
                           format: byte
                           type: string
                         credentialsRef:
@@ -5442,6 +5782,12 @@ spec:
                     be set if the Issuer is configured to use an ACME server to issue
                     certificates.
                   properties:
+                    lastPrivateKeyHash:
+                      description: LastPrivateKeyHash is a hash of the private key
+                        associated with the latest registered ACME account, in order
+                        to track changes made to registered account associated with
+                        the Issuer
+                      type: string
                     lastRegisteredEmail:
                       description: LastRegisteredEmail is the email associated with
                         the latest registered ACME account, in order to track changes
@@ -5511,15 +5857,13 @@ spec:
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
-  annotations:
-    cert-manager.io/inject-ca-from-secret: syn-cert-manager/cert-manager-webhook-ca
   labels:
     app: cert-manager
     app.kubernetes.io/instance: cert-manager
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
-    app.kubernetes.io/version: v1.8.2
-    helm.sh/chart: cert-manager-v1.8.2
+    app.kubernetes.io/version: v1.13.2
+    helm.sh/chart: cert-manager-v1.13.2
   name: issuers.cert-manager.io
 spec:
   group: cert-manager.io
@@ -5575,6 +5919,15 @@ spec:
                   description: ACME configures this issuer to communicate with a RFC8555
                     (ACME) server to obtain signed x509 certificates.
                   properties:
+                    caBundle:
+                      description: Base64-encoded bundle of PEM CAs which can be used
+                        to validate the certificate chain presented by the ACME server.
+                        Mutually exclusive with SkipTLSVerify; prefer using CABundle
+                        to prevent various kinds of security vulnerabilities. If CABundle
+                        and SkipTLSVerify are unset, the system certificate bundle
+                        inside the container is used to validate the TLS connection.
+                      format: byte
+                      type: string
                     disableAccountKeyGeneration:
                       description: Enables or disables generating a new ACME account
                         key. If true, the Issuer resource will *not* request a new
@@ -5681,13 +6034,14 @@ spec:
                         Only ACME v2 endpoints (i.e. RFC 8555) are supported.'
                       type: string
                     skipTLSVerify:
-                      description: Enables or disables validation of the ACME server
-                        TLS certificate. If true, requests to the ACME server will
-                        not have their TLS certificate validated (i.e. insecure connections
-                        will be allowed). Only enable this option in development environments.
-                        The cert-manager system installed roots will be used to verify
-                        connections to the ACME server if this is false. Defaults
-                        to false.
+                      description: 'INSECURE: Enables or disables validation of the
+                        ACME server TLS certificate. If true, requests to the ACME
+                        server will not have the TLS certificate chain validated.
+                        Mutually exclusive with CABundle; prefer using CABundle to
+                        prevent various kinds of security vulnerabilities. Only enable
+                        this option in development environments. If CABundle and SkipTLSVerify
+                        are unset, the system certificate bundle inside the container
+                        is used to validate the TLS connection. Defaults to false.'
                       type: boolean
                     solvers:
                       description: 'Solvers is a list of challenge solvers that will
@@ -6031,10 +6385,33 @@ spec:
                                 properties:
                                   accessKeyID:
                                     description: 'The AccessKeyID is used for authentication.
-                                      If not set we fall-back to using env vars, shared
-                                      credentials file or AWS Instance metadata see:
-                                      https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/configuring-sdk.html#specifying-credentials'
+                                      Cannot be set when SecretAccessKeyID is set.
+                                      If neither the Access Key nor Key ID are set,
+                                      we fall-back to using env vars, shared credentials
+                                      file or AWS Instance metadata, see: https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/configuring-sdk.html#specifying-credentials'
                                     type: string
+                                  accessKeyIDSecretRef:
+                                    description: 'The SecretAccessKey is used for
+                                      authentication. If set, pull the AWS access
+                                      key ID from a key within a Kubernetes Secret.
+                                      Cannot be set when AccessKeyID is set. If neither
+                                      the Access Key nor Key ID are set, we fall-back
+                                      to using env vars, shared credentials file or
+                                      AWS Instance metadata, see: https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/configuring-sdk.html#specifying-credentials'
+                                    properties:
+                                      key:
+                                        description: The key of the entry in the Secret
+                                          resource's `data` field to be used. Some
+                                          instances of this field may be defaulted,
+                                          in others it may be required.
+                                        type: string
+                                      name:
+                                        description: 'Name of the resource being referred
+                                          to. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names'
+                                        type: string
+                                    required:
+                                      - name
+                                    type: object
                                   hostedZoneID:
                                     description: If set, the provider will manage
                                       only this zone in Route53 and will not do an
@@ -6053,9 +6430,11 @@ spec:
                                       shared credentials file or AWS Instance metadata
                                     type: string
                                   secretAccessKeySecretRef:
-                                    description: The SecretAccessKey is used for authentication.
-                                      If not set we fall-back to using env vars, shared
-                                      credentials file or AWS Instance metadata https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/configuring-sdk.html#specifying-credentials
+                                    description: 'The SecretAccessKey is used for
+                                      authentication. If neither the Access Key nor
+                                      Key ID are set, we fall-back to using env vars,
+                                      shared credentials file or AWS Instance metadata,
+                                      see: https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/configuring-sdk.html#specifying-credentials'
                                     properties:
                                       key:
                                         description: The key of the entry in the Secret
@@ -6135,35 +6514,42 @@ spec:
                                       cert-manager creates an HTTPRoute. cert-manager
                                       needs to know which parentRefs should be used
                                       when creating the HTTPRoute. Usually, the parentRef
-                                      references a Gateway. See: https://gateway-api.sigs.k8s.io/v1alpha2/api-types/httproute/#attaching-to-gateways'
+                                      references a Gateway. See: https://gateway-api.sigs.k8s.io/api-types/httproute/#attaching-to-gateways'
                                     items:
-                                      description: "ParentRef identifies an API object\
-                                        \ (usually a Gateway) that can be considered\
-                                        \ a parent of this resource (usually a route).\
-                                        \ The only kind of parent resource with \"\
-                                        Core\" support is Gateway. This API may be\
-                                        \ extended in the future to support additional\
-                                        \ kinds of parent resources, such as HTTPRoute.\
-                                        \ \n The API object must be valid in the cluster;\
-                                        \ the Group and Kind must be registered in\
-                                        \ the cluster for this reference to be valid.\
-                                        \ \n References to objects with invalid Group\
-                                        \ and Kind are not valid, and must be rejected\
-                                        \ by the implementation, with appropriate\
-                                        \ Conditions set on the containing object."
+                                      description: "ParentReference identifies an\
+                                        \ API object (usually a Gateway) that can\
+                                        \ be considered a parent of this resource\
+                                        \ (usually a route). There are two kinds of\
+                                        \ parent resources with \"Core\" support:\
+                                        \ \n * Gateway (Gateway conformance profile)\
+                                        \ * Service (Mesh conformance profile, experimental,\
+                                        \ ClusterIP Services only) \n This API may\
+                                        \ be extended in the future to support additional\
+                                        \ kinds of parent resources. \n The API object\
+                                        \ must be valid in the cluster; the Group\
+                                        \ and Kind must be registered in the cluster\
+                                        \ for this reference to be valid."
                                       properties:
                                         group:
                                           default: gateway.networking.k8s.io
                                           description: "Group is the group of the\
-                                            \ referent. \n Support: Core"
+                                            \ referent. When unspecified, \"gateway.networking.k8s.io\"\
+                                            \ is inferred. To set the core API group\
+                                            \ (such as for a \"Service\" kind referent),\
+                                            \ Group must be explicitly set to \"\"\
+                                            \ (empty string). \n Support: Core"
                                           maxLength: 253
                                           pattern: ^$|^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$
                                           type: string
                                         kind:
                                           default: Gateway
                                           description: "Kind is kind of the referent.\
-                                            \ \n Support: Core (Gateway) Support:\
-                                            \ Custom (Other Resources)"
+                                            \ \n There are two kinds of parent resources\
+                                            \ with \"Core\" support: \n * Gateway\
+                                            \ (Gateway conformance profile) * Service\
+                                            \ (Mesh conformance profile, experimental,\
+                                            \ ClusterIP Services only) \n Support\
+                                            \ for other resources is Implementation-Specific."
                                           maxLength: 63
                                           minLength: 1
                                           pattern: ^[a-zA-Z]([-a-zA-Z0-9]*[a-zA-Z0-9])?$
@@ -6176,33 +6562,109 @@ spec:
                                           type: string
                                         namespace:
                                           description: "Namespace is the namespace\
-                                            \ of the referent. When unspecified (or\
-                                            \ empty string), this refers to the local\
-                                            \ namespace of the Route. \n Support:\
-                                            \ Core"
+                                            \ of the referent. When unspecified, this\
+                                            \ refers to the local namespace of the\
+                                            \ Route. \n Note that there are specific\
+                                            \ rules for ParentRefs which cross namespace\
+                                            \ boundaries. Cross-namespace references\
+                                            \ are only valid if they are explicitly\
+                                            \ allowed by something in the namespace\
+                                            \ they are referring to. For example:\
+                                            \ Gateway has the AllowedRoutes field,\
+                                            \ and ReferenceGrant provides a generic\
+                                            \ way to enable any other kind of cross-namespace\
+                                            \ reference. \n ParentRefs from a Route\
+                                            \ to a Service in the same namespace are\
+                                            \ \"producer\" routes, which apply default\
+                                            \ routing rules to inbound connections\
+                                            \ from any namespace to the Service. \n\
+                                            \ ParentRefs from a Route to a Service\
+                                            \ in a different namespace are \"consumer\"\
+                                            \ routes, and these routing rules are\
+                                            \ only applied to outbound connections\
+                                            \ originating from the same namespace\
+                                            \ as the Route, for which the intended\
+                                            \ destination of the connections are a\
+                                            \ Service targeted as a ParentRef of the\
+                                            \ Route. \n Support: Core"
                                           maxLength: 63
                                           minLength: 1
                                           pattern: ^[a-z0-9]([-a-z0-9]*[a-z0-9])?$
                                           type: string
+                                        port:
+                                          description: "Port is the network port this\
+                                            \ Route targets. It can be interpreted\
+                                            \ differently based on the type of parent\
+                                            \ resource. \n When the parent resource\
+                                            \ is a Gateway, this targets all listeners\
+                                            \ listening on the specified port that\
+                                            \ also support this kind of Route(and\
+                                            \ select this Route). It's not recommended\
+                                            \ to set `Port` unless the networking\
+                                            \ behaviors specified in a Route must\
+                                            \ apply to a specific port as opposed\
+                                            \ to a listener(s) whose port(s) may be\
+                                            \ changed. When both Port and SectionName\
+                                            \ are specified, the name and port of\
+                                            \ the selected listener must match both\
+                                            \ specified values. \n When the parent\
+                                            \ resource is a Service, this targets\
+                                            \ a specific port in the Service spec.\
+                                            \ When both Port (experimental) and SectionName\
+                                            \ are specified, the name and port of\
+                                            \ the selected port must match both specified\
+                                            \ values. \n Implementations MAY choose\
+                                            \ to support other parent resources. Implementations\
+                                            \ supporting other types of parent resources\
+                                            \ MUST clearly document how/if Port is\
+                                            \ interpreted. \n For the purpose of status,\
+                                            \ an attachment is considered successful\
+                                            \ as long as the parent resource accepts\
+                                            \ it partially. For example, Gateway listeners\
+                                            \ can restrict which Routes can attach\
+                                            \ to them by Route kind, namespace, or\
+                                            \ hostname. If 1 of 2 Gateway listeners\
+                                            \ accept attachment from the referencing\
+                                            \ Route, the Route MUST be considered\
+                                            \ successfully attached. If no Gateway\
+                                            \ listeners accept attachment from this\
+                                            \ Route, the Route MUST be considered\
+                                            \ detached from the Gateway. \n Support:\
+                                            \ Extended \n <gateway:experimental>"
+                                          format: int32
+                                          maximum: 65535
+                                          minimum: 1
+                                          type: integer
                                         sectionName:
                                           description: "SectionName is the name of\
                                             \ a section within the target resource.\
                                             \ In the following resources, SectionName\
                                             \ is interpreted as the following: \n\
-                                            \ * Gateway: Listener Name \n Implementations\
-                                            \ MAY choose to support attaching Routes\
-                                            \ to other resources. If that is the case,\
-                                            \ they MUST clearly document how SectionName\
-                                            \ is interpreted. \n When unspecified\
-                                            \ (empty string), this will reference\
-                                            \ the entire resource. For the purpose\
-                                            \ of status, an attachment is considered\
-                                            \ successful if at least one section in\
-                                            \ the parent resource accepts it. For\
-                                            \ example, Gateway listeners can restrict\
-                                            \ which Routes can attach to them by Route\
-                                            \ kind, namespace, or hostname. If 1 of\
-                                            \ 2 Gateway listeners accept attachment\
+                                            \ * Gateway: Listener Name. When both\
+                                            \ Port (experimental) and SectionName\
+                                            \ are specified, the name and port of\
+                                            \ the selected listener must match both\
+                                            \ specified values. * Service: Port Name.\
+                                            \ When both Port (experimental) and SectionName\
+                                            \ are specified, the name and port of\
+                                            \ the selected listener must match both\
+                                            \ specified values. Note that attaching\
+                                            \ Routes to Services as Parents is part\
+                                            \ of experimental Mesh support and is\
+                                            \ not supported for any other purpose.\
+                                            \ \n Implementations MAY choose to support\
+                                            \ attaching Routes to other resources.\
+                                            \ If that is the case, they MUST clearly\
+                                            \ document how SectionName is interpreted.\
+                                            \ \n When unspecified (empty string),\
+                                            \ this will reference the entire resource.\
+                                            \ For the purpose of status, an attachment\
+                                            \ is considered successful if at least\
+                                            \ one section in the parent resource accepts\
+                                            \ it. For example, Gateway listeners can\
+                                            \ restrict which Routes can attach to\
+                                            \ them by Route kind, namespace, or hostname.\
+                                            \ If 1 of 2 Gateway listeners accept attachment\
                                             \ from the referencing Route, the Route\
                                             \ MUST be considered successfully attached.\
                                             \ If no Gateway listeners accept attachment\
@@ -6231,10 +6693,19 @@ spec:
                                   by cert-manager for each Challenge to be completed.
                                 properties:
                                   class:
-                                    description: The ingress class to use when creating
+                                    description: This field configures the annotation
+                                      `kubernetes.io/ingress.class` when creating
                                       Ingress resources to solve ACME challenges that
-                                      use this challenge solver. Only one of 'class'
-                                      or 'name' may be specified.
+                                      use this challenge solver. Only one of `class`,
+                                      `name` or `ingressClassName` may be specified.
+                                    type: string
+                                  ingressClassName:
+                                    description: This field configures the field `ingressClassName`
+                                      on the created Ingress resources used to solve
+                                      ACME challenges that use this challenge solver.
+                                      This is the recommended way of configuring the
+                                      ingress class. Only one of `class`, `name` or
+                                      `ingressClassName` may be specified.
                                     type: string
                                   ingressTemplate:
                                     description: Optional ingress template used to
@@ -6271,7 +6742,8 @@ spec:
                                       This is typically used in conjunction with ingress
                                       controllers like ingress-gce, which maintains
                                       a 1:1 mapping between external IPs and ingress
-                                      resources.
+                                      resources. Only one of `class`, `name` or `ingressClassName`
+                                      may be specified.
                                     type: string
                                   podTemplate:
                                     description: Optional pod template used to configure
@@ -6302,11 +6774,9 @@ spec:
                                         type: object
                                       spec:
                                         description: PodSpec defines overrides for
-                                          the HTTP01 challenge solver pod. Only the
-                                          'priorityClassName', 'nodeSelector', 'affinity',
-                                          'serviceAccountName' and 'tolerations' fields
-                                          are supported currently. All other fields
-                                          will be ignored.
+                                          the HTTP01 challenge solver pod. Check ACMEChallengeSolverHTTP01IngressPodSpec
+                                          to find out currently supported fields.
+                                          All other fields will be ignored.
                                         properties:
                                           affinity:
                                             description: If specified, the pod's scheduling
@@ -6475,6 +6945,7 @@ spec:
                                                                 type: object
                                                               type: array
                                                           type: object
+                                                          x-kubernetes-map-type: atomic
                                                         weight:
                                                           description: Weight associated
                                                             with matching the corresponding
@@ -6638,10 +7109,12 @@ spec:
                                                                 type: object
                                                               type: array
                                                           type: object
+                                                          x-kubernetes-map-type: atomic
                                                         type: array
                                                     required:
                                                       - nodeSelectorTerms
                                                     type: object
+                                                    x-kubernetes-map-type: atomic
                                                 type: object
                                               podAffinity:
                                                 description: Describes pod affinity
@@ -6778,6 +7251,7 @@ spec:
                                                                     are ANDed.
                                                                   type: object
                                                               type: object
+                                                              x-kubernetes-map-type: atomic
                                                             namespaceSelector:
                                                               description: A label
                                                                 query over the set
@@ -6794,11 +7268,7 @@ spec:
                                                                 list means "this pod's
                                                                 namespace". An empty
                                                                 selector ({}) matches
-                                                                all namespaces. This
-                                                                field is beta-level
-                                                                and is only honored
-                                                                when PodAffinityNamespaceSelector
-                                                                feature is enabled.
+                                                                all namespaces.
                                                               properties:
                                                                 matchExpressions:
                                                                   description: matchExpressions
@@ -6889,6 +7359,7 @@ spec:
                                                                     are ANDed.
                                                                   type: object
                                                               type: object
+                                                              x-kubernetes-map-type: atomic
                                                             namespaces:
                                                               description: namespaces
                                                                 specifies a static
@@ -6903,7 +7374,7 @@ spec:
                                                                 null or empty namespaces
                                                                 list and null namespaceSelector
                                                                 means "this pod's
-                                                                namespace"
+                                                                namespace".
                                                               items:
                                                                 type: string
                                                               type: array
@@ -7052,6 +7523,7 @@ spec:
                                                                 are ANDed.
                                                               type: object
                                                           type: object
+                                                          x-kubernetes-map-type: atomic
                                                         namespaceSelector:
                                                           description: A label query
                                                             over the set of namespaces
@@ -7066,10 +7538,6 @@ spec:
                                                             means "this pod's namespace".
                                                             An empty selector ({})
                                                             matches all namespaces.
-                                                            This field is beta-level
-                                                            and is only honored when
-                                                            PodAffinityNamespaceSelector
-                                                            feature is enabled.
                                                           properties:
                                                             matchExpressions:
                                                               description: matchExpressions
@@ -7145,6 +7613,7 @@ spec:
                                                                 are ANDed.
                                                               type: object
                                                           type: object
+                                                          x-kubernetes-map-type: atomic
                                                         namespaces:
                                                           description: namespaces
                                                             specifies a static list
@@ -7156,7 +7625,7 @@ spec:
                                                             the ones selected by namespaceSelector.
                                                             null or empty namespaces
                                                             list and null namespaceSelector
-                                                            means "this pod's namespace"
+                                                            means "this pod's namespace".
                                                           items:
                                                             type: string
                                                           type: array
@@ -7316,6 +7785,7 @@ spec:
                                                                     are ANDed.
                                                                   type: object
                                                               type: object
+                                                              x-kubernetes-map-type: atomic
                                                             namespaceSelector:
                                                               description: A label
                                                                 query over the set
@@ -7332,11 +7802,7 @@ spec:
                                                                 list means "this pod's
                                                                 namespace". An empty
                                                                 selector ({}) matches
-                                                                all namespaces. This
-                                                                field is beta-level
-                                                                and is only honored
-                                                                when PodAffinityNamespaceSelector
-                                                                feature is enabled.
+                                                                all namespaces.
                                                               properties:
                                                                 matchExpressions:
                                                                   description: matchExpressions
@@ -7427,6 +7893,7 @@ spec:
                                                                     are ANDed.
                                                                   type: object
                                                               type: object
+                                                              x-kubernetes-map-type: atomic
                                                             namespaces:
                                                               description: namespaces
                                                                 specifies a static
@@ -7441,7 +7908,7 @@ spec:
                                                                 null or empty namespaces
                                                                 list and null namespaceSelector
                                                                 means "this pod's
-                                                                namespace"
+                                                                namespace".
                                                               items:
                                                                 type: string
                                                               type: array
@@ -7590,6 +8057,7 @@ spec:
                                                                 are ANDed.
                                                               type: object
                                                           type: object
+                                                          x-kubernetes-map-type: atomic
                                                         namespaceSelector:
                                                           description: A label query
                                                             over the set of namespaces
@@ -7604,10 +8072,6 @@ spec:
                                                             means "this pod's namespace".
                                                             An empty selector ({})
                                                             matches all namespaces.
-                                                            This field is beta-level
-                                                            and is only honored when
-                                                            PodAffinityNamespaceSelector
-                                                            feature is enabled.
                                                           properties:
                                                             matchExpressions:
                                                               description: matchExpressions
@@ -7683,6 +8147,7 @@ spec:
                                                                 are ANDed.
                                                               type: object
                                                           type: object
+                                                          x-kubernetes-map-type: atomic
                                                         namespaces:
                                                           description: namespaces
                                                             specifies a static list
@@ -7694,7 +8159,7 @@ spec:
                                                             the ones selected by namespaceSelector.
                                                             null or empty namespaces
                                                             list and null namespaceSelector
-                                                            means "this pod's namespace"
+                                                            means "this pod's namespace".
                                                           items:
                                                             type: string
                                                           type: array
@@ -7720,6 +8185,23 @@ spec:
                                                     type: array
                                                 type: object
                                             type: object
+                                          imagePullSecrets:
+                                            description: If specified, the pod's imagePullSecrets
+                                            items:
+                                              description: LocalObjectReference contains
+                                                enough information to let you locate
+                                                the referenced object inside the same
+                                                namespace.
+                                              properties:
+                                                name:
+                                                  description: 'Name of the referent.
+                                                    More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                                                    TODO: Add other useful fields.
+                                                    apiVersion, kind, uid?'
+                                                  type: string
+                                              type: object
+                                              x-kubernetes-map-type: atomic
+                                            type: array
                                           nodeSelector:
                                             additionalProperties:
                                               type: string
@@ -7975,9 +8457,23 @@ spec:
                               required:
                                 - name
                               type: object
+                            serviceAccountRef:
+                              description: A reference to a service account that will
+                                be used to request a bound token (also known as "projected
+                                token"). Compared to using "secretRef", using this
+                                field means that you don't rely on statically bound
+                                tokens. To use this field, you must configure an RBAC
+                                rule to let cert-manager request a token.
+                              properties:
+                                name:
+                                  description: Name of the ServiceAccount used to
+                                    request a token.
+                                  type: string
+                              required:
+                                - name
+                              type: object
                           required:
                             - role
-                            - secretRef
                           type: object
                         tokenSecretRef:
                           description: TokenSecretRef authenticates with Vault by
@@ -7997,13 +8493,36 @@ spec:
                           type: object
                       type: object
                     caBundle:
-                      description: PEM-encoded CA bundle (base64-encoded) used to
-                        validate Vault server certificate. Only used if the Server
-                        URL is using HTTPS protocol. This parameter is ignored for
-                        plain HTTP protocol connection. If not set the system root
-                        certificates are used to validate the TLS connection.
+                      description: Base64-encoded bundle of PEM CAs which will be
+                        used to validate the certificate chain presented by Vault.
+                        Only used if using HTTPS to connect to Vault and ignored for
+                        HTTP connections. Mutually exclusive with CABundleSecretRef.
+                        If neither CABundle nor CABundleSecretRef are defined, the
+                        certificate bundle in the cert-manager controller container
+                        is used to validate the TLS connection.
                       format: byte
                       type: string
+                    caBundleSecretRef:
+                      description: Reference to a Secret containing a bundle of PEM-encoded
+                        CAs to use when verifying the certificate chain presented
+                        by Vault when using HTTPS. Mutually exclusive with CABundle.
+                        If neither CABundle nor CABundleSecretRef are defined, the
+                        certificate bundle in the cert-manager controller container
+                        is used to validate the TLS connection. If no key for the
+                        Secret is specified, cert-manager will default to 'ca.crt'.
+                      properties:
+                        key:
+                          description: The key of the entry in the Secret resource's
+                            `data` field to be used. Some instances of this field
+                            may be defaulted, in others it may be required.
+                          type: string
+                        name:
+                          description: 'Name of the resource being referred to. More
+                            info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names'
+                          type: string
+                      required:
+                        - name
+                      type: object
                     namespace:
                       description: 'Name of the vault namespace. Namespaces is a set
                         of features within Vault Enterprise that allows Vault environments
@@ -8059,12 +8578,11 @@ spec:
                         settings. Only one of TPP or Cloud may be specified.
                       properties:
                         caBundle:
-                          description: CABundle is a PEM encoded TLS certificate to
-                            use to verify connections to the TPP instance. If specified,
-                            system roots will not be used and the issuing CA for the
-                            TPP instance must be verifiable using the provided root.
-                            If not specified, the connection will be verified using
-                            the cert-manager system root certificates.
+                          description: Base64-encoded bundle of PEM CAs which will
+                            be used to validate the certificate chain presented by
+                            the TPP server. Only used if using HTTPS; ignored for
+                            HTTP. If undefined, the certificate bundle in the cert-manager
+                            controller container is used to validate the chain.
                           format: byte
                           type: string
                         credentialsRef:
@@ -8104,6 +8622,12 @@ spec:
                     be set if the Issuer is configured to use an ACME server to issue
                     certificates.
                   properties:
+                    lastPrivateKeyHash:
+                      description: LastPrivateKeyHash is a hash of the private key
+                        associated with the latest registered ACME account, in order
+                        to track changes made to registered account associated with
+                        the Issuer
+                      type: string
                     lastRegisteredEmail:
                       description: LastRegisteredEmail is the email associated with
                         the latest registered ACME account, in order to track changes
@@ -8173,15 +8697,13 @@ spec:
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
-  annotations:
-    cert-manager.io/inject-ca-from-secret: syn-cert-manager/cert-manager-webhook-ca
   labels:
     app: cert-manager
     app.kubernetes.io/instance: cert-manager
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
-    app.kubernetes.io/version: v1.8.2
-    helm.sh/chart: cert-manager-v1.8.2
+    app.kubernetes.io/version: v1.13.2
+    helm.sh/chart: cert-manager-v1.13.2
   name: orders.acme.cert-manager.io
 spec:
   group: acme.cert-manager.io

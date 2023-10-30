@@ -11,8 +11,8 @@ metadata:
     app.kubernetes.io/instance: cert-manager
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: startupapicheck
-    app.kubernetes.io/version: v1.8.2
-    helm.sh/chart: cert-manager-v1.8.2
+    app.kubernetes.io/version: v1.13.2
+    helm.sh/chart: cert-manager-v1.13.2
   name: cert-manager-startupapicheck
   namespace: syn-cert-manager
 spec:
@@ -25,20 +25,28 @@ spec:
         app.kubernetes.io/instance: cert-manager
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: startupapicheck
-        app.kubernetes.io/version: v1.8.2
-        helm.sh/chart: cert-manager-v1.8.2
+        app.kubernetes.io/version: v1.13.2
+        helm.sh/chart: cert-manager-v1.13.2
     spec:
       containers:
         - args:
             - check
             - api
             - --wait=1m
-          image: quay.io/jetstack/cert-manager-ctl:v1.8.2
+          image: quay.io/jetstack/cert-manager-ctl:v1.13.2
           imagePullPolicy: IfNotPresent
-          name: cert-manager
+          name: cert-manager-startupapicheck
           securityContext:
             allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+      enableServiceLinks: false
+      nodeSelector:
+        kubernetes.io/os: linux
       restartPolicy: OnFailure
       securityContext:
         runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
       serviceAccountName: cert-manager-startupapicheck
