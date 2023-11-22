@@ -51,10 +51,13 @@ local secrets = [
 local acmedns = import 'acme-dns.libsonnet';
 
 {
-  '00_clusterissuer': [
-    letsencrypt_staging,
-    letsencrypt_production,
-  ],
+  '00_clusterissuer': std.filter(
+    function(it) it != null,
+    [
+      if params.letsencrypt_clusterissuers.staging then letsencrypt_staging,
+      if params.letsencrypt_clusterissuers.production then letsencrypt_production,
+    ]
+  ),
   [if std.length(secrets) > 0 then '10_solver_secrets']:
     secrets,
   [if std.objectHas(acmedns, 'manifests') then '20_acme_dns']:

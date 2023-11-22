@@ -7,6 +7,9 @@ parameters:
     http_proxy: ""
     https_proxy: ""
     no_proxy: ""
+    letsencrypt_clusterissuers:
+      staging: true
+      production: true
     solvers:
       nginx_http01:
         http01:
