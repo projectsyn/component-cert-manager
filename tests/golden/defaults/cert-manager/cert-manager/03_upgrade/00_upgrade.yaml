@@ -92,7 +92,7 @@ spec:
                 orders.acme.cert-manager.io
             - name: HOME
               value: /export
-          image: quay.io/appuio/oc:v4.13
+          image: quay.io/appuio/oc:v4.14
           imagePullPolicy: IfNotPresent
           name: cert-manager-crd-upgrade
           ports: []
