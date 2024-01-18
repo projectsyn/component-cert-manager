@@ -9,7 +9,7 @@
   ],
   "postUpgradeTasks": {
     "commands": [
-      "make gen-golden"
+      "make gen-golden-all"
     ],
     "fileFilters": [ "tests/golden/**" ],
     "executionMode": "update"
