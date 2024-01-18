@@ -1,3 +1,32 @@
-# Overwrite parameters here
+applications:
+  - openshift4-operators as openshift-operators-redhat
+  - openshift4-monitoring
 
-# parameters: {...}
+parameters:
+  kapitan:
+    dependencies:
+      - type: https
+        source: https://raw.githubusercontent.com/appuio/component-openshift4-operators/master/lib/openshift4-operators.libsonnet
+        output_path: vendor/lib/openshift4-operators.libsonnet
+      - type: https
+        source: https://raw.githubusercontent.com/appuio/component-openshift4-monitoring/master/lib/openshift4-monitoring-alert-patching.libsonnet
+        output_path: vendor/lib/alert-patching.libsonnet
+
+  facts:
+    distribution: openshift4
+
+  openshift4_operators:
+    defaultInstallPlanApproval: Automatic
+    defaultSource: openshift-operators-redhat
+    defaultSourceNamespace: openshift-operators-redhat
+
+  cert_manager:
+    install_method: olm
+    letsencrypt_email: test@syn.tools
+    acme_dns_api:
+      endpoint: acme-dns-api.example.com
+      username: acme-dns
+      password: ?{vaultkv:${cluster:tenant}/${cluster:name}/cert-manager/acme-dns-register-password}
+      fqdns:
+        - example.com
+        - apps.example.com

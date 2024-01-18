@@ -1,0 +1,12 @@
+apiVersion: operators.coreos.com/v1
+kind: OperatorGroup
+metadata:
+  annotations: {}
+  labels:
+    app.kubernetes.io/managed-by: commodore
+    name: syn-cert-manager
+  name: syn-cert-manager
+  namespace: syn-cert-manager
+spec:
+  targetNamespaces:
+    - syn-cert-manager

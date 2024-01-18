@@ -1,37 +1,67 @@
 parameters:
-  kapitan:
-    dependencies:
-      - type: helm
-        source: https://charts.jetstack.io
-        chart_name: cert-manager
-        version: ${cert_manager:charts:cert-manager}
-        output_path: ${_base_directory}/helmcharts/cert-manager/${cert_manager:charts:cert-manager}/
+  =_kapitan:
+    olm:
+      compile:
+        # common
+        - input_type: jsonnet
+          input_paths:
+            - ${_base_directory}/component/app.jsonnet
+          output_type: yaml
+          output_path: apps/
+        - input_type: jsonnet
+          input_paths:
+            - ${_base_directory}/component/namespace.jsonnet
+          output_type: yaml
+          output_path: cert-manager/
+        - input_type: jsonnet
+          input_paths:
+            - ${_base_directory}/component/main.jsonnet
+          output_type: yaml
+          output_path: cert-manager/02_issuers
+        # install-method specific
+        - input_type: jsonnet
+          input_paths:
+            - ${_base_directory}/component/operator.jsonnet
+          output_type: yaml
+          output_path: cert-manager/01_operator
+    helm:
+      dependencies:
+        - type: helm
+          source: https://charts.jetstack.io
+          chart_name: cert-manager
+          version: ${cert_manager:charts:cert-manager}
+          output_path: ${_base_directory}/helmcharts/cert-manager/${cert_manager:charts:cert-manager}/
+      compile:
+        # common
+        - input_type: jsonnet
+          input_paths:
+            - ${_base_directory}/component/app.jsonnet
+          output_type: yaml
+          output_path: apps/
+        - input_type: jsonnet
+          input_paths:
+            - ${_base_directory}/component/namespace.jsonnet
+          output_type: yaml
+          output_path: cert-manager/
+        - input_type: jsonnet
+          input_paths:
+            - ${_base_directory}/component/main.jsonnet
+          output_type: yaml
+          output_path: cert-manager/02_issuers
+        # install-method specific
+        - input_type: jsonnet
+          input_paths:
+            - ${_base_directory}/component/upgrade.jsonnet
+          output_type: yaml
+          output_path: cert-manager/03_upgrade
+        - input_type: helm
+          input_paths:
+            - ${_base_directory}/helmcharts/cert-manager/${cert_manager:charts:cert-manager}/
+          output_path: cert-manager/01_helmchart
+          helm_values: ${cert_manager:helm_values}
+          helm_params:
+            name: cert-manager
+            namespace: ${cert_manager:namespace}
 
-    compile:
-      - input_paths:
-          - ${_base_directory}/component/app.jsonnet
-        input_type: jsonnet
-        output_path: apps/
-      - output_path: cert-manager/01_helmchart
-        input_type: helm
-        input_paths:
-          - ${_base_directory}/helmcharts/cert-manager/${cert_manager:charts:cert-manager}/
-        helm_values: ${cert_manager:helm_values}
-        helm_params:
-          name: cert-manager
-          namespace: ${cert_manager:namespace}
-      - output_path: cert-manager/
-        input_type: jsonnet
-        output_type: yaml
-        input_paths:
-          - ${_base_directory}/component/namespace.jsonnet
-      - output_path: cert-manager/02_issuers
-        input_type: jsonnet
-        output_type: yaml
-        input_paths:
-          - ${_base_directory}/component/main.jsonnet
-      - output_path: cert-manager/03_upgrade
-        input_type: jsonnet
-        output_type: yaml
-        input_paths:
-          - ${_base_directory}/component/upgrade.jsonnet
+  kapitan:
+    ${_kapitan:${cert_manager:install_method}}
