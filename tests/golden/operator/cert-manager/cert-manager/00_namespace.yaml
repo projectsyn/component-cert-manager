@@ -1,8 +1,9 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  annotations: {}
+  annotations:
+    openshift.io/node-selector: infra
   labels:
-    monitoring.syn.tools/infra-monitoring: 'true'
     name: syn-cert-manager
+    openshift.io/cluster-monitoring: 'true'
   name: syn-cert-manager

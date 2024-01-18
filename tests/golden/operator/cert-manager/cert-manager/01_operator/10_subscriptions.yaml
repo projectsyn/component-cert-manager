@@ -1,0 +1,25 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+labels:
+  app.kubernetes.io/managed-by: commodore
+metadata:
+  annotations: {}
+  labels:
+    name: openshift-cert-manager-operator
+  name: openshift-cert-manager-operator
+  namespace: syn-cert-manager
+spec:
+  channel: stable-v1
+  config:
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: node-role.kubernetes.io/infra
+                  operator: Exists
+    resources: {}
+  installPlanApproval: Automatic
+  name: openshift-cert-manager-operator
+  source: redhat-operators
+  sourceNamespace: openshift-operators-redhat

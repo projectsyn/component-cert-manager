@@ -1,20 +1,33 @@
 parameters:
   cert_manager:
     namespace: syn-cert-manager
-    dns01-recursive-nameservers: "1.1.1.1:53"
+    install_method: helm
+
     charts:
       cert-manager: v1.13.2
+
+    images:
+      kubectl:
+        registry: quay.io
+        image: appuio/oc
+        tag: 'v4.13'
+
     http_proxy: ""
     https_proxy: ""
     no_proxy: ""
+
+    dns01-recursive-nameservers: "1.1.1.1:53"
+
     letsencrypt_clusterissuers:
       staging: true
       production: true
+
     solvers:
       nginx_http01:
         http01:
           ingress:
             class: 'nginx'
+
     secrets: {}
     acme_dns_api: {}
     # acme_dns_api:
@@ -22,11 +35,6 @@ parameters:
     #   username: dns_api_registration_user
     #   password: dns_api_registration_password
     #   fqdns: [ "api.cluster.example.com", "apps.cluster.example.com" ]
-    images:
-      kubectl:
-        registry: quay.io
-        image: appuio/oc
-        tag: 'v4.13'
 
     helm_values:
       global:
@@ -60,3 +68,7 @@ parameters:
           requests:
             cpu: 50m
             memory: 512Mi
+
+    olm:
+      channel: stable-v1
+      resources: {}

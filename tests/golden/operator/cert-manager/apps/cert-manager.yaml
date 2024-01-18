@@ -1,0 +1,13 @@
+spec:
+  ignoreDifferences:
+    - jsonPointers:
+        - /data
+      kind: Secret
+      name: acme-dns-client
+      namespace: syn-cert-manager
+    - group: admissionregistration.k8s.io
+      jqPathExpressions:
+        - .webhooks[].namespaceSelector.matchExpressions[] | select(.key == "control-plane")
+        - .webhooks[].namespaceSelector.matchExpressions[] | select(.key == "kubernetes.azure.com/managedby")
+      kind: ValidatingWebhookConfiguration
+      name: cert-manager-webhook

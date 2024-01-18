@@ -5,18 +5,25 @@ local prom = import 'lib/prometheus.libsonnet';
 local inv = kap.inventory();
 local params = inv.parameters.cert_manager;
 
-local namespace = kube.Namespace(params.namespace) {
-  metadata+: {
-    labels+: {
-      'openshift.io/cluster-monitoring': 'true',
-    },
-  },
-};
+local isOpenshift = std.startsWith(inv.parameters.facts.distribution, 'openshift');
+
+local namespace = kube.Namespace(params.namespace);
 
 {
   '00_namespace':
     if std.member(inv.applications, 'prometheus') then
       prom.RegisterNamespace(namespace)
+    else if isOpenshift then
+      namespace {
+        metadata+: {
+          annotations+: {
+            'openshift.io/node-selector': 'infra',
+          },
+          labels+: {
+            'openshift.io/cluster-monitoring': 'true',
+          },
+        },
+      }
     else
       namespace,
 }

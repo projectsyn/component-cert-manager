@@ -1,0 +1,35 @@
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  annotations: {}
+  labels:
+    name: letsencrypt-staging
+  name: letsencrypt-staging
+spec:
+  acme:
+    email: test@syn.tools
+    privateKeySecretRef:
+      name: letsencrypt-staging
+    server: https://acme-staging-v02.api.letsencrypt.org/directory
+    solvers:
+      - http01:
+          ingress:
+            class: nginx
+---
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  annotations: {}
+  labels:
+    name: letsencrypt-production
+  name: letsencrypt-production
+spec:
+  acme:
+    email: test@syn.tools
+    privateKeySecretRef:
+      name: letsencrypt-production
+    server: https://acme-v02.api.letsencrypt.org/directory
+    solvers:
+      - http01:
+          ingress:
+            class: nginx
