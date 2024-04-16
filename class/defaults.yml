@@ -32,6 +32,7 @@ parameters:
       global:
         leaderElection:
           namespace: ${cert_manager:namespace}
+        priorityClassName: system-cluster-critical
       extraEnv:
         - name: HTTP_PROXY
           value: ${cert_manager:http_proxy}
