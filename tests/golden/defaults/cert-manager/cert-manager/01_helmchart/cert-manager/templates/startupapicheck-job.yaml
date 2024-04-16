@@ -44,6 +44,7 @@ spec:
       enableServiceLinks: false
       nodeSelector:
         kubernetes.io/os: linux
+      priorityClassName: system-cluster-critical
       restartPolicy: OnFailure
       securityContext:
         runAsNonRoot: true
