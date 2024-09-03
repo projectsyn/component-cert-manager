@@ -20,6 +20,7 @@ parameters:
         helm_params:
           name: cert-manager
           namespace: ${cert_manager:namespace}
+          kube_version: ${cert_manager:kubernetes_version}
       - output_path: cert-manager/
         input_type: jsonnet
         output_type: yaml
