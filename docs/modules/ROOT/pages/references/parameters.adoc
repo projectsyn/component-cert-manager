@@ -13,6 +13,16 @@ The namespace in which to install cert-manager.
 The component always adds label `openshift.io/cluster-monitoring=true` to the namespace.
 Additionally, if component `prometheus` is installed on the cluster, the component registers the namespace to be monitored through the default Prometheus stack managed by that component.
 
+== `kubernetes_version`
+
+[horizontal]
+type:: string
+default:: https://github.com/projectsyn/component-cert-manager/blob/master/class/defaults.yml[See `class/defaults.yml`]
+
+The Kubernetes version to provide to `helm template` when rendering the Helm chart.
+
+TIP: Set this parameter to `${dynamic_facts:kubernetesVersion:major}.${dynamic_facts:kubernetesVersion.minor}` to use the cluster's reported Kubernetes version when rendering the Helm chart.
+
 == `charts:cert-manager`
 
 [horizontal]

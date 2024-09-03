@@ -1,6 +1,10 @@
 parameters:
   cert_manager:
     namespace: syn-cert-manager
+
+    # Used when rendering the Helm chart
+    kubernetes_version: "1.27"
+
     dns01-recursive-nameservers: "1.1.1.1:53"
     charts:
       cert-manager: v1.13.5
