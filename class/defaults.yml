@@ -34,7 +34,7 @@ parameters:
       kubectl:
         registry: quay.io
         repository: appuio/oc
-        tag: v4.14
+        tag: v4.16
 
     dns01-recursive-nameservers: "1.1.1.1:53"
     http_proxy: ""
