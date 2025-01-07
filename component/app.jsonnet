@@ -27,6 +27,10 @@ local app = argocd.App('cert-manager', params.namespace) {
   },
 };
 
+local appPath =
+  local project = std.get(std.get(app, 'spec', {}), 'project', 'syn');
+  if project == 'syn' then 'apps' else 'apps-%s' % project;
+
 {
-  'cert-manager': app,
+  ['%s/cert-manager' % appPath]: app,
 }
