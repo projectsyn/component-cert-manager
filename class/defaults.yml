@@ -1,5 +1,7 @@
 parameters:
   cert_manager:
+    =_metadata:
+      multi_tenant: true
     namespace: syn-cert-manager
 
     # Used when rendering the Helm chart
