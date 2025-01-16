@@ -9,7 +9,7 @@ parameters:
 
     dns01-recursive-nameservers: "1.1.1.1:53"
     charts:
-      cert-manager: v1.13.5
+      cert-manager: v1.13.6
     http_proxy: ""
     https_proxy: ""
     no_proxy: ""
