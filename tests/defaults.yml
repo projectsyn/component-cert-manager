@@ -18,5 +18,19 @@ parameters:
         - example.com
         - apps.example.com
 
+    issuers:
+      ca-issuer:
+        metadata:
+          namespace: mesh-system
+        spec:
+          ca:
+            secretName: ca-key-pair
+
+    cluster_issuers:
+      ca-issuer:
+        spec:
+          ca:
+            secretName: ca-key-pair
+
   prometheus:
     defaultInstance: infra-monitoring

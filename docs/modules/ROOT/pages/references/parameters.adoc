@@ -127,6 +127,36 @@ By default, secrets are created in the namespace in which cert-manager is deploy
 
 See the https://cert-manager.io/docs/configuration/acme/dns01/[cert-manager documentation] for DNS01 solvers which are supported by cert-manager.
 
+== `cluster_issuers`, `issuers`
+
+[horizontal]
+type:: dictionary
+default:: `{}`
+example::
++
+[source,yaml]
+----
+issuers:
+  ca-issuer:
+    metadata:
+      namespace: mesh-system
+    spec:
+      ca:
+        secretName: ca-key-pair
+
+cluster_issuers:
+  ca-issuer:
+    spec:
+      ca:
+        secretName: ca-key-pair
+----
+
+Dictionaries holding issuers and cluster issuers.
+Each key in the dictionary is used as the name of an issuer.
+The value of the key is merged directly into an empty Kubernetes `(Cluster)Issuer` resource.
+
+See the https://cert-manager.io/docs/concepts/issuer/[cert-manager documentation] for how to configure such issuers.
+
 == `acme_dns_api`
 
 [horizontal]
