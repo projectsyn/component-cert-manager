@@ -2,25 +2,30 @@ parameters:
   kapitan:
     dependencies:
       - type: helm
-        source: https://charts.jetstack.io
+        source: ${cert_manager:charts:cert_manager:source}
         chart_name: cert-manager
-        version: ${cert_manager:charts:cert-manager}
-        output_path: ${_base_directory}/helmcharts/cert-manager/${cert_manager:charts:cert-manager}/
+        version: ${cert_manager:charts:cert_manager:version}
+        output_path: ${_base_directory}/helmcharts/cert-manager/${cert_manager:charts:cert_manager:version}/
 
     compile:
       - input_paths:
           - ${_base_directory}/component/app.jsonnet
         input_type: jsonnet
         output_path: .
+      - input_paths:
+          - ${_base_directory}/component/helm/cert-manager.jsonnet
+        input_type: jsonnet
+        output_path: ${_base_directory}/helmcharts/cert-manager/${cert_manager:charts:cert_manager:version}/
       - output_path: cert-manager/01_helmchart
         input_type: helm
         input_paths:
-          - ${_base_directory}/helmcharts/cert-manager/${cert_manager:charts:cert-manager}/
-        helm_values: ${cert_manager:helm_values}
+          - ${_base_directory}/helmcharts/cert-manager/${cert_manager:charts:cert_manager:version}/
+        helm_values_files:
+          - ${_base_directory}/helmcharts/cert-manager/${cert_manager:charts:cert_manager:version}/values-component.yaml
+          - ${_base_directory}/helmcharts/cert-manager/${cert_manager:charts:cert_manager:version}/values-overrides.yaml
         helm_params:
           name: cert-manager
           namespace: ${cert_manager:namespace}
-          kube_version: ${cert_manager:kubernetes_version}
       - output_path: cert-manager/
         input_type: jsonnet
         output_type: yaml
