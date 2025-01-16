@@ -22,6 +22,8 @@ parameters:
           ingress:
             class: 'nginx'
     secrets: {}
+    cluster_issuers: {}
+    issuers: {}
     acme_dns_api: {}
     # acme_dns_api:
     #   endpoint: acme-dns-api.example.com

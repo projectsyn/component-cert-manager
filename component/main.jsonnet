@@ -48,6 +48,9 @@ local secrets = [
   for s in std.objectFields(params.secrets)
 ];
 
+local issuers = com.generateResources(params.issuers, cm.issuer);
+local clusterIssuers = com.generateResources(params.cluster_issuers, cm.clusterIssuer);
+
 local acmedns = import 'acme-dns.libsonnet';
 
 {
@@ -56,8 +59,9 @@ local acmedns = import 'acme-dns.libsonnet';
     [
       if params.letsencrypt_clusterissuers.staging then letsencrypt_staging,
       if params.letsencrypt_clusterissuers.production then letsencrypt_production,
-    ]
+    ] + clusterIssuers
   ),
+  '05_issuer': issuers,
   [if std.length(secrets) > 0 then '10_solver_secrets']:
     secrets,
   [if std.objectHas(acmedns, 'manifests') then '20_acme_dns']:
