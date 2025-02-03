@@ -71,7 +71,7 @@ spec:
               protocol: TCP
           resources:
             requests:
-              cpu: 50m
+              cpu: 200m
               memory: 512Mi
           securityContext:
             allowPrivilegeEscalation: false

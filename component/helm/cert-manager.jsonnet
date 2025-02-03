@@ -37,8 +37,8 @@ local component = {
     },
   },
   dns01RecursiveNameservers: legacy.recursiveNameservers,
-  dns01RecursiveNameserversOnly: params.config.cert_manager.recursiveNameserversOnly,
-  enableCertificateOwnerRef: params.config.cert_manager.certificateOwnerRef,
+  dns01RecursiveNameserversOnly: params.components.cert_manager.recursiveNameserversOnly,
+  enableCertificateOwnerRef: params.components.cert_manager.certificateOwnerRef,
   image: {
     registry: params.images.cert_manager.registry,
     repository: params.images.cert_manager.repository,
@@ -80,5 +80,5 @@ local component = {
 // Define outputs below
 {
   'values-component': component,
-  'values-overrides': params.overrides,
+  'values-overrides': legacy.helmValues,
 }

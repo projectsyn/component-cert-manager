@@ -36,12 +36,11 @@ parameters:
         repository: appuio/oc
         tag: v4.16
 
-    config:
-      common:
+    components:
+      cert_manager:
         httpProxy: ''
         httpsProxy: ''
         noProxy: ''
-      cert_manager:
         certificateOwnerRef: false
         recursiveNameservers: '1.1.1.1:53'
         recursiveNameserversOnly: true
@@ -79,4 +78,5 @@ parameters:
           cpu: 50m
           memory: 512Mi
 
-    overrides: {}
+    helmValues:
+      cert_manager: {}

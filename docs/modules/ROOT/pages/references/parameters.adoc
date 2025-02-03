@@ -65,11 +65,11 @@ images:
 Image registry configurations for components.
 
 
-== `config`
+== `component`
 
 Configuration options for certificate-related components.
 
-=== `config.common`
+=== `component.cert_manager`
 
 [horizontal]
 type:: object
@@ -77,33 +77,19 @@ default::
 +
 [source,yaml]
 ----
-config:
-  common:
-    httpProxy: ''
+component:
+  cert_manager:
+    httpProxy: '' <1>
     httpsProxy: ''
     noProxy: ''
-    email: ''
+    certificateOwnerRef: false <2>
+    recursiveNameservers: '1.1.1.1:53' <3>
+    recursiveNameserversOnly: true <4>
 ----
-
-Common configuration options for certificate-related components.
-
-=== `config.cert_manager`
-
-[horizontal]
-type:: object
-default::
-+
-[source,yaml]
-----
-config:
-  cert_manager:
-    certificateOwnerRef: false <1>
-    recursiveNameservers: '1.1.1.1:53' <2>
-    recursiveNameserversOnly: true <3>
-----
-<1> Ensures secrets will be automatically removed when the certificate resource is deleted.
-<2> Recursive nameservers to use for validating DNS01 challenges.
-<3> Ensures that only the configured nameservers are used to validate DNS01 challenges.
+<1> Proxy configuration for isolated environments.
+<2> Ensures secrets will be automatically removed when the certificate resource is deleted.
+<3> Recursive nameservers to use for validating DNS01 challenges.
+<4> Ensures that only the configured nameservers are used to validate DNS01 challenges.
 
 Configuration options for cert-manager.
 
@@ -245,7 +231,7 @@ resources:
 Resource requests and limits for the components containers.
 
 
-== `overrides`
+== `helmValues`
 
 [horizontal]
 type:: object
@@ -253,7 +239,8 @@ default::
 +
 [source,yaml]
 ----
-overrides: {}
+helmValues:
+  cert_manager: {}
 ----
 
 Override configurations for individual components.
