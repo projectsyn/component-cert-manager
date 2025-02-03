@@ -82,7 +82,7 @@ local scriptPodSpec(name, script) = {
     c: kube.Container(name) {
       image: '%s/%s:%s' % [
         params.images.kubectl.registry,
-        params.images.kubectl.image,
+        params.images.kubectl.repository,
         params.images.kubectl.tag,
       ],
       workingDir: '/home/acme-dns',
