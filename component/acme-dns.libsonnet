@@ -1,3 +1,4 @@
+local legacy = import 'legacy.libsonnet';
 local com = import 'lib/commodore.libjsonnet';
 local kap = import 'lib/kapitan.libjsonnet';
 local kube = import 'lib/kube.libjsonnet';
@@ -100,9 +101,9 @@ local scriptPodSpec(name, script) = {
         CLIENT_SECRET_NAME: clientSecret.metadata.name,
         ACME_DNS_API: acme_dns_api.endpoint,
         ACME_DNS_FQDNS: '%s' % [ acme_dns_api.fqdns ],
-        HTTP_PROXY: params.http_proxy,
-        HTTPS_PROXY: params.https_proxy,
-        NO_PROXY: params.no_proxy,
+        HTTP_PROXY: legacy.httpProxy,
+        HTTPS_PROXY: legacy.httpsProxy,
+        NO_PROXY: legacy.noProxy,
       },
       envFrom: std.prune([
         if has_registration_secret then {

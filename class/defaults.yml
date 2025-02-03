@@ -46,10 +46,7 @@ parameters:
         recursiveNameservers: '1.1.1.1:53'
         recursiveNameserversOnly: true
 
-    dns01-recursive-nameservers: "1.1.1.1:53"
-    http_proxy: ""
-    https_proxy: ""
-    no_proxy: ""
+    letsencrypt_email: test@syn.tools
     letsencrypt_clusterissuers:
       staging: true
       production: true
