@@ -9,13 +9,15 @@ parameters:
         output_path: vendor/lib/prometheus.libsonnet
 
   cert_manager:
-    acme_dns_api:
-      endpoint: acme-dns-api.example.com
-      username: acme-dns
-      password: ?{vaultkv:${cluster:tenant}/${cluster:name}/cert-manager/acme-dns-register-password}
-      fqdns:
-        - example.com
-        - apps.example.com
+    acmeClients:
+      vshn-default:
+        api:
+          endpoint: https://acme-dns-api.example.com
+          username: vshn-default-username
+          password: vshn-default-password
+        fqdns:
+          - 'api.${cluster:name}.example.com'
+          - '*.apps.${cluster:name}.example.com'
 
     issuers:
       ca-issuer:

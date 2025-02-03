@@ -1,67 +1,28 @@
-local legacy = import 'legacy.libsonnet';
+// main template for certificates
 local com = import 'lib/commodore.libjsonnet';
 local kap = import 'lib/kapitan.libjsonnet';
 local kube = import 'lib/kube.libjsonnet';
-
 local inv = kap.inventory();
+
+// The hiera parameters for the component
 local params = inv.parameters.cert_manager;
 
-local acme_dns_api = params.acme_dns_api;
+// Common
 
-local has_registration_secret = std.objectHas(acme_dns_api, 'username');
-local registrationSecret =
-  if has_registration_secret then
-    kube.Secret('acme-dns-register') {
-      metadata+: {
-        namespace: params.namespace,
-      },
-      stringData: {
-        REG_USERNAME: acme_dns_api.username,
-        REG_PASSWORD: acme_dns_api.password,
-      },
-    };
-
-local jobnames = {
-  registration: 'create-acme-dns-client',
-  check: 'check-acme-dns-client',
-};
-local clientSecret =
-  kube.Secret('acme-dns-client') {
-    metadata+: {
-      annotations+: {
-        'cert-manager.syn.tools/managed-by':
-          'The contents of this secret are managed by resources Job/%s and CronJob/%s' % [
-            jobnames.registration,
-            jobnames.check,
-          ],
-      },
-      namespace: params.namespace,
-    },
-  };
-
-local mountpaths = {
-  acmednsjson: '/etc/acme-dns',
-  scripts: '/scripts',
-};
-local scriptConfigmap =
-  kube.ConfigMap('register-acme-dns-client') {
-    metadata+: {
-      namespace: params.namespace,
-    },
-    data: {
-      'register.sh': importstr 'acme-dns-scripts/register.sh',
-      'check.sh': importstr 'acme-dns-scripts/check.sh',
-    },
-  };
-
-local scriptServiceAccount = kube.ServiceAccount('acme-dns') {
+local serviceAccount = kube.ServiceAccount('acme-dns') {
   metadata+: {
+    annotations: {
+      'argocd.argoproj.io/sync-wave': '10',
+    },
     namespace: params.namespace,
   },
 };
 
-local scriptRole = kube.Role('acme-dns-secret-editor') {
+local role = kube.Role('acme-dns-secret-editor') {
   metadata+: {
+    annotations: {
+      'argocd.argoproj.io/sync-wave': '10',
+    },
     namespace: params.namespace,
   },
   rules: [
@@ -73,19 +34,61 @@ local scriptRole = kube.Role('acme-dns-secret-editor') {
   ],
 };
 
-local scriptRoleBinding = kube.RoleBinding('acme-dns-secret-editor') {
-  subjects_: [ scriptServiceAccount ],
-  roleRef_: scriptRole,
+local roleBinding = kube.RoleBinding('acme-dns-secret-editor') {
+  metadata+: {
+    annotations: {
+      'argocd.argoproj.io/sync-wave': '10',
+    },
+    namespace: params.namespace,
+  },
+  subjects_: [ serviceAccount ],
+  roleRef_: role,
 };
 
-local scriptPodSpec(name, script) = {
+local configMap = kube.ConfigMap('acme-dns-scripts') {
+  metadata+: {
+    annotations: {
+      'argocd.argoproj.io/sync-wave': '10',
+    },
+    namespace: params.namespace,
+  },
+  data: {
+    'register.sh': importstr 'scripts/acme_register.sh',
+    'check.sh': importstr 'scripts/acme_check.sh',
+  },
+};
+
+// Acme DNS Client
+
+local hasRegistrationSecret(name) = std.objectHas(params.acmeClients[name].api, 'username');
+local registrationSecret(name) = kube.Secret('acme-dns-%s-register' % name) {
+  metadata+: {
+    annotations: {
+      'argocd.argoproj.io/sync-wave': '10',
+    },
+    namespace: params.namespace,
+  },
+  stringData: {
+    REG_USERNAME: params.acmeClients[name].api.username,
+    REG_PASSWORD: params.acmeClients[name].api.password,
+  },
+};
+
+local clientSecret(name) = kube.Secret('acme-dns-%s-client' % name) {
+  metadata+: {
+    annotations: {
+      'argocd.argoproj.io/sync-wave': '10',
+    },
+    namespace: params.namespace,
+  },
+};
+
+local podSpec(name, jobname, script) = {
+  assert !(std.length(params.acmeClients[name].fqdns) > 2) : 'Max 2 FQDNs supported for acme client',
+
   containers_+: {
-    c: kube.Container(name) {
-      image: '%s/%s:%s' % [
-        params.images.kubectl.registry,
-        params.images.kubectl.repository,
-        params.images.kubectl.tag,
-      ],
+    c: kube.Container(jobname) {
+      image: '%(registry)s/%(repository)s:%(tag)s' % params.images.kubectl,
       workingDir: '/home/acme-dns',
       command: [ '/scripts/%s' % script ],
       env_: {
@@ -96,41 +99,41 @@ local scriptPodSpec(name, script) = {
           },
         },
         // Script config parameters
-        CONFIG_PATH: mountpaths.acmednsjson,
-        SCRIPTS_PATH: mountpaths.scripts,
-        CLIENT_SECRET_NAME: clientSecret.metadata.name,
-        ACME_DNS_API: acme_dns_api.endpoint,
-        ACME_DNS_FQDNS: '%s' % [ acme_dns_api.fqdns ],
-        HTTP_PROXY: legacy.httpProxy,
-        HTTPS_PROXY: legacy.httpsProxy,
-        NO_PROXY: legacy.noProxy,
+        CONFIG_PATH: '/etc/acme-dns',
+        SCRIPTS_PATH: '/scripts',
+        CLIENT_SECRET_NAME: clientSecret(name).metadata.name,
+        ACME_DNS_API: params.acmeClients[name].api.endpoint,
+        ACME_DNS_FQDNS: '%s' % [ params.acmeClients[name].fqdns ],
+        HTTP_PROXY: params.components.cert_manager.httpProxy,
+        HTTPS_PROXY: params.components.cert_manager.httpsProxy,
+        NO_PROXY: params.components.cert_manager.noProxy,
       },
       envFrom: std.prune([
-        if has_registration_secret then {
+        if hasRegistrationSecret(name) then {
           secretRef: {
-            name: registrationSecret.metadata.name,
+            name: registrationSecret(name).metadata.name,
           },
         },
       ]),
       volumeMounts_: {
         acmedns_client_secret: {
-          mountPath: mountpaths.acmednsjson,
+          mountPath: '/etc/acme-dns',
           readOnly: true,
         },
         home: {
           mountPath: '/home/acme-dns',
         },
         scripts: {
-          mountPath: mountpaths.scripts,
+          mountPath: '/scripts',
         },
       },
     },
   },
-  serviceAccountName: scriptServiceAccount.metadata.name,
+  serviceAccountName: serviceAccount.metadata.name,
   volumes_: {
     acmedns_client_secret: {
       secret: {
-        secretName: clientSecret.metadata.name,
+        secretName: clientSecret(name).metadata.name,
       },
     },
     home: {
@@ -141,77 +144,84 @@ local scriptPodSpec(name, script) = {
         // We need mode 0770 for the scripts, so they work correctly on OCP
         // 4.11 where the configmap contents are owned by root:<pod-GID>.
         defaultMode: std.parseOctal('770'),
-        name: scriptConfigmap.metadata.name,
+        name: configMap.metadata.name,
       },
     },
   },
 };
 
-local registrationJob =
-  kube.Job(jobnames.registration) {
-    local job = self,
-    metadata+: {
-      namespace: params.namespace,
-      annotations+: {
-        // Make registration job an ArgoCD hook.
-        // Updating plain Jobs is basically impossible, so we run the
-        // registration job as an ArgoCD hook and ensure it gets deleted when
-        // it succeeds. The registration script should always be a no-op when
-        // acme-dns credentials already exist for in the secret.
-        'argocd.argoproj.io/hook': 'Sync',
-        'argocd.argoproj.io/hook-delete-policy': 'HookSucceeded',
-      },
+local jobRegister(name) = kube.Job('acme-dns-%s-register' % name) {
+  metadata+: {
+    annotations+: {
+      'argocd.argoproj.io/sync-wave': '10',
+      // Make registration job an ArgoCD hook.
+      // Updating plain Jobs is basically impossible, so we run the
+      // registration job as an ArgoCD hook and ensure it gets deleted when
+      // it succeeds. The registration script should always be a no-op when
+      // acme-dns credentials already exist for in the secret.
+      'argocd.argoproj.io/hook': 'Sync',
+      'argocd.argoproj.io/hook-delete-policy': 'HookSucceeded',
     },
-    spec+: {
-      template+: {
-        spec+: scriptPodSpec('register-client', 'register.sh'),
-      },
+    namespace: params.namespace,
+  },
+  spec+: {
+    template+: {
+      spec+: podSpec(name, 'register-client', 'register.sh'),
     },
-  };
+  },
+};
 
-// Generate randomize cronjob schedule between midnight and 2am
-local scope = '%(tenant)s/%(name)s' % inv.parameters.cluster;
-local totalminute = std.foldl(
-  function(x, y) x + y, std.encodeUTF8(std.md5(scope)), 0
-) % 120;
-local hour = totalminute / 60;
-local minute = totalminute % 60;
+local schedule(name) = {
+  local random = std.foldl(function(x, y) x + y, std.encodeUTF8(std.md5(name)), 0) % 120,
 
-local clientcheckCronjob =
-  kube.CronJob(jobnames.check) {
-    metadata+: {
-      namespace: params.namespace,
+  hour: random / 60,
+  minute: random % 60,
+};
+
+local cronJobCheck(name) = kube.CronJob('acme-dns-%s-check' % name) {
+  metadata+: {
+    annotations: {
+      'argocd.argoproj.io/sync-wave': '10',
     },
-    spec+: {
-      jobTemplate+: {
-        spec+: {
-          template+: {
-            spec+: scriptPodSpec('check-client', 'check.sh'),
-          },
+    namespace: params.namespace,
+  },
+  spec+: {
+    jobTemplate+: {
+      spec+: {
+        template+: {
+          spec+: podSpec(name, 'check-client', 'check.sh'),
         },
       },
-      schedule: '%d %d * * *' % [ minute, hour ],
     },
-  };
+    schedule: '%(minute)d %(hour)d * * *' % schedule(name),
+  },
+};
 
-if
-  std.objectHas(acme_dns_api, 'endpoint')
-  && acme_dns_api.endpoint != null
-then
+local acmeClients = {
+  [name]: [
+    registrationSecret(name),
+    clientSecret(name),
+    jobRegister(name),
+    cronJobCheck(name),
+  ]
+  for name in std.objectFields(params.acmeClients)
+  if std.length(params.acmeClients[name]) > 0
+};
+
+// Check if there are any acme clients defined
+local hasAcmeClients = std.length(acmeClients) > 0;
+
+// Define outputs below
+if hasAcmeClients then
   {
-    manifests: std.filter(
-      function(it) it != null,
-      [
-        scriptServiceAccount,
-        scriptRole,
-        scriptRoleBinding,
-        scriptConfigmap,
-        registrationSecret,
-        clientSecret,
-        registrationJob,
-        clientcheckCronjob,
-      ]
-    ),
+    '50_acme_dns': [
+      serviceAccount,
+      role,
+      roleBinding,
+      configMap,
+    ],
+  } + {
+    ['50_acme_dns_' + name]: acmeClients[name]
+    for name in std.objectFields(acmeClients)
   }
-else
-  {}
+else {}

@@ -45,6 +45,8 @@ parameters:
         recursiveNameservers: '1.1.1.1:53'
         recursiveNameserversOnly: true
 
+    acmeClients: {}
+
     letsencrypt_email: test@syn.tools
     letsencrypt_clusterissuers:
       staging: true
@@ -57,12 +59,6 @@ parameters:
     secrets: {}
     cluster_issuers: {}
     issuers: {}
-    acme_dns_api: {}
-    # acme_dns_api:
-    #   endpoint: acme-dns-api.example.com
-    #   username: dns_api_registration_user
-    #   password: dns_api_registration_password
-    #   fqdns: [ "api.cluster.example.com", "apps.cluster.example.com" ]
 
     resources:
       cert_manager:
