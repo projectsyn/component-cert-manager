@@ -12,6 +12,7 @@ default:: `syn-cert-manager`
 The namespace in which to install cert-manager.
 
 The component always adds label `openshift.io/cluster-monitoring=true` to the namespace.
+Additionally, if component `prometheus` is installed on the cluster, the component registers the namespace to be monitored through the default Prometheus stack managed by that component.
 
 
 == `charts`
