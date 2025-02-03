@@ -12,6 +12,20 @@ local component = {
     },
     priorityClassName: 'system-cluster-critical',
   },
+  extraEnv: [
+    {
+      name: 'HTTP_PROXY',
+      value: legacy.httpProxy,
+    },
+    {
+      name: 'HTTPS_PROXY',
+      value: legacy.httpsProxy,
+    },
+    {
+      name: 'NO_PROXY',
+      value: legacy.noProxy,
+    },
+  ],
   crds: {
     enabled: true,
     keep: true,
@@ -22,17 +36,22 @@ local component = {
       enabled: true,
     },
   },
+  dns01RecursiveNameservers: legacy.recursiveNameservers,
+  dns01RecursiveNameserversOnly: params.components.cert_manager.recursiveNameserversOnly,
+  enableCertificateOwnerRef: params.components.cert_manager.certificateOwnerRef,
   image: {
     registry: params.images.cert_manager.registry,
     repository: params.images.cert_manager.repository,
     tag: params.images.cert_manager.tag,
   },
+  resources: params.resources.cert_manager,
   webhook: {
     image: {
       registry: params.images.cert_webhook.registry,
       repository: params.images.cert_webhook.repository,
       tag: params.images.cert_webhook.tag,
     },
+    resources: params.resources.cert_webhook,
   },
   cainjector: {
     image: {
@@ -40,6 +59,7 @@ local component = {
       repository: params.images.cert_cainjector.repository,
       tag: params.images.cert_cainjector.tag,
     },
+    resources: params.resources.cert_cainjector,
   },
   acmesolver: {
     image: {
@@ -60,5 +80,5 @@ local component = {
 // Define outputs below
 {
   'values-component': component,
-  'values-overrides': params.helm_values,
+  'values-overrides': legacy.helmValues,
 }

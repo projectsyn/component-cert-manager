@@ -1,0 +1,11 @@
+parameters:
+  cert_manager:
+    dns01-recursive-nameservers: "8.8.8.8:53"
+    http_proxy: "proxy.example.local:8080"
+    https_proxy: "proxy.example.local:8080"
+    no_proxy: "example.local"
+
+    helm_values:
+      resources:
+        requests:
+          cpu: 200m

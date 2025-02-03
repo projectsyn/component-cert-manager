@@ -2,72 +2,48 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: cert-manager
-    app.kubernetes.io/component: controller
+    app: cainjector
+    app.kubernetes.io/component: cainjector
     app.kubernetes.io/instance: cert-manager
     app.kubernetes.io/managed-by: Helm
-    app.kubernetes.io/name: cert-manager
+    app.kubernetes.io/name: cainjector
     app.kubernetes.io/version: v1.16.3
     helm.sh/chart: cert-manager-v1.16.3
-  name: cert-manager
+  name: cert-manager-cainjector
   namespace: syn-cert-manager
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app.kubernetes.io/component: controller
+      app.kubernetes.io/component: cainjector
       app.kubernetes.io/instance: cert-manager
-      app.kubernetes.io/name: cert-manager
+      app.kubernetes.io/name: cainjector
   template:
     metadata:
       labels:
-        app: cert-manager
-        app.kubernetes.io/component: controller
+        app: cainjector
+        app.kubernetes.io/component: cainjector
         app.kubernetes.io/instance: cert-manager
         app.kubernetes.io/managed-by: Helm
-        app.kubernetes.io/name: cert-manager
+        app.kubernetes.io/name: cainjector
         app.kubernetes.io/version: v1.16.3
         helm.sh/chart: cert-manager-v1.16.3
     spec:
       containers:
         - args:
             - --v=2
-            - --cluster-resource-namespace=$(POD_NAMESPACE)
             - --leader-election-namespace=syn-cert-manager
-            - --acme-http01-solver-image=quay.io/jetstack/cert-manager-acmesolver:v1.16.3
-            - --max-concurrent-challenges=60
-            - --dns01-recursive-nameservers-only=true
-            - --dns01-recursive-nameservers=1.1.1.1:53
           env:
             - name: POD_NAMESPACE
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.namespace
-            - name: HTTP_PROXY
-              value: ''
-            - name: HTTPS_PROXY
-              value: ''
-            - name: NO_PROXY
-              value: ''
-          image: quay.io/jetstack/cert-manager-controller:v1.16.3
+          image: quay.io/jetstack/cert-manager-cainjector:v1.16.3
           imagePullPolicy: IfNotPresent
-          livenessProbe:
-            failureThreshold: 8
-            httpGet:
-              path: /livez
-              port: http-healthz
-              scheme: HTTP
-            initialDelaySeconds: 10
-            periodSeconds: 10
-            successThreshold: 1
-            timeoutSeconds: 15
-          name: cert-manager-controller
+          name: cert-manager-cainjector
           ports:
             - containerPort: 9402
               name: http-metrics
-              protocol: TCP
-            - containerPort: 9403
-              name: http-healthz
               protocol: TCP
           resources:
             requests:
@@ -87,4 +63,4 @@ spec:
         runAsNonRoot: true
         seccompProfile:
           type: RuntimeDefault
-      serviceAccountName: cert-manager
+      serviceAccountName: cert-manager-cainjector

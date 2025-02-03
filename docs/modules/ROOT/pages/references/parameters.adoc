@@ -2,6 +2,7 @@
 
 The parent key for all of the following parameters is `cert_manager`.
 
+
 == `namespace`
 
 [horizontal]
@@ -13,23 +14,87 @@ The namespace in which to install cert-manager.
 The component always adds label `openshift.io/cluster-monitoring=true` to the namespace.
 Additionally, if component `prometheus` is installed on the cluster, the component registers the namespace to be monitored through the default Prometheus stack managed by that component.
 
-== `kubernetes_version`
+
+== `charts`
 
 [horizontal]
-type:: string
-default:: https://github.com/projectsyn/component-cert-manager/blob/master/class/defaults.yml[See `class/defaults.yml`]
+type:: object
+default::
++
+[source,yaml]
+----
+charts:
+  cert_manager:
+    source: https://charts.jetstack.io
+    version: v1.16.2
+----
 
-The Kubernetes version to provide to `helm template` when rendering the Helm chart.
+Specifies the Helm charts sources and versions for certificate-related components.
 
-TIP: Set this parameter to `${dynamic_facts:kubernetesVersion:major}.${dynamic_facts:kubernetesVersion.minor}` to use the cluster's reported Kubernetes version when rendering the Helm chart.
 
-== `charts:cert-manager`
+== `images`
 
 [horizontal]
-type:: string
-default:: see `defaults.yml`
+type:: object
+default::
++
+[source,yaml]
+----
+images:
+  cert_manager:
+    registry: quay.io
+    repository: jetstack/cert-manager-controller
+  cert_webhook:
+    registry: quay.io
+    repository: jetstack/cert-manager-webhook
+  cert_cainjector:
+    registry: quay.io
+    repository: jetstack/cert-manager-cainjector
+  cert_acmesolver:
+    registry: quay.io
+    repository: jetstack/cert-manager-acmesolver
+  cert_startupapi:
+    registry: quay.io
+    repository: jetstack/cert-manager-startupapicheck
+  kubectl:
+    registry: quay.io
+    repository: appuio/oc
+    tag: 'v4.16'
+----
 
-The version of the Helm chart to use.
+Image registry configurations for components.
+
+
+== `component`
+
+Configuration options for certificate-related components.
+
+=== `component.cert_manager`
+
+[horizontal]
+type:: object
+default::
++
+[source,yaml]
+----
+component:
+  cert_manager:
+    httpProxy: '' <1>
+    httpsProxy: ''
+    noProxy: ''
+    certificateOwnerRef: false <2>
+    recursiveNameservers: '1.1.1.1:53' <3>
+    recursiveNameserversOnly: true <4>
+----
+<1> Proxy configuration for isolated environments.
+<2> Ensures secrets will be automatically removed when the certificate resource is deleted.
+<3> Recursive nameservers to use for validating DNS01 challenges.
+<4> Ensures that only the configured nameservers are used to validate DNS01 challenges.
+
+Configuration options for cert-manager.
+
+See the https://cert-manager.io/docs/configuration/acme/dns01/#setting-nameservers-for-dns01-self-check[cert-manager documentation] for nameserver config.
+
 
 == `letsencrypt_email`
 
@@ -38,53 +103,6 @@ type:: string
 default:: ``
 
 The email address Let's Encrypt will use to contact you.
-
-== `dns01-recursive-nameservers`
-
-[horizontal]
-type:: string
-default:: `1.1.1.1:53`
-
-Recursive nameservers to use for validating DNS01 challenges.
-See the https://cert-manager.io/docs/configuration/acme/dns01/#setting-nameservers-for-dns01-self-check[cert-manager documentation] for more details.
-
-This parameter is injected into parameter `helm_values` as an extra argument to cert-manager (`helm_values.extraArgs`).
-
-[NOTE]
-====
-We additionally also set `--dns01-recursive-nameservers-only` as an argument to cert-manager.
-This ensures that only the nameservers configured in this parameter are used to validate DNS01 challenges.
-====
-
-== `http_proxy`
-
-[horizontal]
-type:: string
-default:: ``
-
-The value of `http_proxy` is passed to cert-manager in environment variable `HTTP_PROXY`.
-
-This parameter is injected into parameter `helm_values` in field `extraEnv`.
-
-== `https_proxy`
-
-[horizontal]
-type:: string
-default:: ``
-
-The value of `https_proxy` is passed to cert-manager in environment variable `HTTPS_PROXY`.
-
-This parameter is injected into parameter `helm_values` in field `extraEnv`.
-
-== `no_proxy`
-
-[horizontal]
-type:: string
-default:: ``
-
-The value of `no_proxy` is passed to cert-manager in environment variable `NO_PROXY`.
-
-This parameter is injected into parameter `helm_values` in field `extraEnv`.
 
 == letsencrypt_clusterissuers
 
@@ -186,37 +204,43 @@ The entries in `fqdns` must be exact matches the FQDNs for which DNS01 challenge
 The only flexibility is that cert-manager will present a DNS01 challenge for the wildcard FQDN `*.example.com`, if `example.com` is listed in `fqdns`.
 ====
 
-== `helm_values`
+
+== `resources`
 
 [horizontal]
-type:: dict
-value:: https://github.com/projectsyn/component-cert-manager/blob/master/class/defaults.yml[See `class/defaults.yml`]
-
-The Helm values which the component uses to render the cert-manager Helm chart.
-
-See https://github.com/jetstack/cert-manager/blob/v1.5.5/deploy/charts/cert-manager/values.yaml[the cert-manager Helm chart] for all possible configurations.
-
-== Example
-
+type:: object
+default::
++
 [source,yaml]
 ----
-solvers:
-  nginx_http01:
-    http01:
-      ingress:
-        podTemplate:
-          metadata:
-            labels:
-              app: "solver"
-  dns01:
-    acmeDNS:
-      accountSecretRef:
-        name: acmedns
-          key: acmedns.json
-        host: auth.example.com
-
-secrets:
-  acmedns:
-    stringData:
-      acmedns.json: ?{vaultkv:${cluster:tenant}/${cluster:name}/acmedns}
+resources:
+  cert_manager:
+    requests:
+      cpu: 50m
+      memory: 512Mi
+  cert_webhook:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+  cert_cainjector:
+    requests:
+      cpu: 50m
+      memory: 512Mi
 ----
+
+Resource requests and limits for the components containers.
+
+
+== `helmValues`
+
+[horizontal]
+type:: object
+default::
++
+[source,yaml]
+----
+helmValues:
+  cert_manager: {}
+----
+
+Override configurations for individual components.

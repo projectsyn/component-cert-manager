@@ -36,10 +36,16 @@ parameters:
         repository: appuio/oc
         tag: v4.16
 
-    dns01-recursive-nameservers: "1.1.1.1:53"
-    http_proxy: ""
-    https_proxy: ""
-    no_proxy: ""
+    components:
+      cert_manager:
+        httpProxy: ''
+        httpsProxy: ''
+        noProxy: ''
+        certificateOwnerRef: false
+        recursiveNameservers: '1.1.1.1:53'
+        recursiveNameserversOnly: true
+
+    letsencrypt_email: test@syn.tools
     letsencrypt_clusterissuers:
       staging: true
       production: true
@@ -58,28 +64,19 @@ parameters:
     #   password: dns_api_registration_password
     #   fqdns: [ "api.cluster.example.com", "apps.cluster.example.com" ]
 
-    helm_values:
-      extraEnv:
-        - name: HTTP_PROXY
-          value: ${cert_manager:http_proxy}
-        - name: HTTPS_PROXY
-          value: ${cert_manager:https_proxy}
-        - name: NO_PROXY
-          value: ${cert_manager:no_proxy}
-      extraArgs:
-        - --dns01-recursive-nameservers="${cert_manager:dns01-recursive-nameservers}"
-        - --dns01-recursive-nameservers-only
-      resources:
+    resources:
+      cert_manager:
         requests:
           cpu: 50m
           memory: 512Mi
-      webhook:
-        resources:
-          requests:
-            cpu: 50m
-            memory: 64Mi
-      cainjector:
-        resources:
-          requests:
-            cpu: 50m
-            memory: 512Mi
+      cert_webhook:
+        requests:
+          cpu: 50m
+          memory: 64Mi
+      cert_cainjector:
+        requests:
+          cpu: 50m
+          memory: 512Mi
+
+    helmValues:
+      cert_manager: {}

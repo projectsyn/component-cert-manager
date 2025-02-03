@@ -9,7 +9,6 @@ parameters:
         output_path: vendor/lib/prometheus.libsonnet
 
   cert_manager:
-    letsencrypt_email: test@syn.tools
     acme_dns_api:
       endpoint: acme-dns-api.example.com
       username: acme-dns
