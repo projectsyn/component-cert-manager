@@ -1,4 +1,30 @@
 parameters:
+  =_config:
+    # --- Exoscale Webhook
+    exoscale_webhook_values:
+      'True':
+        input_paths:
+          - ${_base_directory}/component/helm/exoscale-webhook.jsonnet
+        input_type: jsonnet
+        output_path: ${_base_directory}/helmcharts/exoscale-webhook/${cert_manager:charts:exoscale_webhook:version}/
+      'False': &option_false
+        input_paths: []
+        input_type: jsonnet
+        output_path: ''
+    exoscale_webhook_helm:
+      'True':
+        input_paths:
+          - ${_base_directory}/helmcharts/exoscale-webhook/${cert_manager:charts:exoscale_webhook:version}/
+        input_type: helm
+        helm_values_files:
+          - ${_base_directory}/helmcharts/exoscale-webhook/${cert_manager:charts:exoscale_webhook:version}/values-component.yaml
+          - ${_base_directory}/helmcharts/exoscale-webhook/${cert_manager:charts:exoscale_webhook:version}/values-overrides.yaml
+        helm_params:
+          name: exoscale-webhook
+          namespace: ${cert_manager:namespace}
+        output_path: cert-manager/20_exoscale_webhook
+      'False': *option_false
+
   kapitan:
     dependencies:
       - type: helm
@@ -6,6 +32,11 @@ parameters:
         chart_name: cert-manager
         version: ${cert_manager:charts:cert_manager:version}
         output_path: ${_base_directory}/helmcharts/cert-manager/${cert_manager:charts:cert_manager:version}/
+      - type: git
+        source: ${cert_manager:charts:exoscale_webhook:source}
+        ref: ${cert_manager:charts:exoscale_webhook:version}
+        subdir: deploy/exoscale-webhook
+        output_path: ${_base_directory}/helmcharts/exoscale-webhook/${cert_manager:charts:exoscale_webhook:version}/
 
     compile:
       - input_paths:
@@ -34,6 +65,8 @@ parameters:
           name: cert-manager
           namespace: ${cert_manager:namespace}
         output_path: cert-manager/10_cert_manager
+      - ${_config:exoscale_webhook_values:${cert_manager:components:exoscale_webhook:enabled}}
+      - ${_config:exoscale_webhook_helm:${cert_manager:components:exoscale_webhook:enabled}}
 
   commodore:
     postprocess:
@@ -41,3 +74,7 @@ parameters:
         - type: jsonnet
           path: cert-manager/10_cert_manager/cert-manager/templates/
           filter: postprocess/patch-crds.jsonnet
+        - type: jsonnet
+          path: cert-manager/20_exoscale_webhook/exoscale-webhook/templates/
+          filter: postprocess/patch-exoscale.jsonnet
+          enabled: ${cert_manager:components:exoscale_webhook:enabled}
