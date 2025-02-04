@@ -1,8 +1,6 @@
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  annotations:
-    argocd.argoproj.io/sync-wave: '10'
   labels:
     name: acme-dns
   name: acme-dns
@@ -11,8 +9,6 @@ metadata:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  annotations:
-    argocd.argoproj.io/sync-wave: '10'
   labels:
     name: acme-dns-secret-editor
   name: acme-dns-secret-editor
@@ -30,8 +26,6 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  annotations:
-    argocd.argoproj.io/sync-wave: '10'
   labels:
     name: acme-dns-secret-editor
   name: acme-dns-secret-editor
@@ -128,8 +122,6 @@ data:
     fi
 kind: ConfigMap
 metadata:
-  annotations:
-    argocd.argoproj.io/sync-wave: '10'
   labels:
     name: acme-dns-scripts
   name: acme-dns-scripts

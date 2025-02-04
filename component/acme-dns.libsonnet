@@ -15,19 +15,21 @@ local hasAcmeClients = std.length(acmeClients) > 0;
 // Common
 
 local serviceAccount = kube.ServiceAccount('acme-dns') {
-  metadata+: {
-    annotations: {
-      'argocd.argoproj.io/sync-wave': '10',
+  metadata: {
+    labels: {
+      name: 'acme-dns',
     },
+    name: 'acme-dns',
     namespace: params.namespace,
   },
 };
 
 local role = kube.Role('acme-dns-secret-editor') {
-  metadata+: {
-    annotations: {
-      'argocd.argoproj.io/sync-wave': '10',
+  metadata: {
+    labels: {
+      name: 'acme-dns-secret-editor',
     },
+    name: 'acme-dns-secret-editor',
     namespace: params.namespace,
   },
   rules: [
@@ -40,10 +42,11 @@ local role = kube.Role('acme-dns-secret-editor') {
 };
 
 local roleBinding = kube.RoleBinding('acme-dns-secret-editor') {
-  metadata+: {
-    annotations: {
-      'argocd.argoproj.io/sync-wave': '10',
+  metadata: {
+    labels: {
+      name: 'acme-dns-secret-editor',
     },
+    name: 'acme-dns-secret-editor',
     namespace: params.namespace,
   },
   subjects_: [ serviceAccount ],
@@ -51,10 +54,11 @@ local roleBinding = kube.RoleBinding('acme-dns-secret-editor') {
 };
 
 local configMap = kube.ConfigMap('acme-dns-scripts') {
-  metadata+: {
-    annotations: {
-      'argocd.argoproj.io/sync-wave': '10',
+  metadata: {
+    labels: {
+      name: 'acme-dns-scripts',
     },
+    name: 'acme-dns-scripts',
     namespace: params.namespace,
   },
   data: {
@@ -67,27 +71,34 @@ local configMap = kube.ConfigMap('acme-dns-scripts') {
 
 local hasRegistrationSecret(name) = std.objectHas(acmeClients[name].api, 'username');
 local registrationSecret(name) = kube.Secret('acme-dns-%s-register' % name) {
-  metadata+: {
-    annotations: {
-      'argocd.argoproj.io/sync-wave': '10',
+  metadata: {
+    labels: {
+      name: 'acme-dns-%s-register' % name,
     },
+    name: 'acme-dns-%s-register' % name,
     namespace: params.namespace,
   },
   stringData: {
     REG_USERNAME: acmeClients[name].api.username,
     REG_PASSWORD: acmeClients[name].api.password,
   },
+  data:: {},
 };
 
 local clientSecret(name) = kube.Secret('acme-dns-%s-client' % name) {
-  metadata+: {
-    annotations: {
-      'argocd.argoproj.io/sync-wave': '10',
+  metadata: {
+    labels: {
+      name: 'acme-dns-%s-client' % name,
     },
+    name: 'acme-dns-%s-client' % name,
     namespace: params.namespace,
   },
 };
 
+local mountpaths = {
+  acmednsjson: '/etc/acme-dns',
+  scripts: '/scripts',
+};
 local podSpec(name, jobname, script) = {
   assert !(std.length(acmeClients[name].fqdns) > 2) : 'Max 2 FQDNs supported for acme client',
 
@@ -104,14 +115,14 @@ local podSpec(name, jobname, script) = {
           },
         },
         // Script config parameters
-        CONFIG_PATH: '/etc/acme-dns',
-        SCRIPTS_PATH: '/scripts',
+        CONFIG_PATH: mountpaths.acmednsjson,
+        SCRIPTS_PATH: mountpaths.scripts,
         CLIENT_SECRET_NAME: clientSecret(name).metadata.name,
         ACME_DNS_API: acmeClients[name].api.endpoint,
         ACME_DNS_FQDNS: '%s' % [ acmeClients[name].fqdns ],
-        HTTP_PROXY: params.components.cert_manager.httpProxy,
-        HTTPS_PROXY: params.components.cert_manager.httpsProxy,
-        NO_PROXY: params.components.cert_manager.noProxy,
+        HTTP_PROXY: legacy.httpProxy,
+        HTTPS_PROXY: legacy.httpsProxy,
+        NO_PROXY: legacy.noProxy,
       },
       envFrom: std.prune([
         if hasRegistrationSecret(name) then {
@@ -122,14 +133,14 @@ local podSpec(name, jobname, script) = {
       ]),
       volumeMounts_: {
         acmedns_client_secret: {
-          mountPath: '/etc/acme-dns',
+          mountPath: mountpaths.acmednsjson,
           readOnly: true,
         },
         home: {
           mountPath: '/home/acme-dns',
         },
         scripts: {
-          mountPath: '/scripts',
+          mountPath: mountpaths.scripts,
         },
       },
     },
@@ -158,7 +169,6 @@ local podSpec(name, jobname, script) = {
 local jobRegister(name) = kube.Job('acme-dns-%s-register' % name) {
   metadata+: {
     annotations+: {
-      'argocd.argoproj.io/sync-wave': '10',
       // Make registration job an ArgoCD hook.
       // Updating plain Jobs is basically impossible, so we run the
       // registration job as an ArgoCD hook and ensure it gets deleted when
@@ -177,17 +187,19 @@ local jobRegister(name) = kube.Job('acme-dns-%s-register' % name) {
 };
 
 local schedule(name) = {
-  local random = std.foldl(function(x, y) x + y, std.encodeUTF8(std.md5(name)), 0) % 120,
+  local scope = '%(tenant)s/%(name)s' % inv.parameters.cluster,
+  local random = std.foldl(function(x, y) x + y, std.encodeUTF8(std.md5(scope + name)), 0) % 120,
 
   hour: random / 60,
   minute: random % 60,
 };
 
 local cronJobCheck(name) = kube.CronJob('acme-dns-%s-check' % name) {
-  metadata+: {
-    annotations: {
-      'argocd.argoproj.io/sync-wave': '10',
+  metadata: {
+    labels: {
+      name: 'acme-dns-%s-check' % name,
     },
+    name: 'acme-dns-%s-check' % name,
     namespace: params.namespace,
   },
   spec+: {
@@ -211,7 +223,7 @@ local acmeClientManifests = {
     cronJobCheck(name),
   ]
   for name in std.objectFields(acmeClients)
-  if std.length(acmeClients) > 0
+  if acmeClients[name] != null && std.length(acmeClients[name]) > 0
 };
 
 // Define outputs below

@@ -25,21 +25,24 @@ Add the following configuration to your cluster or global configuration.
 ----
 parameters:
   cert_manager:
-    acme_dns_api:
-      endpoint: https://acme-dns-api.example.com <1>
-      username: acme-dns <2>
-      password: ?{vaultkv:${cluster:tenant}/${cluster:name}/cert-manager/acme-dns-password} <2>
-      fqdns: <3>
-        - cluster.example.com
+    acmeClients:
+      client-name: <1>
+        api:
+          endpoint: https://acme-dns-api.example.com <2>
+          username: acme-dns <3>
+          password: ?{vaultkv:${cluster:tenant}/${cluster:name}/cert-manager/acme-dns-password} <3>
+        fqdns: <4>
+          - cluster.example.com
 ----
-<1> The HTTP API of the acme-dns instance
-<2> The HTTP basic auth username and password for the acme-dns instance (optional)
-<3> The list of FQDNs that you want to use acme-dns challenges for.
+<1> An arbitrary name
+<2> The HTTP API of the acme-dns instance
+<3> The HTTP basic auth username and password for the acme-dns instance (optional)
+<4> The list of FQDNs that you want to use acme-dns challenges for.
 Note that the entries must match FQDNs for which you want to use acme-dns challenges exactly.
 With this configuration, cert-manager will only present DNS01 challenges for certificates with dnsNames `cluster.example.com` or `*.cluster.example.com`.
 In particular, cert-manager won't present DNS01 challenges for any subdomains of `cluster.example.com` with this configuration.
 +
-This configuration creates a secret `acme-dns-client` with the acme-dns client configuration in key `acmedns.json` in the cert-manager namespace.
+This configuration creates a secret `acme-dns-client-name-client` with the acme-dns client configuration in key `acmedns.json` in the cert-manager namespace.
 
 . Configure the DNS01 solver
 +
@@ -53,7 +56,7 @@ parameters:
         acmeDNS:
           host: https://acme-dns-api.example.com <2>
           accountSecretRef: <3>
-            name: acme-dns-client
+            name: acme-dns-client-name-client <4>
             key: acmedns.json
 ----
 <1> Disable the default `nginx_http01` solver
@@ -61,6 +64,7 @@ parameters:
 This should match parameter `acme_dns_api.endpoint`.
 <3> The account secret for the acme-dns instance.
 Use the values shown here to use the client secret which is created by the configuration from the previous step.
+<4> Generated name from the previous step
 
 . Compile and push the cluster catalog to apply your configuration.
 
@@ -69,7 +73,7 @@ Use the values shown here to use the client secret which is created by the confi
 .Extract CNAME target from the acme-dns-client secret
 [source,shell]
 ----
-$ kubectl -n syn-cert-manager get secret acme-dns-client \
+$ kubectl -n syn-cert-manager get secret acme-dns-client-name-client \
     -ojsonpath='{.data.acmedns\.json}' | \
     base64 -d | \
     jq -r '[.[]][0].fulldomain'

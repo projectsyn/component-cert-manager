@@ -1,9 +1,6 @@
 apiVersion: v1
-data: {}
 kind: Secret
 metadata:
-  annotations:
-    argocd.argoproj.io/sync-wave: '10'
   labels:
     name: acme-dns-legacy-register
   name: acme-dns-legacy-register
@@ -17,8 +14,6 @@ apiVersion: v1
 data: {}
 kind: Secret
 metadata:
-  annotations:
-    argocd.argoproj.io/sync-wave: '10'
   labels:
     name: acme-dns-legacy-client
   name: acme-dns-legacy-client
@@ -31,7 +26,6 @@ metadata:
   annotations:
     argocd.argoproj.io/hook: Sync
     argocd.argoproj.io/hook-delete-policy: HookSucceeded
-    argocd.argoproj.io/sync-wave: '10'
   labels:
     name: acme-dns-legacy-register
   name: acme-dns-legacy-register
@@ -60,15 +54,15 @@ spec:
             - name: HOME
               value: /home/acme-dns
             - name: HTTPS_PROXY
-              value: ''
+              value: proxy.example.local:8080
             - name: HTTP_PROXY
-              value: ''
+              value: proxy.example.local:8080
             - name: NAMESPACE
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.namespace
             - name: NO_PROXY
-              value: ''
+              value: example.local
             - name: SCRIPTS_PATH
               value: /scripts
           envFrom:
@@ -108,8 +102,6 @@ spec:
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  annotations:
-    argocd.argoproj.io/sync-wave: '10'
   labels:
     name: acme-dns-legacy-check
   name: acme-dns-legacy-check
@@ -142,15 +134,15 @@ spec:
                 - name: HOME
                   value: /home/acme-dns
                 - name: HTTPS_PROXY
-                  value: ''
+                  value: proxy.example.local:8080
                 - name: HTTP_PROXY
-                  value: ''
+                  value: proxy.example.local:8080
                 - name: NAMESPACE
                   valueFrom:
                     fieldRef:
                       fieldPath: metadata.namespace
                 - name: NO_PROXY
-                  value: ''
+                  value: example.local
                 - name: SCRIPTS_PATH
                   value: /scripts
               envFrom:
@@ -186,5 +178,5 @@ spec:
                 defaultMode: 504
                 name: acme-dns-scripts
               name: scripts
-  schedule: 13 0 * * *
+  schedule: 53 1 * * *
   successfulJobsHistoryLimit: 10
