@@ -1,8 +1,9 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  annotations: {}
+  annotations:
+    argocd.argoproj.io/sync-wave: '-10'
   labels:
+    app.kubernetes.io/name: syn-cert-manager
     name: syn-cert-manager
-    openshift.io/cluster-monitoring: 'true'
   name: syn-cert-manager
