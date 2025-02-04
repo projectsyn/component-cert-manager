@@ -28,3 +28,4 @@ local namespace = kube.Namespace(params.namespace) {
 {
   '00_namespace': if hasPrometheus then prom.RegisterNamespace(namespace) else namespace,
 }
++ (import 'acme-dns.libsonnet')

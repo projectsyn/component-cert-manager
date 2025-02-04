@@ -1,6 +1,6 @@
 = acme-dns self-registration
 
-The component provides support to register a client on an acme-dns instance through parameter xref:references/parameters.adoc#_acme_dns_api[`acme_dns_api`].
+The component provides support to register a client on an acme-dns instance through parameter xref:references/parameters.adoc#acmeClients[`acmeClients`].
 
 This page explains how the self-registration mechanism works in detail.
 The mechanism consists of two parts: registration and checking.
@@ -8,10 +8,10 @@ The mechanism consists of two parts: registration and checking.
 == Registration
 
 To register a client, the component creates a Kubernetes `Job` in the cert-manager namespace (component parameter `namespace`).
-The Job runs a shell script which registers a new client on the configured acme-dns instance (parameter `acme_dns_api.endpoint`).
-If parameters `amce_dns_api.username` and `acme_dns_api.password` are provided, the job registers a new client using HTTP basic authentication.
+The Job runs a shell script which registers a new client on the configured acme-dns instance (parameter `acmeClients.<CLIENT_NAME>.api.endpoint`).
+If parameters `acmeClients.<CLIENT_NAME>.api.username` and `acmeClients.<CLIENT_NAME>.api.password` are provided, the job registers a new client using HTTP basic authentication.
 
-If registration is successful, the Job updates the secret `acme-dns-client` to contain a key `acmedns.json` holding the JSON returned by the acme-dns `/register` endpoint in the following form:
+If registration is successful, the Job updates the secret `acme-dns-<CLIENT_NAME>-client` to contain a key `acmedns.json` holding the JSON returned by the acme-dns `/register` endpoint in the following form:
 
 [source,json]
 ----
@@ -32,18 +32,18 @@ If registration is successful, the Job updates the secret `acme-dns-client` to c
   }
 }
 ----
-<1> The component uses the entries in parameter `acme_dns_api.fqdns` as keys in the JSON object.
+<1> The component uses the entries in parameter `acmeClients.<CLIENT_NAME>.fqdns` as keys in the JSON object.
 The value for each key is the JSON that the call to the acme-dns `/register` endpoint returns.
 
 Each key in the object corresponds to a domain for which cert-manager will use the acme-dns instance to solve DNS01 challenges.
-The secret `acme-dns-client` can then be used to configure a DNS01 solver on cert-manager `Issuer` and `ClusterIssuer` resources.
+The secret `acme-dns-<CLIENT_NAME>-client` can then be used to configure a DNS01 solver on cert-manager `Issuer` and `ClusterIssuer` resources.
 
 == Checking
 
 The component creates a Kubernetes `CronJob` which checks that the acme-dns client credentials are valid every 24h.
 The component randomizes the schedule for the cronjob to have the check run between midnight and 2 AM.
 
-The check is currently implemented as a shell script which tries to update a record on the acme-dns instance using the credentials in secret `acme-dns-client`.
+The check is currently implemented as a shell script which tries to update a record on the acme-dns instance using the credentials in secret `acme-dns-<CLIENT_NAME>-client`.
 The update of the TXT record is implemented as a curl call to the acme-dns `/update` endpoint.
 If the curl call fails, the script triggers a reregistration of the client.
 

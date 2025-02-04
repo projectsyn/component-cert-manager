@@ -96,6 +96,31 @@ Configuration options for cert-manager.
 See the https://cert-manager.io/docs/configuration/acme/dns01/#setting-nameservers-for-dns01-self-check[cert-manager documentation] for nameserver config.
 
 
+== `acmeClients`
+
+[horizontal]
+type:: object
+default:: `{}`
+
+Configuration for ACME DNS clients.
+
+=== Example
+
+[source,yaml]
+----
+acmeClients:
+  vshn-default: <1>
+    api:
+      endpoint: https://acme-dns-api.example.com
+      username: vshn-default-username
+      password: vshn-default-password
+    fqdns:
+      - 'api.${cluster:name}.example.com'
+      - '*.apps.${cluster:name}.example.com'
+----
+<1> Name of the ACME client, referenced in `clusterIssuers.acmeClientRefs`.
+
+
 == `letsencrypt_email`
 
 [horizontal]
