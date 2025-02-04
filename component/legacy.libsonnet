@@ -25,4 +25,9 @@ local params = inv.parameters.cert_manager;
       fqdns: params.acme_dns_api.fqdns,
     },
   }) else {},
+
+  email: if std.objectHas(params, 'letsencrypt_email') then std.trace('Parameter `letsencrypt_email` is deprecated, please use `components.cert_manager.email`.', params.letsencrypt_email) else params.components.cert_manager.email,
+  clusterIssuers: params.clusterIssuers + com.makeMergeable(
+    if std.objectHas(params, 'cluster_issuers') then std.trace('Parameter `cluster_issuers` is deprecated, please use `clusterIssuers`,', params.cluster_issuers) else {},
+  ),
 }

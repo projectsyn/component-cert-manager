@@ -44,21 +44,26 @@ parameters:
         certificateOwnerRef: false
         recursiveNameservers: '1.1.1.1:53'
         recursiveNameserversOnly: true
+        email: test@syn.tools
 
     acmeClients: {}
-    secrets: {}
-
-    letsencrypt_email: test@syn.tools
-    letsencrypt_clusterissuers:
-      staging: true
-      production: true
     solvers:
       nginx_http01:
         http01:
           ingress:
             class: 'nginx'
-    cluster_issuers: {}
+
     issuers: {}
+    clusterIssuers:
+      letsencrypt-staging:
+        solverRefs:
+          - nginx_http01
+      letsencrypt-production:
+        solverRefs:
+          - nginx_http01
+
+    alerts: {}
+    secrets: {}
 
     resources:
       cert_manager:
