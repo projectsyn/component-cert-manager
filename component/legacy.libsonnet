@@ -14,4 +14,15 @@ local params = inv.parameters.cert_manager;
   httpProxy: if std.objectHas(params, 'http_proxy') then params.http_proxy else params.components.cert_manager.httpProxy,
   httpsProxy: if std.objectHas(params, 'https_proxy') then params.https_proxy else params.components.cert_manager.httpsProxy,
   noProxy: if std.objectHas(params, 'no_proxy') then params.no_proxy else params.components.cert_manager.noProxy,
+
+  acmeClient: if std.objectHas(params, 'acme_dns_api') then {
+    legacy: {
+      api: {
+        endpoint: params.acme_dns_api.endpoint,
+        username: params.acme_dns_api.username,
+        password: params.acme_dns_api.password,
+      },
+      fqdns: params.acme_dns_api.fqdns,
+    },
+  } else {},
 }
