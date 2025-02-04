@@ -24,6 +24,11 @@ local app = argocd.App('cert-manager', params.namespace) {
         ],
       },
     ],
+    syncPolicy+: {
+      syncOptions+: [
+        'ServerSideApply=true',
+      ],
+    },
   },
 };
 

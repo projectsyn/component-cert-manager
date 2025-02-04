@@ -13,31 +13,31 @@ parameters:
         input_type: jsonnet
         output_path: .
       - input_paths:
+          - ${_base_directory}/component/main.jsonnet
+        input_type: jsonnet
+        output_path: cert-manager/
+      - input_paths:
+          - ${_base_directory}/component/issuers.jsonnet
+        input_type: jsonnet
+        output_path: cert-manager/
+      - input_paths:
           - ${_base_directory}/component/helm/cert-manager.jsonnet
         input_type: jsonnet
         output_path: ${_base_directory}/helmcharts/cert-manager/${cert_manager:charts:cert_manager:version}/
-      - output_path: cert-manager/01_helmchart
-        input_type: helm
-        input_paths:
+      - input_paths:
           - ${_base_directory}/helmcharts/cert-manager/${cert_manager:charts:cert_manager:version}/
+        input_type: helm
         helm_values_files:
           - ${_base_directory}/helmcharts/cert-manager/${cert_manager:charts:cert_manager:version}/values-component.yaml
           - ${_base_directory}/helmcharts/cert-manager/${cert_manager:charts:cert_manager:version}/values-overrides.yaml
         helm_params:
           name: cert-manager
           namespace: ${cert_manager:namespace}
-      - output_path: cert-manager/
-        input_type: jsonnet
-        output_type: yaml
-        input_paths:
-          - ${_base_directory}/component/namespace.jsonnet
-      - output_path: cert-manager/02_issuers
-        input_type: jsonnet
-        output_type: yaml
-        input_paths:
-          - ${_base_directory}/component/main.jsonnet
-      - output_path: cert-manager/03_upgrade
-        input_type: jsonnet
-        output_type: yaml
-        input_paths:
-          - ${_base_directory}/component/upgrade.jsonnet
+        output_path: cert-manager/10_cert_manager
+
+  commodore:
+    postprocess:
+      filters:
+        - type: jsonnet
+          path: cert-manager/10_cert_manager/cert-manager/templates/
+          filter: postprocess/patch-crds.jsonnet
