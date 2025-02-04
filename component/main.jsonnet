@@ -43,3 +43,4 @@ local exoscaleSecret = kube.Secret('exoscale-secret') {
   [if params.components.exoscale_webhook.enabled then '90_secrets_exoscale']: exoscaleSecret,
 }
 + (import 'acme-dns.libsonnet')
++ (import 'issuers.libsonnet')

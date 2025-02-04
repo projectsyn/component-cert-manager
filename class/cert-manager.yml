@@ -48,10 +48,6 @@ parameters:
         input_type: jsonnet
         output_path: cert-manager/
       - input_paths:
-          - ${_base_directory}/component/issuers.jsonnet
-        input_type: jsonnet
-        output_path: cert-manager/
-      - input_paths:
           - ${_base_directory}/component/helm/cert-manager.jsonnet
         input_type: jsonnet
         output_path: ${_base_directory}/helmcharts/cert-manager/${cert_manager:charts:cert_manager:version}/

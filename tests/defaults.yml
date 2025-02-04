@@ -24,9 +24,7 @@ parameters:
           - apps.example.com
 
     issuers:
-      ca-issuer:
-        metadata:
-          namespace: mesh-system
+      mesh-system/ca-issuer:
         spec:
           ca:
             secretName: ca-key-pair

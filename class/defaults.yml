@@ -48,6 +48,7 @@ parameters:
         httpProxy: ''
         httpsProxy: ''
         noProxy: ''
+        email: test@syn.tools
         certificateOwnerRef: false
         recursiveNameservers: '1.1.1.1:53'
         recursiveNameserversOnly: true
@@ -57,19 +58,23 @@ parameters:
         secretKey: '?{vaultkv:${cluster:tenant}/${cluster:name}/exoscale/cert_webhook/s3_secret_key}'
 
     acmeClients: {}
-    secrets: {}
-
-    letsencrypt_email: test@syn.tools
-    letsencrypt_clusterissuers:
-      staging: true
-      production: true
     solvers:
       nginx_http01:
         http01:
           ingress:
             class: 'nginx'
-    cluster_issuers: {}
+
     issuers: {}
+    cluster_issuers:
+      letsencrypt-staging:
+        solverRefs:
+          - nginx_http01
+      letsencrypt-production:
+        solverRefs:
+          - nginx_http01
+
+    alerts: {}
+    secrets: {}
 
     resources:
       cert_manager:
