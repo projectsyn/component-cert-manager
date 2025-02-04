@@ -1,0 +1,10 @@
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  labels:
+    name: ca-issuer
+  name: ca-issuer
+  namespace: mesh-system
+spec:
+  ca:
+    secretName: ca-key-pair

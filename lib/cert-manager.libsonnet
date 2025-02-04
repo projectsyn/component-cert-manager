@@ -14,7 +14,14 @@ local groupVersion = 'cert-manager.io/v1';
   * \arg The name of the Certificate.
   * \return A Certificate object.
   */
-local cert(name) = kube._Object(groupVersion, 'Certificate', name);
+local cert(name) = kube._Object(groupVersion, 'Certificate', name) {
+  metadata: {
+    labels: {
+      name: name,
+    },
+    name: name,
+  },
+};
 
 /**
   * \brief Helper to create Issuer objects.
@@ -22,7 +29,14 @@ local cert(name) = kube._Object(groupVersion, 'Certificate', name);
   * \arg The name of the Issuer.
   * \return An Issuer object.
   */
-local issuer(name) = kube._Object(groupVersion, 'Issuer', name);
+local issuer(name) = kube._Object(groupVersion, 'Issuer', name) {
+  metadata: {
+    labels: {
+      name: name,
+    },
+    name: name,
+  },
+};
 
 /**
   * \brief Helper to create ClusterIssuer objects.
@@ -30,7 +44,14 @@ local issuer(name) = kube._Object(groupVersion, 'Issuer', name);
   * \arg The name of the ClusterIssuer.
   * \return A ClusterIssuer object.
   */
-local clusterIssuer(name) = kube._Object(groupVersion, 'ClusterIssuer', name);
+local clusterIssuer(name) = kube._Object(groupVersion, 'ClusterIssuer', name) {
+  metadata: {
+    labels: {
+      name: name,
+    },
+    name: name,
+  },
+};
 
 {
   cert: cert,
