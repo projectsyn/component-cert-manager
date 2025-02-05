@@ -1,0 +1,64 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  labels:
+    app: exoscale-webhook
+    chart: exoscale-webhook-0.3.0
+    heritage: Helm
+    release: exoscale-webhook
+  name: cert-manager-webhook-exoscale-ca
+  namespace: syn-cert-manager
+spec:
+  commonName: ca.exoscale-webhook.cert-manager
+  duration: 43800h0m0s
+  isCA: true
+  issuerRef:
+    name: cert-manager-webhook-exoscale-selfsign
+  secretName: cert-manager-webhook-exoscale-ca
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  labels:
+    app: exoscale-webhook
+    chart: exoscale-webhook-0.3.0
+    heritage: Helm
+    release: exoscale-webhook
+  name: cert-manager-webhook-exoscale-webhook-tls
+  namespace: syn-cert-manager
+spec:
+  dnsNames:
+    - cert-manager-webhook-exoscale
+    - cert-manager-webhook-exoscale.syn-cert-manager
+    - cert-manager-webhook-exoscale.syn-cert-manager.svc
+  duration: 8760h0m0s
+  issuerRef:
+    name: cert-manager-webhook-exoscale-ca
+  secretName: cert-manager-webhook-exoscale-webhook-tls
+---
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  labels:
+    app: exoscale-webhook
+    chart: exoscale-webhook-0.3.0
+    heritage: Helm
+    release: exoscale-webhook
+  name: cert-manager-webhook-exoscale-selfsign
+  namespace: syn-cert-manager
+spec:
+  selfSigned: {}
+---
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  labels:
+    app: exoscale-webhook
+    chart: exoscale-webhook-0.3.0
+    heritage: Helm
+    release: exoscale-webhook
+  name: cert-manager-webhook-exoscale-ca
+  namespace: syn-cert-manager
+spec:
+  ca:
+    secretName: cert-manager-webhook-exoscale-ca

@@ -25,7 +25,21 @@ local namespace = kube.Namespace(params.namespace) {
   },
 };
 
+// Exoscale webhook secret
+local exoscaleSecret = kube.Secret('exoscale-secret') {
+  metadata: {
+    name: 'exoscale-secret',
+    namespace: params.namespace,
+  },
+  stringData: {
+    EXOSCALE_API_KEY: params.components.exoscale_webhook.accessKey,
+    EXOSCALE_API_SECRET: params.components.exoscale_webhook.secretKey,
+  },
+  data:: {},
+};
+
 {
   '00_namespace': if hasPrometheus then prom.RegisterNamespace(namespace) else namespace,
+  [if params.components.exoscale_webhook.enabled then '90_secrets_exoscale']: exoscaleSecret,
 }
 + (import 'acme-dns.libsonnet')

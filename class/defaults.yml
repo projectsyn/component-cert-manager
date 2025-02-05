@@ -9,6 +9,9 @@ parameters:
       cert_manager:
         source: https://charts.jetstack.io
         version: v1.16.3
+      exoscale_webhook:
+        source: https://github.com/exoscale/cert-manager-webhook-exoscale.git
+        version: v0.3.0
 
     images:
       cert_manager:
@@ -31,6 +34,10 @@ parameters:
         registry: quay.io
         repository: jetstack/cert-manager-startupapicheck
         tag: ${cert_manager:charts:cert_manager:version}
+      exoscale_webhook:
+        registry: docker.io
+        repository: exoscale/cert-manager-webhook-exoscale
+        tag: ${cert_manager:charts:exoscale_webhook:version}
       kubectl:
         registry: quay.io
         repository: appuio/oc
@@ -44,6 +51,10 @@ parameters:
         certificateOwnerRef: false
         recursiveNameservers: '1.1.1.1:53'
         recursiveNameserversOnly: true
+      exoscale_webhook:
+        enabled: false
+        accessKey: '?{vaultkv:${cluster:tenant}/${cluster:name}/exoscale/cert_webhook/s3_access_key}'
+        secretKey: '?{vaultkv:${cluster:tenant}/${cluster:name}/exoscale/cert_webhook/s3_secret_key}'
 
     acmeClients: {}
     secrets: {}
@@ -73,6 +84,11 @@ parameters:
         requests:
           cpu: 50m
           memory: 512Mi
+      exoscale_webhook:
+        requests:
+          cpu: 50m
+          memory: 64Mi
 
     helmValues:
       cert_manager: {}
+      exoscale_webhook: {}

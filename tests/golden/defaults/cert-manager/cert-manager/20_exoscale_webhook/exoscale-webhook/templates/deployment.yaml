@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: exoscale-webhook
+    chart: exoscale-webhook-0.3.0
+    heritage: Helm
+    release: exoscale-webhook
+  name: cert-manager-webhook-exoscale
+  namespace: syn-cert-manager
+spec:
+  replicas: null
+  selector:
+    matchLabels:
+      app: exoscale-webhook
+      release: exoscale-webhook
+  template:
+    metadata:
+      labels:
+        app: exoscale-webhook
+        release: exoscale-webhook
+    spec:
+      containers:
+        - args:
+            - --tls-cert-file=/tls/tls.crt
+            - --tls-private-key-file=/tls/tls.key
+          env:
+            - name: GROUP_NAME
+              value: acme.exoscale.com
+            - name: EXOSCALE_DEBUG
+              value: ''
+            - name: EXOSCALE_API_TRACE
+              value: ''
+          image: docker.io/exoscale/cert-manager-webhook-exoscale:0.3.0
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: https
+              scheme: HTTPS
+          name: exoscale-webhook
+          ports:
+            - containerPort: 443
+              name: https
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: https
+              scheme: HTTPS
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+          volumeMounts:
+            - mountPath: /tls
+              name: certs
+              readOnly: true
+      priorityClassName: system-cluster-critical
+      serviceAccountName: cert-manager-webhook-exoscale
+      volumes:
+        - name: certs
+          secret:
+            secretName: cert-manager-webhook-exoscale-webhook-tls

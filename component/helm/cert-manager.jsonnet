@@ -1,6 +1,7 @@
 local legacy = import '../legacy.libsonnet';
 local com = import 'lib/commodore.libjsonnet';
 local kap = import 'lib/kapitan.libjsonnet';
+
 // The hiera parameters for the component
 local inv = kap.inventory();
 local params = inv.parameters.cert_manager;
