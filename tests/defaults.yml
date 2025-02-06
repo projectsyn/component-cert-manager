@@ -9,6 +9,10 @@ parameters:
         output_path: vendor/lib/prometheus.libsonnet
 
   cert_manager:
+    components:
+      exoscale_webhook:
+        enabled: true
+
     acmeClients:
       vshn-default:
         api:
