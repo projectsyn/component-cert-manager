@@ -2,8 +2,8 @@ apiVersion: v1
 kind: Secret
 metadata:
   labels:
-    name: acme-dns-vshn-default-register
-  name: acme-dns-vshn-default-register
+    name: acme-dns-register
+  name: acme-dns-register
   namespace: syn-cert-manager
 stringData:
   REG_PASSWORD: t-silent-test-1234/c-green-test-1234/cert-manager/acme-dns-register-password
@@ -15,8 +15,8 @@ data: {}
 kind: Secret
 metadata:
   labels:
-    name: acme-dns-vshn-default-client
-  name: acme-dns-vshn-default-client
+    name: acme-dns-client
+  name: acme-dns-client
   namespace: syn-cert-manager
 type: Opaque
 ---
@@ -27,8 +27,8 @@ metadata:
     argocd.argoproj.io/hook: Sync
     argocd.argoproj.io/hook-delete-policy: HookSucceeded
   labels:
-    name: acme-dns-vshn-default-register
-  name: acme-dns-vshn-default-register
+    name: acme-dns-register
+  name: acme-dns-register
   namespace: syn-cert-manager
 spec:
   completions: 1
@@ -36,7 +36,7 @@ spec:
   template:
     metadata:
       labels:
-        name: acme-dns-vshn-default-register
+        name: acme-dns-register
     spec:
       containers:
         - args: []
@@ -48,26 +48,26 @@ spec:
             - name: ACME_DNS_FQDNS
               value: '["example.com", "apps.example.com"]'
             - name: CLIENT_SECRET_NAME
-              value: acme-dns-vshn-default-client
+              value: acme-dns-client
             - name: CONFIG_PATH
               value: /etc/acme-dns
             - name: HOME
               value: /home/acme-dns
             - name: HTTPS_PROXY
-              value: ''
+              value: proxy.example.local:8080
             - name: HTTP_PROXY
-              value: ''
+              value: proxy.example.local:8080
             - name: NAMESPACE
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.namespace
             - name: NO_PROXY
-              value: ''
+              value: example.local
             - name: SCRIPTS_PATH
               value: /scripts
           envFrom:
             - secretRef:
-                name: acme-dns-vshn-default-register
+                name: acme-dns-register
           image: quay.io/appuio/oc:v4.16
           imagePullPolicy: IfNotPresent
           name: register-client
@@ -91,7 +91,7 @@ spec:
       volumes:
         - name: acmedns-client-secret
           secret:
-            secretName: acme-dns-vshn-default-client
+            secretName: acme-dns-client
         - emptyDir: {}
           name: home
         - configMap:
@@ -103,8 +103,8 @@ apiVersion: batch/v1
 kind: CronJob
 metadata:
   labels:
-    name: acme-dns-vshn-default-check
-  name: acme-dns-vshn-default-check
+    name: acme-dns-check
+  name: acme-dns-check
   namespace: syn-cert-manager
 spec:
   concurrencyPolicy: Forbid
@@ -116,7 +116,7 @@ spec:
       template:
         metadata:
           labels:
-            name: acme-dns-vshn-default-check
+            name: acme-dns-check
         spec:
           containers:
             - args: []
@@ -128,26 +128,26 @@ spec:
                 - name: ACME_DNS_FQDNS
                   value: '["example.com", "apps.example.com"]'
                 - name: CLIENT_SECRET_NAME
-                  value: acme-dns-vshn-default-client
+                  value: acme-dns-client
                 - name: CONFIG_PATH
                   value: /etc/acme-dns
                 - name: HOME
                   value: /home/acme-dns
                 - name: HTTPS_PROXY
-                  value: ''
+                  value: proxy.example.local:8080
                 - name: HTTP_PROXY
-                  value: ''
+                  value: proxy.example.local:8080
                 - name: NAMESPACE
                   valueFrom:
                     fieldRef:
                       fieldPath: metadata.namespace
                 - name: NO_PROXY
-                  value: ''
+                  value: example.local
                 - name: SCRIPTS_PATH
                   value: /scripts
               envFrom:
                 - secretRef:
-                    name: acme-dns-vshn-default-register
+                    name: acme-dns-register
               image: quay.io/appuio/oc:v4.16
               imagePullPolicy: IfNotPresent
               name: check-client
@@ -171,12 +171,12 @@ spec:
           volumes:
             - name: acmedns-client-secret
               secret:
-                secretName: acme-dns-vshn-default-client
+                secretName: acme-dns-client
             - emptyDir: {}
               name: home
             - configMap:
                 defaultMode: 504
                 name: acme-dns-scripts
               name: scripts
-  schedule: 7 1 * * *
+  schedule: 6 1 * * *
   successfulJobsHistoryLimit: 10
