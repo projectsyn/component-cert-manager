@@ -70,12 +70,12 @@ local configMap = kube.ConfigMap('acme-dns-scripts') {
 // Acme DNS Client
 
 local hasRegistrationSecret(name) = std.objectHas(acmeClients[name].api, 'username');
-local registrationSecret(name) = kube.Secret('acme-dns-%s-register' % name) {
+local registrationSecret(name) = kube.Secret('%s-register' % name) {
   metadata: {
     labels: {
-      name: 'acme-dns-%s-register' % name,
+      name: '%s-register' % name,
     },
-    name: 'acme-dns-%s-register' % name,
+    name: '%s-register' % name,
     namespace: params.namespace,
   },
   stringData: {
@@ -85,12 +85,12 @@ local registrationSecret(name) = kube.Secret('acme-dns-%s-register' % name) {
   data:: {},
 };
 
-local clientSecret(name) = kube.Secret('acme-dns-%s-client' % name) {
+local clientSecret(name) = kube.Secret('%s-client' % name) {
   metadata: {
     labels: {
-      name: 'acme-dns-%s-client' % name,
+      name: '%s-client' % name,
     },
-    name: 'acme-dns-%s-client' % name,
+    name: '%s-client' % name,
     namespace: params.namespace,
   },
 };
@@ -166,7 +166,7 @@ local podSpec(name, jobname, script) = {
   },
 };
 
-local jobRegister(name) = kube.Job('acme-dns-%s-register' % name) {
+local jobRegister(name) = kube.Job('%s-register' % name) {
   metadata+: {
     annotations+: {
       // Make registration job an ArgoCD hook.
@@ -194,12 +194,12 @@ local schedule(name) = {
   minute: random % 60,
 };
 
-local cronJobCheck(name) = kube.CronJob('acme-dns-%s-check' % name) {
+local cronJobCheck(name) = kube.CronJob('%s-check' % name) {
   metadata: {
     labels: {
-      name: 'acme-dns-%s-check' % name,
+      name: '%s-check' % name,
     },
-    name: 'acme-dns-%s-check' % name,
+    name: '%s-check' % name,
     namespace: params.namespace,
   },
   spec+: {
@@ -229,7 +229,7 @@ local acmeClientManifests = {
 // Define outputs below
 if hasAcmeClients then
   {
-    '50_acme_dns': [
+    '50_acme_dns_common': [
       serviceAccount,
       role,
       roleBinding,

@@ -16,7 +16,7 @@ local params = inv.parameters.cert_manager;
   noProxy: if std.objectHas(params, 'no_proxy') then std.trace('Parameter `no_proxy` is deprecated, please use `components.cert_manager.noProxy`.', params.no_proxy) else params.components.cert_manager.noProxy,
 
   acmeClient: if std.objectHas(params, 'acme_dns_api') then std.trace('Parameter `acme_dns_api` is deprecated, please use `acmeClients`.', {
-    legacy: {
+    'acme-dns': {
       api: {
         endpoint: params.acme_dns_api.endpoint,
         username: params.acme_dns_api.username,

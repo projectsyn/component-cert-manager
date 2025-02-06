@@ -14,7 +14,7 @@ parameters:
         enabled: true
 
     acmeClients:
-      vshn-default:
+      acme-dns:
         api:
           endpoint: acme-dns-api.example.com
           username: acme-dns
