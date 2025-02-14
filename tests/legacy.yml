@@ -13,6 +13,16 @@ parameters:
         - example.com
         - apps.example.com
 
+    letsencrypt_email: legacy@syn.tools
+
+    issuers:
+      ca-issuer:
+        metadata:
+          namespace: mesh-system
+        spec:
+          ca:
+            secretName: ca-key-pair
+
     helm_values:
       resources:
         requests:

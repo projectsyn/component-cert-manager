@@ -50,21 +50,14 @@ This configuration creates a secret `acme-dns-client-name-client` with the acme-
 ----
 parameters:
   cert_manager:
-    solvers:
-      nginx_http01: null <1>
-      dns01:
-        acmeDNS:
-          host: https://acme-dns-api.example.com <2>
-          accountSecretRef: <3>
-            name: acme-dns-client-name-client <4>
-            key: acmedns.json
+    clusterIssuers:
+      letsencrypt-production:
+        ~solverRefs: [] <1>
+        acmeClientRefs: <2>
+          - client-name
 ----
 <1> Disable the default `nginx_http01` solver
-<2> The HTTP API of the acme-dns instance.
-This should match parameter `acme_dns_api.endpoint`.
-<3> The account secret for the acme-dns instance.
-Use the values shown here to use the client secret which is created by the configuration from the previous step.
-<4> Generated name from the previous step
+<2> Reference the acme-dns client from the previous step
 
 . Compile and push the cluster catalog to apply your configuration.
 
@@ -73,7 +66,7 @@ Use the values shown here to use the client secret which is created by the confi
 .Extract CNAME target from the acme-dns-client secret
 [source,shell]
 ----
-$ kubectl -n syn-cert-manager get secret acme-dns-client-name-client \
+$ kubectl -n syn-cert-manager get secret client-name-client \
     -ojsonpath='{.data.acmedns\.json}' | \
     base64 -d | \
     jq -r '[.[]][0].fulldomain'
