@@ -15,6 +15,21 @@ parameters:
 
     letsencrypt_email: legacy@syn.tools
 
+    #acmeClients:
+    #  acme-new:
+    #    api:
+    #      endpoint: acme-dns-api.example.com
+    #      username: acme-dns
+    #      password: ?{vaultkv:${cluster:tenant}/${cluster:name}/cert-manager/acme-dns-register-password}
+    #    fqdns:
+    #      - example.com
+    #      - apps.example.com
+
+    cluster_issuers:
+      letsencrypt-production:
+        acmeClientRefs:
+          - acme-dns
+
     issuers:
       ca-issuer:
         metadata:

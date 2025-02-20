@@ -1,0 +1,94 @@
+= Upgrade `component-cert-manager` from `v3.x` to `v4.x`
+
+Version 4.x is a major overhaul of the configuration parameters of the component,
+https://github.com/projectsyn/component-cert-manager/releases/tag/v4.0.0[see Release Notes] for more details.
+
+Most of the changes are backward compatible, but some changes might require manual steps.
+
+
+== Migration steps
+
+The migration steps are highly dependent on your configuration.
+
+If you use the component with the default configuration, you don't need to do anything.
+
+If you are using an the `acme_dns_api` parameter, you need to add at minimum the following configuration:
+
+[source,yaml]
+----
+cluster_issuers:
+  letsencrypt-staging:
+    acmeClientRefs:
+      - acme-dns
+  letsencrypt-production:
+    acmeClientRefs:
+      - acme-dns
+----
+
+[NOTE]
+====
+See xref:#_legacy_acme_dns_api[legacy acme_dns_api] for more details.
+====
+
+
+== Explanation of configuration changes
+
+=== legacy `helm_values`
+
+The Helm values for cert-manager have moved to `helmValues.cert_manager`.
+
+[TIP]
+====
+This change is backward compatible, but migrating the values to the new structure is recommended.
+====
+
+=== legacy `dns01-recursive-nameservers`
+
+The `dns01-recursive-nameservers` parameter has been replaced by `components.cert_manager.recursiveNameservers`.
+
+[TIP]
+====
+This change is backward compatible, but migrating the values to the new structure is recommended.
+====
+
+=== legacy `http_proxy`, `https_proxy`, `no_proxy`
+
+The parameters `http_proxy`, `https_proxy`, and `no_proxy` have been replaced by `components.cert_manager.httpProxy`, `components.cert_manager.httpsProxy`, and `components.cert_manager.noProxy`.
+
+[TIP]
+====
+This change is backward compatible, but migrating the values to the new structure is recommended.
+====
+
+=== legacy `letsencrypt_clusterissuers`
+
+The dictionary `letsencrypt_clusterissuers` has been integrated into the `cluster_issuers` dictionary.
+
+[IMPORTANT]
+====
+This change is *not* backward compatible, if you have disabled any of the letsencrypt cluster issuers, you need to remove them from the `cluster_issuers` dictionary.
+xref:references/parameters.adoc#_cluster_issuers[See Example]
+====
+
+=== legacy `letsencrypt_email`
+
+The `letsencrypt_email` parameter has been replaced by `components.cert_manager.email`.
+
+[TIP]
+====
+This change is backward compatible, but migrating the values to the new structure is recommended.
+====
+
+=== legacy `acme_dns_api`
+
+The `acme_dns_api` parameter has been replaced by `acmeClients`.
+
+[TIP]
+====
+This change is backward compatible, but migrating the values to the new structure is recommended.
+====
+
+[WARNING]
+====
+Be aware that if you migrate the configuration to the new structure, the secrets for the acme-dns client will be renamed and thus cause a reregistration of your client.
+====
