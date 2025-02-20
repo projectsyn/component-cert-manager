@@ -15,6 +15,24 @@ parameters:
 
     letsencrypt_email: legacy@syn.tools
 
+    solvers:
+      legacy-acme-dns:
+        dns01:
+          acmeDNS:
+            accountSecretRef:
+              key: acmedns.json
+              name: acme-dns-client
+            host: acme-dns-api.example.com
+        selector:
+          dnsNames:
+            - example.com
+            - '*.apps.example.com'
+
+    cluster_issuers:
+      letsencrypt-production:
+        solverRefs:
+          - legacy-acme-dns
+
     issuers:
       ca-issuer:
         metadata:

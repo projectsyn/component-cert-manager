@@ -99,6 +99,11 @@ local mountpaths = {
   acmednsjson: '/etc/acme-dns',
   scripts: '/scripts',
 };
+local fqdnStripWildcard(fqdns) = [
+  // Strips the first 2 characters `*.` from the string if it starts with `*.`
+  if std.startsWith(fqdn, '*.') then std.substr(fqdn, 2, std.length(fqdn)) else fqdn
+  for fqdn in fqdns
+];
 local podSpec(name, jobname, script) = {
   assert !(std.length(acmeClients[name].fqdns) > 2) : 'Max 2 FQDNs supported for acme client',
 
@@ -119,7 +124,7 @@ local podSpec(name, jobname, script) = {
         SCRIPTS_PATH: mountpaths.scripts,
         CLIENT_SECRET_NAME: clientSecret(name).metadata.name,
         ACME_DNS_API: acmeClients[name].api.endpoint,
-        ACME_DNS_FQDNS: '%s' % [ acmeClients[name].fqdns ],
+        ACME_DNS_FQDNS: '%s' % [ fqdnStripWildcard(acmeClients[name].fqdns) ],
         HTTP_PROXY: legacy.httpProxy,
         HTTPS_PROXY: legacy.httpsProxy,
         NO_PROXY: legacy.noProxy,

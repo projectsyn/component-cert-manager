@@ -8,6 +8,7 @@ local inv = kap.inventory();
 
 // The hiera parameters for the component
 local params = inv.parameters.cert_manager;
+local acmeClients = params.acmeClients + legacy.acmeClient;
 
 // namespacedName decodes a namespaced name into a namespace and name
 local namespacedName(string) = {
@@ -60,18 +61,18 @@ local patchAcmeClientRefs(obj) = {
                 key: 'acmedns.json',
                 name: '%s-client' % client,
               },
-              host: params.acmeClients[client].api.endpoint,
+              host: acmeClients[client].api.endpoint,
             },
           },
-          [if std.objectHas(params.acmeClients[client], 'fqdns') then 'selector']: {
+          [if std.objectHas(acmeClients[client], 'fqdns') then 'selector']: {
             dnsNames: [
               fqdn
-              for fqdn in params.acmeClients[client].fqdns
+              for fqdn in acmeClients[client].fqdns
             ],
           },
         }
         for client in obj.acmeClientRefs
-        if std.length(params.acmeClients[client]) > 0
+        if std.length(acmeClients[client]) > 0
       ],
     },
   },
@@ -85,10 +86,8 @@ local patchSpec(obj) = {
 };
 
 // Consecutively apply patches to result of previous apply.
-local process(obj, initManifest) = std.foldl(
-  // we use std.mergePatch here, because this way we don't need
-  // to make each patch object mergeable by suffixing all keys with a +.
-  function(manifest, patch) std.mergePatch(manifest, patch),
+local process(obj, initManifest) = std.prune(std.foldl(
+  function(manifest, patch) manifest + com.makeMergeable(patch),
   [
     patchLetsEncrypt(initManifest.metadata.name),
     patchAcmeClientRefs(obj),
@@ -96,7 +95,7 @@ local process(obj, initManifest) = std.foldl(
     patchSpec(obj),
   ],
   initManifest
-);
+));
 
 local clusterIssuers = [
   process(params.cluster_issuers[name], cert.clusterIssuer(name))
