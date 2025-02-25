@@ -21,7 +21,7 @@ parameters:
           password: ?{vaultkv:${cluster:tenant}/${cluster:name}/cert-manager/acme-dns-register-password}
         fqdns:
           - example.com
-          - apps.example.com
+          - '*.apps.example.com'
 
     issuers:
       mesh-system/ca-issuer:

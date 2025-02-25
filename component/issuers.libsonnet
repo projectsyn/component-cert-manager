@@ -8,7 +8,6 @@ local inv = kap.inventory();
 
 // The hiera parameters for the component
 local params = inv.parameters.cert_manager;
-local acmeClients = params.acmeClients + legacy.acmeClient;
 
 // namespacedName decodes a namespaced name into a namespace and name
 local namespacedName(string) = {
@@ -61,18 +60,18 @@ local patchAcmeClientRefs(obj) = {
                 key: 'acmedns.json',
                 name: '%s-client' % client,
               },
-              host: acmeClients[client].api.endpoint,
+              host: params.acmeClients[client].api.endpoint,
             },
           },
-          [if std.objectHas(acmeClients[client], 'fqdns') then 'selector']: {
+          [if std.objectHas(params.acmeClients[client], 'fqdns') then 'selector']: {
             dnsNames: [
               fqdn
-              for fqdn in acmeClients[client].fqdns
+              for fqdn in params.acmeClients[client].fqdns
             ],
           },
         }
         for client in obj.acmeClientRefs
-        if std.length(acmeClients[client]) > 0
+        if std.length(params.acmeClients[client]) > 0
       ],
     },
   },

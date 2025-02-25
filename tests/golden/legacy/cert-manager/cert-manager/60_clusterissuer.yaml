@@ -20,7 +20,7 @@ spec:
         selector:
           dnsNames:
             - example.com
-            - apps.example.com
+            - '*.apps.example.com'
       - http01:
           ingress:
             class: nginx

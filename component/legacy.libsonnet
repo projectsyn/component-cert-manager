@@ -15,16 +15,5 @@ local params = inv.parameters.cert_manager;
   httpsProxy: if std.objectHas(params, 'https_proxy') then std.trace('Parameter `https_proxy` is deprecated, please use `components.cert_manager.httpsProxy`.', params.https_proxy) else params.components.cert_manager.httpsProxy,
   noProxy: if std.objectHas(params, 'no_proxy') then std.trace('Parameter `no_proxy` is deprecated, please use `components.cert_manager.noProxy`.', params.no_proxy) else params.components.cert_manager.noProxy,
 
-  acmeClient: if std.objectHas(params, 'acme_dns_api') then std.trace('Parameter `acme_dns_api` is deprecated, please use `acmeClients`.', {
-    'acme-dns': {
-      api: {
-        endpoint: params.acme_dns_api.endpoint,
-        username: params.acme_dns_api.username,
-        password: params.acme_dns_api.password,
-      },
-      fqdns: params.acme_dns_api.fqdns,
-    },
-  }) else {},
-
   email: if std.objectHas(params, 'letsencrypt_email') then std.trace('Parameter `letsencrypt_email` is deprecated, please use `components.cert_manager.email`.', params.letsencrypt_email) else params.components.cert_manager.email,
 }

@@ -9,8 +9,7 @@ local inv = kap.inventory();
 local params = inv.parameters.cert_manager;
 
 // Check if there are any acme clients defined
-local acmeClients = params.acmeClients + legacy.acmeClient;
-local hasAcmeClients = std.length(acmeClients) > 0;
+local hasAcmeClients = std.length(params.acmeClients) > 0;
 
 // Common
 
@@ -69,7 +68,7 @@ local configMap = kube.ConfigMap('acme-dns-scripts') {
 
 // Acme DNS Client
 
-local hasRegistrationSecret(name) = std.objectHas(acmeClients[name].api, 'username');
+local hasRegistrationSecret(name) = std.objectHas(params.acmeClients[name].api, 'username');
 local registrationSecret(name) = kube.Secret('%s-register' % name) {
   metadata: {
     labels: {
@@ -79,8 +78,8 @@ local registrationSecret(name) = kube.Secret('%s-register' % name) {
     namespace: params.namespace,
   },
   stringData: {
-    REG_USERNAME: acmeClients[name].api.username,
-    REG_PASSWORD: acmeClients[name].api.password,
+    REG_USERNAME: params.acmeClients[name].api.username,
+    REG_PASSWORD: params.acmeClients[name].api.password,
   },
   data:: {},
 };
@@ -99,8 +98,13 @@ local mountpaths = {
   acmednsjson: '/etc/acme-dns',
   scripts: '/scripts',
 };
+local fqdnStripWildcard(fqdns) = [
+  // Strips the first 2 characters `*.` from the string if it starts with `*.`
+  if std.startsWith(fqdn, '*.') then std.substr(fqdn, 2, std.length(fqdn)) else fqdn
+  for fqdn in fqdns
+];
 local podSpec(name, jobname, script) = {
-  assert !(std.length(acmeClients[name].fqdns) > 2) : 'Max 2 FQDNs supported for acme client',
+  assert !(std.length(params.acmeClients[name].fqdns) > 2) : 'Max 2 FQDNs supported for acme client',
 
   containers_+: {
     c: kube.Container(jobname) {
@@ -118,8 +122,8 @@ local podSpec(name, jobname, script) = {
         CONFIG_PATH: mountpaths.acmednsjson,
         SCRIPTS_PATH: mountpaths.scripts,
         CLIENT_SECRET_NAME: clientSecret(name).metadata.name,
-        ACME_DNS_API: acmeClients[name].api.endpoint,
-        ACME_DNS_FQDNS: '%s' % [ acmeClients[name].fqdns ],
+        ACME_DNS_API: params.acmeClients[name].api.endpoint,
+        ACME_DNS_FQDNS: '%s' % [ fqdnStripWildcard(params.acmeClients[name].fqdns) ],
         HTTP_PROXY: legacy.httpProxy,
         HTTPS_PROXY: legacy.httpsProxy,
         NO_PROXY: legacy.noProxy,
@@ -222,8 +226,8 @@ local acmeClientManifests = {
     jobRegister(name),
     cronJobCheck(name),
   ]
-  for name in std.objectFields(acmeClients)
-  if acmeClients[name] != null && std.length(acmeClients[name]) > 0
+  for name in std.objectFields(params.acmeClients)
+  if params.acmeClients[name] != null && std.length(params.acmeClients[name]) > 0
 };
 
 // Define outputs below

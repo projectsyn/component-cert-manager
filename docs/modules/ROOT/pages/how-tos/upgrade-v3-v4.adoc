@@ -17,6 +17,9 @@ If you are using an the `acme_dns_api` parameter, you need to add at minimum the
 [source,yaml]
 ----
 cluster_issuers:
+  acmeClients:
+    acme-dns: <1>
+      # Configuration from `acme_dns_api`, see xref:#_legacy_acme_dns_api[legacy acme_dns_api] for more details.
   letsencrypt-staging:
     acmeClientRefs:
       - acme-dns
@@ -24,6 +27,7 @@ cluster_issuers:
     acmeClientRefs:
       - acme-dns
 ----
+<1> Use the name `acme-dns` for the acme-dns client, so that the migration is as seamless as possible.
 
 [NOTE]
 ====
@@ -83,9 +87,11 @@ This change is backward compatible, but migrating the values to the new structur
 
 The `acme_dns_api` parameter has been replaced by `acmeClients`.
 
-[TIP]
+[IMPORTANT]
 ====
-This change is backward compatible, but migrating the values to the new structure is recommended.
+This change is *not* backward compatible, if you are using the `acme_dns_api` parameter, you need to create an `acmeClients` entry for the `acme-dns` client.
+
+See xref:references/parameters.adoc#_acmeclients[acmeClients] for more details.
 ====
 
 [WARNING]

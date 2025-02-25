@@ -136,10 +136,13 @@ Configuration for ACME DNS clients.
 
 For a detailed explanation of how the self-registration works, see the xref:explanations/acme-dns-self-registration.adoc[acme-dns self-registration] documentation.
 
-[NOTE]
+[WARNING]
 ====
 The entries in `fqdns` must be exact matches the FQDNs for which DNS01 challenges should be presented.
-The only flexibility is that cert-manager will present a DNS01 challenge for the wildcard FQDN `*.example.com`, if `example.com` is listed in `fqdns`.
+The only flexibility is that cert-manager will present a DNS01 challenge for the wildcard FQDN `\*.example.com`, if `example.com` is listed in `fqdns`.
+If you define a wildcard FQDN in `fqdns`, the `*.` will be stripped from the actual ACME client configuration but used for the DNS01 `selector.dnsNames`.
+
+See the example below.
 ====
 
 === Example
@@ -154,9 +157,27 @@ acmeClients:
       password: vshn-default-password
     fqdns:
       - 'api.${cluster:name}.example.com'
-      - '*.apps.${cluster:name}.example.com'
+      - '*.apps.${cluster:name}.example.com' <2>
 ----
 <1> Name of the ACME client, referenced in `clusterIssuers.acmeClientRefs`.
+<2> Wildcard is supported, but will be stripped from ACME client configuration.
+
+[NOTE]
+====
+Will use the wildcard notation to configure the DNS01 `selector.dnsNames`:
+[source,yaml]
+----
+spec:
+  acme:
+    solvers:
+      - dns01: ...
+        selector:
+          dnsNames:
+            - 'api.${cluster:name}.example.com'
+            - '*.apps.${cluster:name}.example.com'
+----
+But the actual ACME client configuration will not use the wildcard notation!
+====
 
 
 == `solvers`
