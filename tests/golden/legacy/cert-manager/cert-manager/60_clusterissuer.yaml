@@ -11,6 +11,9 @@ spec:
       name: letsencrypt-production
     server: https://acme-v02.api.letsencrypt.org/directory
     solvers:
+      - http01:
+          ingress:
+            class: nginx
       - dns01:
           acmeDNS:
             accountSecretRef:
@@ -20,10 +23,7 @@ spec:
         selector:
           dnsNames:
             - example.com
-            - apps.example.com
-      - http01:
-          ingress:
-            class: nginx
+            - '*.apps.example.com'
 ---
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer

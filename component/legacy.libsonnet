@@ -8,7 +8,7 @@ local params = inv.parameters.cert_manager;
 // Define exports below
 {
   helmValues: params.helmValues.cert_manager + com.makeMergeable(
-    if std.objectHas(params, 'helm_values') then std.trace('Parameter `helm_values` is deprecated, please use `helmValues.cert_manager`.', params.helm_values) else {},
+    if std.objectHas(params, 'helm_values') && !std.objectHas(params.acmeClients, 'acme-dns') then std.trace('Parameter `helm_values` is deprecated, please use `helmValues.cert_manager`.', params.helm_values) else {},
   ),
   recursiveNameservers: if std.objectHas(params, 'dns01-recursive-nameservers') then std.trace('Parameter `recursiveNameservers` is deprecated, please use `components.cert_manager.recursiveNameservers`.', std.get(params, 'dns01-recursive-nameservers')) else params.components.cert_manager.recursiveNameservers,
   httpProxy: if std.objectHas(params, 'http_proxy') then std.trace('Parameter `http_proxy` is deprecated, please use `components.cert_manager.httpProxy`.', params.http_proxy) else params.components.cert_manager.httpProxy,

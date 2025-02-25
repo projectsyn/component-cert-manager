@@ -16,13 +16,26 @@ If you are using an the `acme_dns_api` parameter, you need to add at minimum the
 
 [source,yaml]
 ----
+solvers:
+  legacy-acme-dns:
+    dns01:
+      acmeDNS:
+        accountSecretRef:
+          key: acmedns.json
+          name: acme-dns-client
+        host: acme-dns-api.example.com
+    selector:
+      dnsNames:
+        - example.com
+        - '*.apps.example.com'
+
 cluster_issuers:
   letsencrypt-staging:
-    acmeClientRefs:
-      - acme-dns
+    solverRefs:
+      - legacy-acme-dns
   letsencrypt-production:
-    acmeClientRefs:
-      - acme-dns
+    solverRefs:
+      - legacy-acme-dns
 ----
 
 [NOTE]
@@ -91,4 +104,11 @@ This change is backward compatible, but migrating the values to the new structur
 [WARNING]
 ====
 Be aware that if you migrate the configuration to the new structure, the secrets for the acme-dns client will be renamed and thus cause a reregistration of your client.
+We recommend to name the acme-dns client `acme-dns` to avoid any potential issues.
+====
+
+[WARNING]
+====
+If you are using the `acme_dns_api` parameter, you can't use `cluster_issuers.acmeClientRefs` to reference the acme-dns client.
+You need to create a `solvers` entry for the `acme-dns` client and reference it from the `cluster_issuers` dictionary.
 ====
