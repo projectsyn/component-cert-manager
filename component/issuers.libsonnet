@@ -18,9 +18,12 @@ local namespacedName(string) = {
 };
 
 // Let's Encrypt convenience
-local isLetsEncrypt(string) = std.member([ 'letsencrypt-staging', 'letsencrypt-production' ], string);
-local letsEncryptServer(string) = if string == 'letsencrypt-staging' then 'https://acme-staging-v02.api.letsencrypt.org/directory'
-else if string == 'letsencrypt-production' then 'https://acme-v02.api.letsencrypt.org/directory'
+local isLetsEncrypt(string) = std.any([
+  std.startsWith(string, prefix)
+  for prefix in [ 'letsencrypt-staging', 'letsencrypt-production' ]
+]);
+local letsEncryptServer(string) = if std.startsWith(string, 'letsencrypt-staging') then 'https://acme-staging-v02.api.letsencrypt.org/directory'
+else if std.startsWith(string, 'letsencrypt-production') then 'https://acme-v02.api.letsencrypt.org/directory'
 else '';
 
 // Merge letsencrypt acme config if named letsencrypt

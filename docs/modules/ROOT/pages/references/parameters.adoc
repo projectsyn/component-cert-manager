@@ -214,6 +214,11 @@ cluster_issuers:
 
 Configuration for cluster-wide certificate issuers.
 
+[TIP]
+====
+If the issuer name starts with `letsencrypt-staging` or `letsencrypt-production`, the component will automatically be rendered to use the correct ACME server.
+====
+
 See the https://cert-manager.io/docs/concepts/issuer/[cert-manager documentation] for how to configure such issuers.
 
 === Example
