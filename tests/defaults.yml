@@ -30,6 +30,9 @@ parameters:
             secretName: ca-key-pair
 
     cluster_issuers:
+      letsencrypt-production-test:
+        solverRefs:
+          - nginx_http01
       letsencrypt-production:
         acmeClientRefs:
           - acme-dns
