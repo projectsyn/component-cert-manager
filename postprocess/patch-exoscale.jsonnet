@@ -24,6 +24,18 @@ local deploy_obj = com.yaml_load(deploy_file);
       template+: {
         spec+: {
           priorityClassName: 'system-cluster-critical',
+          containers: [
+            super.containers[0] {
+              args+: [
+                '--secure-port=8443',
+              ],
+              ports: [
+                super.ports[0] {
+                  containerPort: 8443,
+                },
+              ],
+            },
+          ],
         },
       },
     },
