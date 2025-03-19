@@ -62,7 +62,7 @@ subjects:
   - apiGroup: ''
     kind: ServiceAccount
     name: cert-manager
-    namespace: cert-manager
+    namespace: syn-cert-manager
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role

@@ -14,6 +14,10 @@ local component = {
     accessKey: params.components.exoscale_webhook.accessKey,
     secretKey: params.components.exoscale_webhook.secretKey,
   },
+  certManager: {
+    namespace: params.namespace,
+    serviceAccountName: 'cert-manager',
+  },
 };
 
 // Define outputs below
