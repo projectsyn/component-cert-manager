@@ -38,8 +38,20 @@ local exoscaleSecret = kube.Secret('exoscale-secret') {
   data:: {},
 };
 
+local secrets = com.generateResources(
+  params.secrets,
+  function(s) std.prune(kube.Secret(s) {
+    metadata+: {
+      namespace: params.namespace,
+    },
+  })
+);
+
+
 {
   '00_namespace': if hasPrometheus then prom.RegisterNamespace(namespace) else namespace,
+  [if std.length(secrets) > 0 then '10_solver_secrets']:
+    secrets,
   [if params.components.exoscale_webhook.enabled then '90_secrets_exoscale']: exoscaleSecret,
 }
 + (import 'acme-dns.libsonnet')
