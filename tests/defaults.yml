@@ -41,5 +41,9 @@ parameters:
           ca:
             secretName: ca-key-pair
 
+    secrets:
+      issuer-key:
+        stringData: ?{vaultkv:${cluster:tenant}/${cluster:name}/custom-issuer/key}
+
   prometheus:
     defaultInstance: infra-monitoring
