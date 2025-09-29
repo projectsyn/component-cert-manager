@@ -399,10 +399,6 @@ spec:
                   description: |-
                     Defines extra output formats of the private key and signed certificate chain
                     to be written to this Certificate's target Secret.
-
-                    This is a Beta Feature enabled by default. It can be disabled with the
-                    `--feature-gates=AdditionalCertificateOutputFormats=false` option set on both
-                    the controller and webhook components.
                   items:
                     description: |-
                       CertificateAdditionalOutputFormat defines an additional output format of a
@@ -513,17 +509,25 @@ spec:
                             Create enables JKS keystore creation for the Certificate.
                             If true, a file named `keystore.jks` will be created in the target
                             Secret resource, encrypted using the password stored in
-                            `passwordSecretRef`.
+                            `passwordSecretRef` or `password`.
                             The keystore file will be updated immediately.
                             If the issuer provided a CA certificate, a file named `truststore.jks`
                             will also be created in the target Secret resource, encrypted using the
                             password stored in `passwordSecretRef`
                             containing the issuing Certificate Authority
                           type: boolean
+                        password:
+                          description: |-
+                            Password provides a literal password used to encrypt the JKS keystore.
+                            Mutually exclusive with passwordSecretRef.
+                            One of password or passwordSecretRef must provide a password with a non-zero length.
+                          type: string
                         passwordSecretRef:
                           description: |-
-                            PasswordSecretRef is a reference to a key in a Secret resource
+                            PasswordSecretRef is a reference to a non-empty key in a Secret resource
                             containing the password used to encrypt the JKS keystore.
+                            Mutually exclusive with password.
+                            One of password or passwordSecretRef must provide a password with a non-zero length.
                           properties:
                             key:
                               description: |-
@@ -541,7 +545,6 @@ spec:
                           type: object
                       required:
                         - create
-                        - passwordSecretRef
                       type: object
                     pkcs12:
                       description: |-
@@ -553,17 +556,25 @@ spec:
                             Create enables PKCS12 keystore creation for the Certificate.
                             If true, a file named `keystore.p12` will be created in the target
                             Secret resource, encrypted using the password stored in
-                            `passwordSecretRef`.
+                            `passwordSecretRef` or in `password`.
                             The keystore file will be updated immediately.
                             If the issuer provided a CA certificate, a file named `truststore.p12` will
                             also be created in the target Secret resource, encrypted using the
                             password stored in `passwordSecretRef` containing the issuing Certificate
                             Authority
                           type: boolean
+                        password:
+                          description: |-
+                            Password provides a literal password used to encrypt the PKCS#12 keystore.
+                            Mutually exclusive with passwordSecretRef.
+                            One of password or passwordSecretRef must provide a password with a non-zero length.
+                          type: string
                         passwordSecretRef:
                           description: |-
-                            PasswordSecretRef is a reference to a key in a Secret resource
-                            containing the password used to encrypt the PKCS12 keystore.
+                            PasswordSecretRef is a reference to a non-empty key in a Secret resource
+                            containing the password used to encrypt the PKCS#12 keystore.
+                            Mutually exclusive with password.
+                            One of password or passwordSecretRef must provide a password with a non-zero length.
                           properties:
                             key:
                               description: |-
@@ -588,7 +599,7 @@ spec:
                             `LegacyRC2`: Deprecated. Not supported by default in OpenSSL 3 or Java 20.
                             `LegacyDES`: Less secure algorithm. Use this option for maximal compatibility.
                             `Modern2023`: Secure algorithm. Use this option in case you have to always use secure algorithms
-                            (eg. because of company policy). Please note that the security of the algorithm is not that important
+                            (e.g., because of company policy). Please note that the security of the algorithm is not that important
                             in reality, because the unencrypted certificate and private key are also stored in the Secret.
                           enum:
                             - LegacyRC2
@@ -597,7 +608,6 @@ spec:
                           type: string
                       required:
                         - create
-                        - passwordSecretRef
                       type: object
                   type: object
                 literalSubject:
@@ -752,7 +762,11 @@ spec:
                         to await user intervention.
                         If set to `Always`, a private key matching the specified requirements
                         will be generated whenever a re-issuance occurs.
-                        Default is `Never` for backward compatibility.
+                        Default is `Always`.
+                        The default was changed from `Never` to `Always` in cert-manager >=v1.18.0.
+                        The new default can be disabled by setting the
+                        `--feature-gates=DefaultPrivateKeyRotationPolicyAlways=false` option on
+                        the controller component.
                       enum:
                         - Never
                         - Always
@@ -813,8 +827,7 @@ spec:
                     revisions exceeds this number.
 
                     If set, revisionHistoryLimit must be a value of `1` or greater.
-                    If unset (`nil`), revisions will not be garbage collected.
-                    Default value is `nil`.
+                    Default value is `1`.
                   format: int32
                   type: integer
                 secretName:
@@ -845,6 +858,21 @@ spec:
                         Kubernetes Secret.
                       type: object
                   type: object
+                signatureAlgorithm:
+                  description: |-
+                    Signature algorithm to use.
+                    Allowed values for RSA keys: SHA256WithRSA, SHA384WithRSA, SHA512WithRSA.
+                    Allowed values for ECDSA keys: ECDSAWithSHA256, ECDSAWithSHA384, ECDSAWithSHA512.
+                    Allowed values for Ed25519 keys: PureEd25519.
+                  enum:
+                    - SHA256WithRSA
+                    - SHA384WithRSA
+                    - SHA512WithRSA
+                    - ECDSAWithSHA256
+                    - ECDSAWithSHA384
+                    - ECDSAWithSHA512
+                    - PureEd25519
+                  type: string
                 subject:
                   description: |-
                     Requested set of X509 certificate subject attributes.
@@ -1168,9 +1196,9 @@ spec:
                   type: string
                 dnsName:
                   description: |-
-                    dnsName is the identifier that this challenge is for, e.g. example.com.
+                    dnsName is the identifier that this challenge is for, e.g., example.com.
                     If the requested DNSName is a 'wildcard', this field MUST be set to the
-                    non-wildcard domain, e.g. for `*.example.com`, it must be `example.com`.
+                    non-wildcard domain, e.g., for `*.example.com`, it must be `example.com`.
                   type: string
                 issuerRef:
                   description: |-
@@ -1361,12 +1389,16 @@ spec:
                               properties:
                                 clientID:
                                   description: client ID of the managed identity,
-                                    can not be used at the same time as resourceID
+                                    cannot be used at the same time as resourceID
                                   type: string
                                 resourceID:
                                   description: |-
-                                    resource ID of the managed identity, can not be used at the same time as clientID
+                                    resource ID of the managed identity, cannot be used at the same time as clientID
                                     Cannot be used for Azure Managed Service Identity
+                                  type: string
+                                tenantID:
+                                  description: tenant ID of the managed identity,
+                                    cannot be used at the same time as resourceID
                                   type: string
                               type: object
                             resourceGroupName:
@@ -1685,7 +1717,7 @@ spec:
                                 when challenges are processed.
                                 This can contain arbitrary JSON data.
                                 Secret values should not be specified in this stanza.
-                                If secret values are needed (e.g. credentials for a DNS service), you
+                                If secret values are needed (e.g., credentials for a DNS service), you
                                 should use a SecretKeySelector to reference a Secret resource.
                                 For details on the schema of this field, consult the webhook provider
                                 implementation's documentation.
@@ -1701,7 +1733,7 @@ spec:
                               description: |-
                                 The name of the solver to use, as defined in the webhook provider
                                 implementation.
-                                This will typically be the name of the provider, e.g. 'cloudflare'.
+                                This will typically be the name of the provider, e.g., 'cloudflare'.
                               type: string
                           required:
                             - groupName
@@ -1713,7 +1745,7 @@ spec:
                         Configures cert-manager to attempt to complete authorizations by
                         performing the HTTP01 challenge flow.
                         It is not possible to obtain certificates for wildcard domain names
-                        (e.g. `*.example.com`) using the HTTP01 challenge mechanism.
+                        (e.g., `*.example.com`) using the HTTP01 challenge mechanism.
                       properties:
                         gatewayHTTPRoute:
                           description: |-
@@ -4531,6 +4563,8 @@ spec:
     kind: ClusterIssuer
     listKind: ClusterIssuerList
     plural: clusterissuers
+    shortNames:
+      - ciss
     singular: clusterissuer
   scope: Cluster
   versions:
@@ -4673,7 +4707,7 @@ spec:
                         PreferredChain is the chain to use if the ACME server outputs multiple.
                         PreferredChain is no guarantee that this one gets delivered by the ACME
                         endpoint.
-                        For example, for Let's Encrypt's DST crosssign you would use:
+                        For example, for Let's Encrypt's DST cross-sign you would use:
                         "DST Root CA X3" or "ISRG Root X1" for the newer Let's Encrypt root CA.
                         This value picks the first certificate bundle in the combined set of
                         ACME default and alternative chains that has a root-most certificate with
@@ -4702,6 +4736,11 @@ spec:
                       required:
                         - name
                       type: object
+                    profile:
+                      description: |-
+                        Profile allows requesting a certificate profile from the ACME server.
+                        Supported profiles are listed by the server's ACME directory URL.
+                      type: string
                     server:
                       description: |-
                         Server is the URL used to access the ACME server's 'directory' endpoint.
@@ -4889,12 +4928,16 @@ spec:
                                     properties:
                                       clientID:
                                         description: client ID of the managed identity,
-                                          can not be used at the same time as resourceID
+                                          cannot be used at the same time as resourceID
                                         type: string
                                       resourceID:
                                         description: |-
-                                          resource ID of the managed identity, can not be used at the same time as clientID
+                                          resource ID of the managed identity, cannot be used at the same time as clientID
                                           Cannot be used for Azure Managed Service Identity
+                                        type: string
+                                      tenantID:
+                                        description: tenant ID of the managed identity,
+                                          cannot be used at the same time as resourceID
                                         type: string
                                     type: object
                                   resourceGroupName:
@@ -5217,7 +5260,7 @@ spec:
                                       when challenges are processed.
                                       This can contain arbitrary JSON data.
                                       Secret values should not be specified in this stanza.
-                                      If secret values are needed (e.g. credentials for a DNS service), you
+                                      If secret values are needed (e.g., credentials for a DNS service), you
                                       should use a SecretKeySelector to reference a Secret resource.
                                       For details on the schema of this field, consult the webhook provider
                                       implementation's documentation.
@@ -5233,7 +5276,7 @@ spec:
                                     description: |-
                                       The name of the solver to use, as defined in the webhook provider
                                       implementation.
-                                      This will typically be the name of the provider, e.g. 'cloudflare'.
+                                      This will typically be the name of the provider, e.g., 'cloudflare'.
                                     type: string
                                 required:
                                   - groupName
@@ -5245,7 +5288,7 @@ spec:
                               Configures cert-manager to attempt to complete authorizations by
                               performing the HTTP01 challenge flow.
                               It is not possible to obtain certificates for wildcard domain names
-                              (e.g. `*.example.com`) using the HTTP01 challenge mechanism.
+                              (e.g., `*.example.com`) using the HTTP01 challenge mechanism.
                             properties:
                               gatewayHTTPRoute:
                                 description: |-
@@ -8332,6 +8375,11 @@ spec:
                       description: 'Server is the connection address for the Vault
                         server, e.g: "https://vault.example.com:8200".'
                       type: string
+                    serverName:
+                      description: |-
+                        ServerName is used to verify the hostname on the returned certificates
+                        by the Vault server.
+                      type: string
                   required:
                     - auth
                     - path
@@ -8368,7 +8416,7 @@ spec:
                         url:
                           description: |-
                             URL is the base URL for Venafi Cloud.
-                            Defaults to "https://api.venafi.cloud/v1".
+                            Defaults to "https://api.venafi.cloud/".
                           type: string
                       required:
                         - apiTokenSecretRef
@@ -8549,6 +8597,8 @@ spec:
     kind: Issuer
     listKind: IssuerList
     plural: issuers
+    shortNames:
+      - iss
     singular: issuer
   scope: Namespaced
   versions:
@@ -8690,7 +8740,7 @@ spec:
                         PreferredChain is the chain to use if the ACME server outputs multiple.
                         PreferredChain is no guarantee that this one gets delivered by the ACME
                         endpoint.
-                        For example, for Let's Encrypt's DST crosssign you would use:
+                        For example, for Let's Encrypt's DST cross-sign you would use:
                         "DST Root CA X3" or "ISRG Root X1" for the newer Let's Encrypt root CA.
                         This value picks the first certificate bundle in the combined set of
                         ACME default and alternative chains that has a root-most certificate with
@@ -8719,6 +8769,11 @@ spec:
                       required:
                         - name
                       type: object
+                    profile:
+                      description: |-
+                        Profile allows requesting a certificate profile from the ACME server.
+                        Supported profiles are listed by the server's ACME directory URL.
+                      type: string
                     server:
                       description: |-
                         Server is the URL used to access the ACME server's 'directory' endpoint.
@@ -8906,12 +8961,16 @@ spec:
                                     properties:
                                       clientID:
                                         description: client ID of the managed identity,
-                                          can not be used at the same time as resourceID
+                                          cannot be used at the same time as resourceID
                                         type: string
                                       resourceID:
                                         description: |-
-                                          resource ID of the managed identity, can not be used at the same time as clientID
+                                          resource ID of the managed identity, cannot be used at the same time as clientID
                                           Cannot be used for Azure Managed Service Identity
+                                        type: string
+                                      tenantID:
+                                        description: tenant ID of the managed identity,
+                                          cannot be used at the same time as resourceID
                                         type: string
                                     type: object
                                   resourceGroupName:
@@ -9234,7 +9293,7 @@ spec:
                                       when challenges are processed.
                                       This can contain arbitrary JSON data.
                                       Secret values should not be specified in this stanza.
-                                      If secret values are needed (e.g. credentials for a DNS service), you
+                                      If secret values are needed (e.g., credentials for a DNS service), you
                                       should use a SecretKeySelector to reference a Secret resource.
                                       For details on the schema of this field, consult the webhook provider
                                       implementation's documentation.
@@ -9250,7 +9309,7 @@ spec:
                                     description: |-
                                       The name of the solver to use, as defined in the webhook provider
                                       implementation.
-                                      This will typically be the name of the provider, e.g. 'cloudflare'.
+                                      This will typically be the name of the provider, e.g., 'cloudflare'.
                                     type: string
                                 required:
                                   - groupName
@@ -9262,7 +9321,7 @@ spec:
                               Configures cert-manager to attempt to complete authorizations by
                               performing the HTTP01 challenge flow.
                               It is not possible to obtain certificates for wildcard domain names
-                              (e.g. `*.example.com`) using the HTTP01 challenge mechanism.
+                              (e.g., `*.example.com`) using the HTTP01 challenge mechanism.
                             properties:
                               gatewayHTTPRoute:
                                 description: |-
@@ -12349,6 +12408,11 @@ spec:
                       description: 'Server is the connection address for the Vault
                         server, e.g: "https://vault.example.com:8200".'
                       type: string
+                    serverName:
+                      description: |-
+                        ServerName is used to verify the hostname on the returned certificates
+                        by the Vault server.
+                      type: string
                   required:
                     - auth
                     - path
@@ -12385,7 +12449,7 @@ spec:
                         url:
                           description: |-
                             URL is the base URL for Venafi Cloud.
-                            Defaults to "https://api.venafi.cloud/v1".
+                            Defaults to "https://api.venafi.cloud/".
                           type: string
                       required:
                         - apiTokenSecretRef
@@ -12660,6 +12724,11 @@ spec:
                   required:
                     - name
                   type: object
+                profile:
+                  description: |-
+                    Profile allows requesting a certificate profile from the ACME server.
+                    Supported profiles are listed by the server's ACME directory URL.
+                  type: string
                 request:
                   description: |-
                     Certificate signing request bytes in DER encoding.
@@ -12703,7 +12772,7 @@ spec:
                               type: string
                             type:
                               description: |-
-                                Type is the type of challenge being offered, e.g. 'http-01', 'dns-01',
+                                Type is the type of challenge being offered, e.g., 'http-01', 'dns-01',
                                 'tls-sni-01', etc.
                                 This is the raw value retrieved from the ACME server.
                                 Only 'http-01' and 'dns-01' are supported by cert-manager, other values
