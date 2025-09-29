@@ -68,7 +68,7 @@ spec:
           envFrom:
             - secretRef:
                 name: acme-dns-register
-          image: quay.io/appuio/oc:v4.16
+          image: quay.io/appuio/oc:v4.19
           imagePullPolicy: IfNotPresent
           name: register-client
           ports: []
@@ -148,7 +148,7 @@ spec:
               envFrom:
                 - secretRef:
                     name: acme-dns-register
-              image: quay.io/appuio/oc:v4.16
+              image: quay.io/appuio/oc:v4.19
               imagePullPolicy: IfNotPresent
               name: check-client
               ports: []
