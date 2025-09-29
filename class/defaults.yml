@@ -41,7 +41,7 @@ parameters:
       kubectl:
         registry: quay.io
         repository: appuio/oc
-        tag: v4.16
+        tag: v4.19
 
     components:
       cert_manager:
