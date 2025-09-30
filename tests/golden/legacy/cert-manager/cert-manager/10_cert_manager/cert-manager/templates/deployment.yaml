@@ -7,8 +7,8 @@ metadata:
     app.kubernetes.io/instance: cert-manager
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
-    app.kubernetes.io/version: v1.16.3
-    helm.sh/chart: cert-manager-v1.16.3
+    app.kubernetes.io/version: v1.18.2
+    helm.sh/chart: cert-manager-v1.18.2
   name: cert-manager
   namespace: syn-cert-manager
 spec:
@@ -26,15 +26,15 @@ spec:
         app.kubernetes.io/instance: cert-manager
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: cert-manager
-        app.kubernetes.io/version: v1.16.3
-        helm.sh/chart: cert-manager-v1.16.3
+        app.kubernetes.io/version: v1.18.2
+        helm.sh/chart: cert-manager-v1.18.2
     spec:
       containers:
         - args:
             - --v=2
             - --cluster-resource-namespace=$(POD_NAMESPACE)
             - --leader-election-namespace=syn-cert-manager
-            - --acme-http01-solver-image=quay.io/jetstack/cert-manager-acmesolver:v1.16.3
+            - --acme-http01-solver-image=quay.io/jetstack/cert-manager-acmesolver:v1.18.2
             - --max-concurrent-challenges=60
             - --dns01-recursive-nameservers-only=true
             - --dns01-recursive-nameservers=8.8.8.8:53
@@ -49,7 +49,7 @@ spec:
               value: proxy.example.local:8080
             - name: NO_PROXY
               value: example.local
-          image: quay.io/jetstack/cert-manager-controller:v1.16.3
+          image: quay.io/jetstack/cert-manager-controller:v1.18.2
           imagePullPolicy: IfNotPresent
           livenessProbe:
             failureThreshold: 8
