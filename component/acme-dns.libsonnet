@@ -93,6 +93,7 @@ local clientSecret(name) = kube.Secret('%s-client' % name) {
     name: '%s-client' % name,
     namespace: params.namespace,
   },
+  data:: {},
 };
 
 local mountpaths = {

@@ -7,14 +7,6 @@ local app = argocd.App('cert-manager', params.namespace) {
   spec+: {
     ignoreDifferences: [
       {
-        kind: 'Secret',
-        name: 'acme-dns-client',
-        namespace: params.namespace,
-        jsonPointers: [
-          '/data',
-        ],
-      },
-      {
         group: 'admissionregistration.k8s.io',
         kind: 'ValidatingWebhookConfiguration',
         name: 'cert-manager-webhook',
