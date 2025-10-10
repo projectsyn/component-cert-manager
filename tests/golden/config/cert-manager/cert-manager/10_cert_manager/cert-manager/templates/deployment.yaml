@@ -20,6 +20,8 @@ spec:
       app.kubernetes.io/name: cert-manager
   template:
     metadata:
+      annotations:
+        cert-manager.syn.tools/config-hash: 59cf236fa40c85d69ed853b13046fa6d
       labels:
         app: cert-manager
         app.kubernetes.io/component: controller

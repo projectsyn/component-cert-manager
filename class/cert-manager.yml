@@ -74,3 +74,6 @@ parameters:
           path: cert-manager/20_exoscale_webhook/exoscale-webhook/templates/
           filter: postprocess/patch-exoscale.jsonnet
           enabled: ${cert_manager:components:exoscale_webhook:enabled}
+        - type: jsonnet
+          path: cert-manager/10_cert_manager/cert-manager/templates/
+          filter: postprocess/restart-on-config-change.jsonnet

@@ -332,3 +332,9 @@ helmValues:
 ----
 
 Override configurations for individual components.
+
+[TIP]
+====
+The component will patch the cert-manager pod template with an annotation whose value is the hash of the contents of `helmValues.cert_manager.config`.
+This ensures that the cert-manager pod is restarted every time the config is changed.
+====
