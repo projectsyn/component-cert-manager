@@ -1,13 +1,13 @@
 {
   "template": "https://github.com/projectsyn/commodore-component-template.git",
-  "commit": "8f2273cd8ab13c55eb0f6dd621c70c4c9e4786fd",
+  "commit": "84a7c63ca26492da555344c23ccddac302ba0bb2",
   "checkout": "main",
   "context": {
     "cookiecutter": {
       "name": "cert-manager",
       "slug": "cert-manager",
       "parameter_key": "cert_manager",
-      "test_cases": "defaults legacy",
+      "test_cases": "defaults legacy config",
       "add_lib": "y",
       "add_pp": "y",
       "add_golden": "y",
@@ -25,7 +25,7 @@
       "github_name": "component-cert-manager",
       "github_url": "https://github.com/projectsyn/component-cert-manager",
       "_template": "https://github.com/projectsyn/commodore-component-template.git",
-      "_commit": "8f2273cd8ab13c55eb0f6dd621c70c4c9e4786fd"
+      "_commit": "84a7c63ca26492da555344c23ccddac302ba0bb2"
     }
   },
   "directory": null

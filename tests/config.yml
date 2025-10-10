@@ -1,0 +1,7 @@
+parameters:
+  cert_manager:
+    helmValues:
+      cert_manager:
+        config:
+          featureGates:
+            ACMEHTTP01IngressPathTypeExact: false
