@@ -17,7 +17,7 @@ To upgrade existing resources to `v1`, run the following command **before** upgr
 
 [source,shell]
 ----
-cmctl upgrade migrate-api-version --as=cluster-admin
+cmctl upgrade migrate-api-version --as=system:admin
 ----
 
 === Convert manifests to `v1`
@@ -35,7 +35,7 @@ To check if old API versions are still in use, run the following command:
 
 [source,shell]
 ----
-kubectl --as=cluster-admin get apirequestcount -ojson | jq '
+kubectl --as=system:admin get apirequestcount -ojson | jq '
     .items[] |
         select(
             (.metadata.name | in({
