@@ -6,7 +6,7 @@ parameters:
     namespace: syn-cert-manager
 
     charts:
-      cert_manager:
+      cert-manager:
         source: https://charts.jetstack.io
         version: v1.18.2
       exoscale_webhook:
@@ -17,23 +17,23 @@ parameters:
       cert_manager:
         registry: quay.io
         repository: jetstack/cert-manager-controller
-        tag: ${cert_manager:charts:cert_manager:version}
+        tag: ${cert_manager:charts:cert-manager:version}
       cert_webhook:
         registry: quay.io
         repository: jetstack/cert-manager-webhook
-        tag: ${cert_manager:charts:cert_manager:version}
+        tag: ${cert_manager:charts:cert-manager:version}
       cert_cainjector:
         registry: quay.io
         repository: jetstack/cert-manager-cainjector
-        tag: ${cert_manager:charts:cert_manager:version}
+        tag: ${cert_manager:charts:cert-manager:version}
       cert_acmesolver:
         registry: quay.io
         repository: jetstack/cert-manager-acmesolver
-        tag: ${cert_manager:charts:cert_manager:version}
+        tag: ${cert_manager:charts:cert-manager:version}
       cert_startupapi:
         registry: quay.io
         repository: jetstack/cert-manager-startupapicheck
-        tag: ${cert_manager:charts:cert_manager:version}
+        tag: ${cert_manager:charts:cert-manager:version}
       exoscale_webhook:
         registry: docker.io
         repository: exoscale/cert-manager-webhook-exoscale

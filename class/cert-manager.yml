@@ -28,10 +28,10 @@ parameters:
   kapitan:
     dependencies:
       - type: helm
-        source: ${cert_manager:charts:cert_manager:source}
+        source: ${cert_manager:charts:cert-manager:source}
         chart_name: cert-manager
-        version: ${cert_manager:charts:cert_manager:version}
-        output_path: ${_base_directory}/helmcharts/cert-manager/${cert_manager:charts:cert_manager:version}/
+        version: ${cert_manager:charts:cert-manager:version}
+        output_path: ${_base_directory}/helmcharts/cert-manager/${cert_manager:charts:cert-manager:version}/
       - type: git
         source: ${cert_manager:charts:exoscale_webhook:source}
         ref: ${cert_manager:charts:exoscale_webhook:version}
@@ -50,13 +50,13 @@ parameters:
       - input_paths:
           - ${_base_directory}/component/helm/cert-manager.jsonnet
         input_type: jsonnet
-        output_path: ${_base_directory}/helmcharts/cert-manager/${cert_manager:charts:cert_manager:version}/
+        output_path: ${_base_directory}/helmcharts/cert-manager/${cert_manager:charts:cert-manager:version}/
       - input_paths:
-          - ${_base_directory}/helmcharts/cert-manager/${cert_manager:charts:cert_manager:version}/
+          - ${_base_directory}/helmcharts/cert-manager/${cert_manager:charts:cert-manager:version}/
         input_type: helm
         helm_values_files:
-          - ${_base_directory}/helmcharts/cert-manager/${cert_manager:charts:cert_manager:version}/values-component.yaml
-          - ${_base_directory}/helmcharts/cert-manager/${cert_manager:charts:cert_manager:version}/values-overrides.yaml
+          - ${_base_directory}/helmcharts/cert-manager/${cert_manager:charts:cert-manager:version}/values-component.yaml
+          - ${_base_directory}/helmcharts/cert-manager/${cert_manager:charts:cert-manager:version}/values-overrides.yaml
         helm_params:
           name: cert-manager
           namespace: ${cert_manager:namespace}

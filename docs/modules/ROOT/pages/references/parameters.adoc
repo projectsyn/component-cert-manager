@@ -19,18 +19,7 @@ Additionally, if component `prometheus` is installed on the cluster, the compone
 
 [horizontal]
 type:: object
-default::
-+
-[source,yaml]
-----
-charts:
-  cert_manager:
-    source: https://charts.jetstack.io
-    version: v1.16.2
-  exoscale_webhook:
-    source: https://github.com/exoscale/cert-manager-webhook-exoscale.git
-    version: v0.3.0
-----
+default:: https://github.com/projectsyn/component-cert-manager/blob/master/class/defaults.yml[See `class/defaults.yml`]
 
 Specifies the Helm charts sources and versions for certificate-related components.
 
