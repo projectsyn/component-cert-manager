@@ -303,6 +303,32 @@ A dictionary holding certificates.
 The dictionary keys are the certificate names, the values get merged into the certificate object.
 
 
+== `alerts`
+
+[horizontal]
+type:: dict
+example::
++
+[source,yaml]
+----
+BadThingsHappening:
+  enabled: true
+  rule:
+    annotations:
+      summary: Bad things have been happening on {{$labels.node}} for more than 10 minutes.
+    expr: |
+      bad_thing_happening == 1
+    for: 10m
+    labels:
+      severity: warning
+----
+
+`alerts` defines the alerts to be installed.
+The dictionary key is used as the name of the alert.
+`enabled` is a mandatory field to specify whether the alert should be installed or not.
+`rule` contains the Prometheus alerting rule definition.
+
+
 == `resources`
 
 [horizontal]

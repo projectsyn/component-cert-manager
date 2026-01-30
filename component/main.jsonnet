@@ -58,14 +58,43 @@ local certificates = com.generateResources(
   }
 );
 
+local alertlabels = {
+  syn: 'true',
+  syn_component: 'cert-manager',
+};
+
+local alerts = function(name, groupName, alerts)
+  com.namespaced(params.namespace, kube._Object('monitoring.coreos.com/v1', 'PrometheusRule', name) {
+    metadata+: {
+      annotations:: {},
+    },
+    spec+: {
+      groups+: [
+        {
+          name: groupName,
+          rules:
+            std.sort(std.filterMap(
+              function(field) alerts[field].enabled == true,
+              function(field) alerts[field].rule {
+                alert: field,
+                labels+: alertlabels,
+              },
+              std.objectFields(alerts)
+            ), function(x) x.alert),
+        },
+      ],
+    },
+  });
 
 {
   '00_namespace': if hasPrometheus then prom.RegisterNamespace(namespace) else namespace,
   [if std.length(secrets) > 0 then '10_solver_secrets']:
     secrets,
   [if params.components.exoscale_webhook.enabled then '90_secrets_exoscale']: exoscaleSecret,
-  [if std.length(certificates) > 0 then '99_certificates']:
+  [if std.length(certificates) > 0 then '93_certificates']:
     certificates,
+  [if std.length(params.alerts) > 0 then '99_alerts']:
+    alerts('cert-manager', 'cert-manager-custom.alerts', params.alerts),
 }
 + (import 'acme-dns.libsonnet')
 + (import 'issuers.libsonnet')
