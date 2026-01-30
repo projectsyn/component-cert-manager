@@ -1,8 +1,10 @@
 // main template for certificates
+local cert = import 'lib/cert-manager.libsonnet';
 local com = import 'lib/commodore.libjsonnet';
 local kap = import 'lib/kapitan.libjsonnet';
 local kube = import 'lib/kube.libjsonnet';
 local prom = import 'lib/prometheus.libsonnet';
+
 local inv = kap.inventory();
 
 // The hiera parameters for the component
@@ -47,12 +49,23 @@ local secrets = com.generateResources(
   })
 );
 
+local certificates = com.generateResources(
+  params.certificates,
+  function(c) cert.cert(c) {
+    metadata+: {
+      namespace: params.namespace,
+    },
+  }
+);
+
 
 {
   '00_namespace': if hasPrometheus then prom.RegisterNamespace(namespace) else namespace,
   [if std.length(secrets) > 0 then '10_solver_secrets']:
     secrets,
   [if params.components.exoscale_webhook.enabled then '90_secrets_exoscale']: exoscaleSecret,
+  [if std.length(certificates) > 0 then '99_certificates']:
+    certificates,
 }
 + (import 'acme-dns.libsonnet')
 + (import 'issuers.libsonnet')

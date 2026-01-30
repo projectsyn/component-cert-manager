@@ -75,6 +75,7 @@ parameters:
 
     alerts: {}
     secrets: {}
+    certificates: {}
 
     resources:
       cert_manager:

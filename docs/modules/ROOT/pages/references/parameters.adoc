@@ -277,6 +277,32 @@ A dictionary holding secrets, eg. for DNS01 solvers.
 See the https://cert-manager.io/docs/configuration/acme/dns01/[cert-manager documentation] for DNS01 solvers which are supported by cert-manager.
 
 
+== `certificates`
+
+[horizontal]
+type:: dictionary
+default:: `{}`
+example::
++
+[source,yaml]
+----
+certificates:
+  my-cert:
+    spec:
+      secretName: my-cert-tls
+      dnsNames:
+        - example.com
+        - www.example.com
+      issuerRef:
+        name: letsencrypt-production
+        kind: ClusterIssuer
+----
+
+A dictionary holding certificates.
+
+The dictionary keys are the certificate names, the values get merged into the certificate object.
+
+
 == `resources`
 
 [horizontal]
