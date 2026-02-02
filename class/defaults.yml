@@ -8,7 +8,7 @@ parameters:
     charts:
       cert-manager:
         source: https://charts.jetstack.io
-        version: v1.18.5
+        version: v1.19.3
       exoscale_webhook:
         source: https://github.com/exoscale/cert-manager-webhook-exoscale.git
         version: v0.3.0
