@@ -16,6 +16,15 @@ parameters:
           issuerRef:
             name: letsencrypt-production
             kind: ClusterIssuer
+      otherns/their-cert:
+        spec:
+          secretName: my-cert-tls
+          dnsNames:
+            - example.com
+            - www.example.com
+          issuerRef:
+            name: letsencrypt-production
+            kind: ClusterIssuer
 
     alerts:
       CertificateNotReady:

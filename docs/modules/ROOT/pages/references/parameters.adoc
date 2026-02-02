@@ -301,7 +301,8 @@ certificates:
 A dictionary holding certificates.
 
 The dictionary keys are the certificate names, the values get merged into the certificate object.
-
+The keys can contain an optional namespace prefix in the form of `namespace/name`.
+If no namespace is specified, the certificate will be created in the namespace defined by parameter `namespace`.
 
 == `alerts`
 

@@ -49,13 +49,21 @@ local secrets = com.generateResources(
   })
 );
 
+local namespacedName(name) = {
+  local namespaced = std.splitLimit(name, '/', 1),
+  namespace: if std.length(namespaced) > 1 then namespaced[0] else params.namespace,
+  name: if std.length(namespaced) > 1 then namespaced[1] else namespaced[0],
+};
+
 local certificates = com.generateResources(
   params.certificates,
-  function(c) cert.cert(c) {
-    metadata+: {
-      namespace: params.namespace,
-    },
-  }
+  function(c)
+    local nsn = namespacedName(c);
+    cert.cert(nsn.name) {
+      metadata+: {
+        namespace: nsn.namespace,
+      },
+    }
 );
 
 local alertlabels = {
