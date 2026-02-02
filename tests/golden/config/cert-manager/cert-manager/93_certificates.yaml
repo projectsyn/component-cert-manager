@@ -1,0 +1,31 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  labels:
+    name: my-cert
+  name: my-cert
+  namespace: syn-cert-manager
+spec:
+  dnsNames:
+    - example.com
+    - www.example.com
+  issuerRef:
+    kind: ClusterIssuer
+    name: letsencrypt-production
+  secretName: my-cert-tls
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  labels:
+    name: their-cert
+  name: their-cert
+  namespace: otherns
+spec:
+  dnsNames:
+    - example.com
+    - www.example.com
+  issuerRef:
+    kind: ClusterIssuer
+    name: letsencrypt-production
+  secretName: my-cert-tls

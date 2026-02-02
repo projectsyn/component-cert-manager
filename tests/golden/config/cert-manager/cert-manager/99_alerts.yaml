@@ -1,0 +1,22 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  labels:
+    name: cert-manager
+  name: cert-manager
+  namespace: syn-cert-manager
+spec:
+  groups:
+    - name: cert-manager-custom.alerts
+      rules:
+        - alert: CertificateNotReady
+          annotations:
+            description: |
+              The certificate {{ $labels.name }} in namespace {{ $labels.namespace }} has not been ready for more than 10 minutes.
+            summary: Certificate {{ $labels.name }} is not ready
+          expr: |
+            certmanager_certificate_ready_status{condition="True"} == 0
+          for: 10m
+          labels:
+            syn: 'true'
+            syn_component: cert-manager

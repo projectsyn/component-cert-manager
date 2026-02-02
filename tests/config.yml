@@ -5,3 +5,35 @@ parameters:
         config:
           featureGates:
             ACMEHTTP01IngressPathTypeExact: false
+
+    certificates:
+      my-cert:
+        spec:
+          secretName: my-cert-tls
+          dnsNames:
+            - example.com
+            - www.example.com
+          issuerRef:
+            name: letsencrypt-production
+            kind: ClusterIssuer
+      otherns/their-cert:
+        spec:
+          secretName: my-cert-tls
+          dnsNames:
+            - example.com
+            - www.example.com
+          issuerRef:
+            name: letsencrypt-production
+            kind: ClusterIssuer
+
+    alerts:
+      CertificateNotReady:
+        enabled: true
+        rule:
+          expr: |
+            certmanager_certificate_ready_status{condition="True"} == 0
+          for: 10m
+          annotations:
+            summary: Certificate {{ $labels.name }} is not ready
+            description: |
+              The certificate {{ $labels.name }} in namespace {{ $labels.namespace }} has not been ready for more than 10 minutes.

@@ -1,8 +1,10 @@
 // main template for certificates
+local cert = import 'lib/cert-manager.libsonnet';
 local com = import 'lib/commodore.libjsonnet';
 local kap = import 'lib/kapitan.libjsonnet';
 local kube = import 'lib/kube.libjsonnet';
 local prom = import 'lib/prometheus.libsonnet';
+
 local inv = kap.inventory();
 
 // The hiera parameters for the component
@@ -47,12 +49,60 @@ local secrets = com.generateResources(
   })
 );
 
+local namespacedName(name) = {
+  local namespaced = std.splitLimit(name, '/', 1),
+  namespace: if std.length(namespaced) > 1 then namespaced[0] else params.namespace,
+  name: if std.length(namespaced) > 1 then namespaced[1] else namespaced[0],
+};
+
+local certificates = com.generateResources(
+  params.certificates,
+  function(c)
+    local nsn = namespacedName(c);
+    cert.cert(nsn.name) {
+      metadata+: {
+        namespace: nsn.namespace,
+      },
+    }
+);
+
+local alertlabels = {
+  syn: 'true',
+  syn_component: 'cert-manager',
+};
+
+local alerts = function(name, groupName, alerts)
+  com.namespaced(params.namespace, kube._Object('monitoring.coreos.com/v1', 'PrometheusRule', name) {
+    metadata+: {
+      annotations:: {},
+    },
+    spec+: {
+      groups+: [
+        {
+          name: groupName,
+          rules:
+            std.sort(std.filterMap(
+              function(field) alerts[field].enabled == true,
+              function(field) alerts[field].rule {
+                alert: field,
+                labels+: alertlabels,
+              },
+              std.objectFields(alerts)
+            ), function(x) x.alert),
+        },
+      ],
+    },
+  });
 
 {
   '00_namespace': if hasPrometheus then prom.RegisterNamespace(namespace) else namespace,
   [if std.length(secrets) > 0 then '10_solver_secrets']:
     secrets,
   [if params.components.exoscale_webhook.enabled then '90_secrets_exoscale']: exoscaleSecret,
+  [if std.length(certificates) > 0 then '93_certificates']:
+    certificates,
+  [if std.length(params.alerts) > 0 then '99_alerts']:
+    alerts('cert-manager', 'cert-manager-custom.alerts', params.alerts),
 }
 + (import 'acme-dns.libsonnet')
 + (import 'issuers.libsonnet')
