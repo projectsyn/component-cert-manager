@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   labels:
     app: exoscale-webhook
-    chart: exoscale-webhook-0.3.0
+    chart: cert-manager-webhook-exoscale-chart-0.3.4
     heritage: Helm
     release: exoscale-webhook
   name: cert-manager-webhook-exoscale
@@ -32,14 +32,14 @@ spec:
               value: ''
             - name: EXOSCALE_API_TRACE
               value: ''
-          image: docker.io/exoscale/cert-manager-webhook-exoscale:0.3.0
+          image: docker.io/exoscale/cert-manager-webhook-exoscale:0.3.4
           imagePullPolicy: IfNotPresent
           livenessProbe:
             httpGet:
               path: /healthz
               port: https
               scheme: HTTPS
-          name: exoscale-webhook
+          name: cert-manager-webhook-exoscale-chart
           ports:
             - containerPort: 8443
               name: https

@@ -19,12 +19,12 @@ local crds = [
 
 {
   [crd.name]: crd.content[0] {
-      metadata+: {
-        annotations+: {
-          'argocd.argoproj.io/sync-options': 'Prune=false',
-          'argocd.argoproj.io/sync-wave': '-10',
-        },
+    metadata+: {
+      annotations+: {
+        'argocd.argoproj.io/sync-options': 'Prune=false',
+        'argocd.argoproj.io/sync-wave': '-10',
       },
-    }
+    },
+  }
   for crd in crds
 }

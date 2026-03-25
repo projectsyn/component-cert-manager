@@ -23,6 +23,11 @@ default:: https://github.com/projectsyn/component-cert-manager/blob/master/class
 
 Specifies the Helm charts sources and versions for certificate-related components.
 
+[NOTE]
+====
+Please note that the minimum chart version supported for cert-manager-exoscale-webhook is v0.3.4.
+====
+
 
 == `images`
 

@@ -6,7 +6,7 @@ parameters:
         input_paths:
           - ${_base_directory}/component/helm/exoscale-webhook.jsonnet
         input_type: jsonnet
-        output_path: ${_base_directory}/helmcharts/exoscale-webhook/${cert_manager:charts:exoscale_webhook:version}/
+        output_path: ${_base_directory}/helmcharts/exoscale-webhook/${cert_manager:charts:cert-manager-webhook-exoscale:version}/
       'False': &option_false
         input_paths: []
         input_type: jsonnet
@@ -14,11 +14,11 @@ parameters:
     exoscale_webhook_helm:
       'True':
         input_paths:
-          - ${_base_directory}/helmcharts/exoscale-webhook/${cert_manager:charts:exoscale_webhook:version}/
+          - ${_base_directory}/helmcharts/exoscale-webhook/${cert_manager:charts:cert-manager-webhook-exoscale:version}/
         input_type: helm
         helm_values_files:
-          - ${_base_directory}/helmcharts/exoscale-webhook/${cert_manager:charts:exoscale_webhook:version}/values-component.yaml
-          - ${_base_directory}/helmcharts/exoscale-webhook/${cert_manager:charts:exoscale_webhook:version}/values-overrides.yaml
+          - ${_base_directory}/helmcharts/exoscale-webhook/${cert_manager:charts:cert-manager-webhook-exoscale:version}/values-component.yaml
+          - ${_base_directory}/helmcharts/exoscale-webhook/${cert_manager:charts:cert-manager-webhook-exoscale:version}/values-overrides.yaml
         helm_params:
           name: exoscale-webhook
           namespace: ${cert_manager:namespace}
@@ -33,10 +33,10 @@ parameters:
         version: ${cert_manager:charts:cert-manager:version}
         output_path: ${_base_directory}/helmcharts/cert-manager/${cert_manager:charts:cert-manager:version}/
       - type: git
-        source: ${cert_manager:charts:exoscale_webhook:source}
-        ref: ${cert_manager:charts:exoscale_webhook:version}
+        source: ${cert_manager:charts:cert-manager-webhook-exoscale:source}
+        ref: ${cert_manager:charts:cert-manager-webhook-exoscale:version}
         subdir: deploy/exoscale-webhook
-        output_path: ${_base_directory}/helmcharts/exoscale-webhook/${cert_manager:charts:exoscale_webhook:version}/
+        output_path: ${_base_directory}/helmcharts/exoscale-webhook/${cert_manager:charts:cert-manager-webhook-exoscale:version}/
 
     compile:
       - input_paths:
@@ -71,7 +71,7 @@ parameters:
           path: cert-manager/10_cert_manager/cert-manager/templates/
           filter: postprocess/patch-crds.jsonnet
         - type: jsonnet
-          path: cert-manager/20_exoscale_webhook/exoscale-webhook/templates/
+          path: cert-manager/20_exoscale_webhook/cert-manager-webhook-exoscale-chart/templates/
           filter: postprocess/patch-exoscale.jsonnet
           enabled: ${cert_manager:components:exoscale_webhook:enabled}
         - type: jsonnet

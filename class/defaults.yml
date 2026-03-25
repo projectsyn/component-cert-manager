@@ -9,9 +9,9 @@ parameters:
       cert-manager:
         source: https://charts.jetstack.io
         version: v1.20.0
-      exoscale_webhook:
+      cert-manager-webhook-exoscale:
         source: https://github.com/exoscale/cert-manager-webhook-exoscale.git
-        version: v0.3.0
+        version: v0.3.4
 
     images:
       cert_manager:
@@ -37,7 +37,7 @@ parameters:
       exoscale_webhook:
         registry: docker.io
         repository: exoscale/cert-manager-webhook-exoscale
-        tag: ${cert_manager:charts:exoscale_webhook:version}
+        tag: ${cert_manager:charts:cert-manager-webhook-exoscale:version}
       kubectl:
         registry: quay.io
         repository: appuio/oc
