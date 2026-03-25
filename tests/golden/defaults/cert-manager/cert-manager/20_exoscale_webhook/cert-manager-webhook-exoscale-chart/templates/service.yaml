@@ -3,7 +3,7 @@ kind: Service
 metadata:
   labels:
     app: exoscale-webhook
-    chart: exoscale-webhook-0.3.0
+    chart: cert-manager-webhook-exoscale-chart-0.3.4
     heritage: Helm
     release: exoscale-webhook
   name: cert-manager-webhook-exoscale

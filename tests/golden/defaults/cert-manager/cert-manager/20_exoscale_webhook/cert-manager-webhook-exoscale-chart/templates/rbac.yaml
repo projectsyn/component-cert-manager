@@ -3,7 +3,7 @@ kind: ServiceAccount
 metadata:
   labels:
     app: exoscale-webhook
-    chart: exoscale-webhook-0.3.0
+    chart: cert-manager-webhook-exoscale-chart-0.3.4
     heritage: Helm
     release: exoscale-webhook
   name: cert-manager-webhook-exoscale
@@ -14,7 +14,7 @@ kind: ClusterRole
 metadata:
   labels:
     app: exoscale-webhook
-    chart: exoscale-webhook-0.3.0
+    chart: cert-manager-webhook-exoscale-chart-0.3.4
     heritage: Helm
     release: exoscale-webhook
   name: cert-manager-webhook-exoscale:domain-solver
@@ -31,7 +31,7 @@ kind: ClusterRoleBinding
 metadata:
   labels:
     app: exoscale-webhook
-    chart: exoscale-webhook-0.3.0
+    chart: cert-manager-webhook-exoscale-chart-0.3.4
     heritage: Helm
     release: exoscale-webhook
   name: cert-manager-webhook-exoscale:auth-delegator
@@ -50,7 +50,7 @@ kind: ClusterRoleBinding
 metadata:
   labels:
     app: exoscale-webhook
-    chart: exoscale-webhook-0.3.0
+    chart: cert-manager-webhook-exoscale-chart-0.3.4
     heritage: Helm
     release: exoscale-webhook
   name: cert-manager-webhook-exoscale:domain-solver
@@ -69,7 +69,7 @@ kind: Role
 metadata:
   labels:
     app: exoscale-webhook
-    chart: exoscale-webhook-0.3.0
+    chart: cert-manager-webhook-exoscale-chart-0.3.4
     heritage: Helm
     release: exoscale-webhook
   name: cert-manager-webhook-exoscale:secrets-reader
@@ -87,7 +87,7 @@ kind: RoleBinding
 metadata:
   labels:
     app: exoscale-webhook
-    chart: exoscale-webhook-0.3.0
+    chart: cert-manager-webhook-exoscale-chart-0.3.4
     heritage: Helm
     release: exoscale-webhook
   name: cert-manager-webhook-exoscale:webhook-authentication-reader
@@ -107,7 +107,7 @@ kind: RoleBinding
 metadata:
   labels:
     app: exoscale-webhook
-    chart: exoscale-webhook-0.3.0
+    chart: cert-manager-webhook-exoscale-chart-0.3.4
     heritage: Helm
     release: exoscale-webhook
   name: cert-manager-webhook-exoscale:secrets-reader

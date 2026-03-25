@@ -5,7 +5,7 @@ metadata:
     cert-manager.io/inject-ca-from: syn-cert-manager/cert-manager-webhook-exoscale-webhook-tls
   labels:
     app: exoscale-webhook
-    chart: exoscale-webhook-0.3.0
+    chart: cert-manager-webhook-exoscale-chart-0.3.4
     heritage: Helm
     release: exoscale-webhook
   name: v1alpha1.acme.exoscale.com
